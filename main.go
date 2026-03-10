@@ -1,45 +1,54 @@
 package main
 
-import (
-	"fmt"
-)
+import "fmt"
 
 func main() {
-	var nums []int
-	for i := 1; i < 11; i++ {
-		nums = append(nums, i)
+	var people = make(map[string]int)
+	people["Alice"] = 25
+	people["Bob"] = 30
+	people["Charlie"] = 22
+
+	fmt.Println(people)
+	delete(people, "Bob")
+	fmt.Println(people)
+	if v, ok := people["David"]; ok {
+		fmt.Println("David's age is", v)
+	} else {
+		fmt.Println("David is not in the map")
 	}
-	fmt.Println("nums`s length is", len(nums))
-	fmt.Println("nums`s capacity is", cap(nums))
-	fmt.Println("nums`s content is", nums)
-	oddNums := removeEven(nums)
-	fmt.Println("oddNums`s length is", len(oddNums))
-	fmt.Println("oddNums`s capacity is", cap(oddNums))
-	fmt.Println("oddNums`s content is", oddNums)
-	advancedDemo()
+
+	for name, age := range people {
+		fmt.Printf("%s is %d years old\n", name, age)
+	}
+
+	boys := map[string]int{
+		"Tom":   28,
+		"Jerry": 26,
+	}
+	for name, age := range boys {
+		fmt.Printf("%s is %d years old\n", name, age)
+	}
+
+	fmt.Printf("Average age: %.2f\n", averageAge(people))
+	fmt.Printf("Oldest person: %s\n", oldestPerson(people))
 }
 
-func removeEven(s []int) []int {
-	var result []int
-	for _, num := range s {
-		if num%2 != 0 {
-			result = append(result, num)
+func averageAge(m map[string]int) float64 {
+	var total int
+	for _, age := range m {
+		total += age
+	}
+	return float64(total) / float64(len(m))
+}
+
+func oldestPerson(m map[string]int) string {
+	var oldestName string
+	var oldestAge int
+	for name, age := range m {
+		if age > oldestAge {
+			oldestAge = age
+			oldestName = name
 		}
 	}
-	return result
-}
-
-func advancedDemo() {
-	a := []int{1, 2, 3, 4, 5}
-	b := a[1:4]                           // b 是 a 的切片，共享相同的底层数组
-	b[0] = 100                            // 修改 b[0] 也会修改 a[1]
-	fmt.Println("a:", a)                  // 输出: a: [1 100 3 4 5]
-	fmt.Println("b:", b)                  // 输出: b: [100 3 4]
-	fmt.Println("capacity of a:", cap(a)) // 输出: capacity of a: 5
-	fmt.Println("capacity of b:", cap(b)) // 输出: capacity of b: 4
-
-	b = append(b, 200, 300)               // 可能会导致底层数组重新分配
-	fmt.Println("a after append:", a)     // 输出: a after append: [1 100 3 4 5] 或者 [1 100 3 4 5 200 300]
-	fmt.Println("b after append:", b)     // 输出: b after append: [100 3 4 200 300]
-	fmt.Println("capacity of b:", cap(b)) // 输出: capacity of b: 8（如果重新分配了底层数组）或者 4（如果没有重新分配）
+	return oldestName
 }
