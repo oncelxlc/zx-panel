@@ -46,6 +46,12 @@ func main() {
 	fmt.Println("Oldest persons:", oldestPersons(boys))
 
 	fmt.Println("Sorted persons:", sortPerson(boys))
+
+	fmt.Println("Find by job:", findByJob(map[string]PersonNew{
+		"Alice":   {Age: 25, Gender: "Female", Job: "Engineer"},
+		"Bob":     {Age: 30, Gender: "Male", Job: "Designer"},
+		"Charlie": {Age: 22, Gender: "Male", Job: "Engineer"},
+	}, "Engineer"))
 }
 
 func averageAge(m map[string]int) float64 {
@@ -137,5 +143,21 @@ func sortPerson(m map[string]int) []Person {
 		// 先按照age排序再按照name排序
 		return result[i].age > result[j].age || (result[i].age == result[j].age && result[i].name < result[j].name)
 	})
+	return result
+}
+
+type PersonNew struct {
+	Age    int
+	Gender string
+	Job    string
+}
+
+func findByJob(m map[string]PersonNew, job string) []string {
+	var result = make([]string, 0, len(m))
+	for name, item := range m {
+		if item.Job == job {
+			result = append(result, name)
+		}
+	}
 	return result
 }
