@@ -58,6 +58,12 @@ func MapSliceMain() {
 		"Bob":     {Age: 30, Gender: "Male", Job: "Designer"},
 		"Charlie": {Age: 22, Gender: "Male", Job: "Engineer"},
 	}, 2, 20))
+
+	fmt.Println("Find first N:", findFirstNByJob(map[string]PersonNew{
+		"Alice":   {Age: 25, Gender: "Female", Job: "Engineer"},
+		"Bob":     {Age: 30, Gender: "Male", Job: "Designer"},
+		"Charlie": {Age: 22, Gender: "Male", Job: "Engineer"},
+	}, 2, "Engineer"))
 }
 
 func averageAge(m map[string]int) float64 {
@@ -179,6 +185,21 @@ func findFirstN(m map[string]PersonNew, n int, minAge int) []string {
 			if count >= n {
 				break
 			}
+		}
+	}
+	return result
+}
+
+func findFirstNByJob(m map[string]PersonNew, n int, job string) []string {
+	result := make([]string, 0, n)
+	count := 0
+	for name, item := range m {
+		if item.Job == job {
+			result = append(result, name)
+			count++
+		}
+		if count >= n {
+			break
 		}
 	}
 	return result
