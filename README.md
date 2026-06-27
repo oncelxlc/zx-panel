@@ -1,36 +1,36 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ZX Panel Frontend
 
-## Getting Started
+前端已从 Next.js App Router 切换为 `Vite + React + TypeScript`。
 
-First, run the development server:
+## 开发命令
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+默认开发地址为 [http://localhost:5173](http://localhost:5173)。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 可用脚本
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `pnpm dev`: 启动 Vite 开发服务器
+- `pnpm build`: 构建生产产物到 `dist/`
+- `pnpm start` / `pnpm preview`: 本地预览构建结果
+- `pnpm lint`: 运行 ESLint
+- `pnpm lint:fix`: 自动修复可修复的 ESLint 问题
 
-## Learn More
+## 前端结构
 
-To learn more about Next.js, take a look at the following resources:
+- `index.html`: Vite HTML 入口
+- `src/main.tsx`: React 挂载入口
+- `src/App.tsx`: 主应用与路径分发
+- `src/styles.css`: 全局样式
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 路径说明
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+当前保留了原有页面语义：
 
-## Deploy on Vercel
+- `/`
+- `/nginx`
+- `/nginx/index`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+如果生产环境需要直接访问这些深路径，静态服务器需要将未知请求回退到 `index.html`。
