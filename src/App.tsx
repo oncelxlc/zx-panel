@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
 import type { MouseEvent } from "react";
+import { useEffect, useState } from "react";
 
 type RoutePath = "/" | "/nginx" | "/nginx/index";
 
