@@ -3,6 +3,7 @@ import {
   ConfigProvider,
   type ThemeConfig,
 } from "antd";
+import zhCN from "antd/locale/zh_CN";
 import {
   type ReactNode,
   useCallback,
@@ -60,7 +61,7 @@ type ThemeProviderProps = {
   children: ReactNode;
 };
 
-export function ThemeProvider({ children }: ThemeProviderProps) {
+export function ThemeProvider({children}: ThemeProviderProps) {
   const [preference, setPreferenceState] =
     useState<ThemePreference>(getStoredPreference);
   const [systemMode, setSystemMode] = useState<ThemeMode>(getSystemTheme);
@@ -115,7 +116,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
 
   return (
     <ThemeContext.Provider value={value}>
-      <ConfigProvider theme={antdTheme}>
+      <ConfigProvider theme={antdTheme} locale={zhCN}>
         <AntdApp>{children}</AntdApp>
       </ConfigProvider>
     </ThemeContext.Provider>
