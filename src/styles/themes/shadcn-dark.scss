@@ -1,291 +1,331 @@
-.dark {
+:root[data-them=dark] {
   color-scheme: dark;
 
-  --ant-color-primary: #E4E4E7;
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+
+  --ant-blue: #1668DC;
+  --ant-purple: #642AB5;
+  --ant-cyan: #13A8A8;
+  --ant-green: #49AA19;
+  --ant-magenta: #CB2B83;
+  --ant-pink: #CB2B83;
+  --ant-red: #D32029;
+  --ant-orange: #D87A16;
+  --ant-yellow: #D8BD14;
+  --ant-volcano: #D84A1B;
+  --ant-geekblue: #2B4ACB;
+  --ant-gold: #D89614;
+  --ant-lime: #8BBB11;
+  --ant-color-primary: #E5E5E5;
   --ant-color-success: #22C55E;
   --ant-color-warning: #F97316;
   --ant-color-error: #F87171;
-  --ant-color-info: #E4E4E7;
-  --ant-color-link: #E4E4E7;
+  --ant-color-info: #E5E5E5;
+  --ant-color-link: #E5E5E5;
   --ant-color-text-base: #FAFAFA;
-  --ant-color-bg-base: #09090B;
-  --ant-color-primary-bg: #27272A;
-  --ant-color-primary-bg-hover: #3F3F46;
-  --ant-color-primary-border: #52525B;
-  --ant-color-primary-border-hover: #71717A;
+  --ant-color-bg-base: #171717;
+  --ant-color-primary-bg: #262626;
+  --ant-color-primary-bg-hover: #404040;
+  --ant-color-primary-border: #525252;
+  --ant-color-primary-border-hover: #737373;
   --ant-color-primary-hover: #FAFAFA;
-  --ant-color-primary-active: #D4D4D8;
-  --ant-color-primary-text: #FAFAFA;
-  --ant-color-primary-text-hover: #FFFFFF;
-  --ant-color-primary-text-active: #D4D4D8;
-  --ant-color-success-bg: #052E16;
-  --ant-color-success-bg-hover: #064E3B;
-  --ant-color-success-border: #166534;
-  --ant-color-success-border-hover: #22C55E;
+  --ant-color-primary-active: #D4D4D4;
+  --ant-color-primary-text: #E5E5E5;
+  --ant-color-primary-text-hover: #FAFAFA;
+  --ant-color-primary-text-active: #D4D4D4;
+  --ant-color-success-bg: rgba(34, 197, 94, 0.12);
+  --ant-color-success-bg-hover: rgba(34, 197, 94, 0.18);
+  --ant-color-success-border: rgba(34, 197, 94, 0.35);
+  --ant-color-success-border-hover: rgba(34, 197, 94, 0.5);
   --ant-color-success-hover: #4ADE80;
   --ant-color-success-active: #16A34A;
   --ant-color-success-text: #4ADE80;
   --ant-color-success-text-hover: #86EFAC;
   --ant-color-success-text-active: #22C55E;
-  --ant-color-warning-bg: #431407;
-  --ant-color-warning-bg-hover: #7C2D12;
-  --ant-color-warning-border: #9A3412;
-  --ant-color-warning-border-hover: #F97316;
+  --ant-color-warning-bg: rgba(249, 115, 22, 0.12);
+  --ant-color-warning-bg-hover: rgba(249, 115, 22, 0.18);
+  --ant-color-warning-border: rgba(249, 115, 22, 0.35);
+  --ant-color-warning-border-hover: rgba(249, 115, 22, 0.5);
   --ant-color-warning-hover: #FB923C;
   --ant-color-warning-active: #EA580C;
   --ant-color-warning-text: #FB923C;
   --ant-color-warning-text-hover: #FDBA74;
   --ant-color-warning-text-active: #F97316;
-  --ant-color-error-bg: #450A0A;
-  --ant-color-error-bg-hover: #7F1D1D;
-  --ant-color-error-border: #991B1B;
-  --ant-color-error-border-hover: #F87171;
+  --ant-color-error-bg: rgba(248, 113, 113, 0.12);
+  --ant-color-error-bg-hover: rgba(248, 113, 113, 0.18);
+  --ant-color-error-border: rgba(248, 113, 113, 0.35);
+  --ant-color-error-border-hover: rgba(248, 113, 113, 0.5);
   --ant-color-error-hover: #FCA5A5;
   --ant-color-error-active: #EF4444;
-  --ant-color-error-text: #FCA5A5;
-  --ant-color-error-text-hover: #FECACA;
-  --ant-color-error-text-active: #F87171;
-  --ant-color-info-bg: #27272A;
-  --ant-color-info-bg-hover: #3F3F46;
-  --ant-color-info-border: #52525B;
-  --ant-color-info-border-hover: #71717A;
+  --ant-color-error-text: #F87171;
+  --ant-color-error-text-hover: #FCA5A5;
+  --ant-color-error-text-active: #EF4444;
+  --ant-color-info-bg: #262626;
+  --ant-color-info-bg-hover: #404040;
+  --ant-color-info-border: #525252;
+  --ant-color-info-border-hover: #737373;
   --ant-color-info-hover: #FAFAFA;
-  --ant-color-info-active: #D4D4D8;
-  --ant-color-info-text: #FAFAFA;
-  --ant-color-info-text-hover: #FFFFFF;
-  --ant-color-info-text-active: #D4D4D8;
+  --ant-color-info-active: #D4D4D4;
+  --ant-color-info-text: #E5E5E5;
+  --ant-color-info-text-hover: #FAFAFA;
+  --ant-color-info-text-active: #D4D4D4;
   --ant-color-text: #FAFAFA;
-  --ant-color-text-secondary: #D4D4D8;
-  --ant-color-text-tertiary: #A1A1AA;
-  --ant-color-text-quaternary: #71717A;
-  --ant-color-text-disabled: #52525B;
-  --ant-color-bg-container: #09090B;
-  --ant-color-bg-elevated: #18181B;
-  --ant-color-bg-layout: #09090B;
+  --ant-color-text-secondary: #D4D4D4;
+  --ant-color-text-tertiary: #A3A3A3;
+  --ant-color-text-quaternary: #737373;
+  --ant-color-text-disabled: #737373;
+  --ant-color-bg-container: #262626;
+  --ant-color-bg-elevated: #262626;
+  --ant-color-bg-layout: #171717;
   --ant-color-bg-spotlight: rgba(250, 250, 250, 0.85);
   --ant-color-bg-mask: rgba(0, 0, 0, 0.65);
-  --ant-color-border: #27272A;
-  --ant-color-border-secondary: rgba(255, 255, 255, 0.1);
-  --ant-box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.4), 0 1px 2px -1px rgba(0, 0, 0, 0.4);
-  --ant-box-shadow-secondary: 0 10px 15px -3px rgba(0, 0, 0, 0.35), 0 4px 6px -4px rgba(0, 0, 0, 0.35);
+  --ant-color-border: rgba(255, 255, 255, 0.1);
+  --ant-color-border-secondary: rgba(255, 255, 255, 0.08);
+  --ant-box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.35), 0 1px 2px -1px rgba(0, 0, 0, 0.35);
+  --ant-box-shadow-secondary: 0 8px 16px -4px rgba(0, 0, 0, 0.45), 0 4px 8px -4px rgba(0, 0, 0, 0.35);
   --ant-color-shadow: #000000;
-  --ant-color-fill: rgba(250, 250, 250, 0.18);
-  --ant-color-fill-secondary: rgba(250, 250, 250, 0.12);
-  --ant-color-fill-tertiary: rgba(250, 250, 250, 0.08);
-  --ant-color-fill-quaternary: rgba(250, 250, 250, 0.04);
-  --ant-color-bg-solid: rgb(250, 250, 250);
+  --ant-color-fill: rgba(255, 255, 255, 0.18);
+  --ant-color-fill-secondary: rgba(255, 255, 255, 0.12);
+  --ant-color-fill-tertiary: rgba(255, 255, 255, 0.08);
+  --ant-color-fill-quaternary: rgba(255, 255, 255, 0.04);
+  --ant-color-bg-solid: #FAFAFA;
   --ant-color-bg-solid-hover: rgba(250, 250, 250, 0.85);
   --ant-color-bg-solid-active: rgba(250, 250, 250, 0.95);
   --ant-color-bg-blur: transparent;
-  --ant-color-border-disabled: #3F3F46;
-  --ant-color-error-bg-filled-hover: #7F1D1D;
-  --ant-color-error-bg-active: #991B1B;
-  --ant-color-link-hover: #FFFFFF;
-  --ant-color-link-active: #D4D4D8;
+  --ant-color-border-disabled: rgba(255, 255, 255, 0.08);
+  --ant-color-error-bg-filled-hover: rgba(248, 113, 113, 0.2);
+  --ant-color-error-bg-active: rgba(248, 113, 113, 0.28);
+  --ant-color-link-hover: #FAFAFA;
+  --ant-color-link-active: #D4D4D4;
   --ant-color-white: #FFFFFF;
-  --ant-color-fill-content: rgba(250, 250, 250, 0.12);
-  --ant-color-fill-content-hover: rgba(250, 250, 250, 0.18);
-  --ant-color-fill-alter: rgba(250, 250, 250, 0.04);
-  --ant-color-bg-container-disabled: rgba(250, 250, 250, 0.08);
-  --ant-color-border-bg: #09090B;
-  --ant-color-split: rgba(255, 255, 255, 0.1);
-  --ant-color-text-placeholder: #71717A;
+  --ant-color-fill-content: rgba(255, 255, 255, 0.12);
+  --ant-color-fill-content-hover: rgba(255, 255, 255, 0.18);
+  --ant-color-fill-alter: rgba(255, 255, 255, 0.04);
+  --ant-color-bg-container-disabled: rgba(255, 255, 255, 0.08);
+  --ant-color-border-bg: #171717;
+  --ant-color-split: rgba(255, 255, 255, 0.08);
+  --ant-color-text-placeholder: #737373;
   --ant-color-text-heading: #FAFAFA;
-  --ant-color-text-label: #D4D4D8;
-  --ant-color-text-description: #A1A1AA;
-  --ant-color-text-light-solid: #18181B;
+  --ant-color-text-label: #D4D4D4;
+  --ant-color-text-description: #A3A3A3;
+  --ant-color-text-light-solid: #262626;
   --ant-color-highlight: #F87171;
-  --ant-color-bg-text-hover: rgba(250, 250, 250, 0.08);
-  --ant-color-bg-text-active: rgba(250, 250, 250, 0.16);
-  --ant-color-icon: #A1A1AA;
+  --ant-color-bg-text-hover: rgba(255, 255, 255, 0.08);
+  --ant-color-bg-text-active: rgba(255, 255, 255, 0.14);
+  --ant-color-icon: #A3A3A3;
   --ant-color-icon-hover: #FAFAFA;
   --ant-color-error-outline: rgba(248, 113, 113, 0.16);
-  --ant-color-warning-outline: rgba(249, 115, 22, 0.18);
+  --ant-color-warning-outline: rgba(249, 115, 22, 0.16);
   --ant-color-error-affix: #F87171;
   --ant-color-warning-affix: #F97316;
-  --ant-control-item-bg-hover: rgba(250, 250, 250, 0.08);
-  --ant-control-item-bg-active: #27272A;
-  --ant-control-item-bg-active-hover: #3F3F46;
-  --ant-control-item-bg-active-disabled: rgba(250, 250, 250, 0.08);
-  --ant-control-tmp-outline: rgba(250, 250, 250, 0.06);
-  --ant-control-outline: rgba(255, 255, 255, 0.1);
-  --ant-box-shadow-tertiary:
-    0 1px 2px 0 rgba(0, 0, 0, 0.45),
-    0 1px 6px -1px rgba(0, 0, 0, 0.38),
-    0 2px 4px 0 rgba(0, 0, 0, 0.32);
+  --ant-control-item-bg-hover: rgba(255, 255, 255, 0.08);
+  --ant-control-item-bg-active: #404040;
+  --ant-control-item-bg-active-hover: #525252;
+  --ant-control-item-bg-active-disabled: rgba(255, 255, 255, 0.08);
+  --ant-control-tmp-outline: rgba(255, 255, 255, 0.04);
+  --ant-control-outline: rgba(255, 255, 255, 0.12);
+  --ant-box-shadow-tertiary: 0 1px 2px 0 rgba(0, 0, 0, 0.35),
+  0 1px 6px -1px rgba(0, 0, 0, 0.35),
+  0 2px 4px 0 rgba(0, 0, 0, 0.35);
   --ant-box-shadow-popover-arrow: 2px 2px 5px rgba(0, 0, 0, 0.35);
-  --ant-drop-shadow-popover: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.32)) drop-shadow(0 3px 6px rgba(0, 0, 0, 0.4)) drop-shadow(0 9px 28px rgba(0, 0, 0, 0.28));
-  --ant-box-shadow-card:
-    0 1px 2px -2px rgba(0, 0, 0, 0.5),
-    0 3px 6px 0 rgba(0, 0, 0, 0.36),
-    0 5px 12px 4px rgba(0, 0, 0, 0.28);
-  --ant-box-shadow-drawer-right:
-    -6px 0 16px 0 rgba(0, 0, 0, 0.32),
-    -3px 0 6px -4px rgba(0, 0, 0, 0.4),
-    -9px 0 28px 8px rgba(0, 0, 0, 0.28);
-  --ant-box-shadow-drawer-left:
-    6px 0 16px 0 rgba(0, 0, 0, 0.32),
-    3px 0 6px -4px rgba(0, 0, 0, 0.4),
-    9px 0 28px 8px rgba(0, 0, 0, 0.28);
-  --ant-box-shadow-drawer-up:
-    0 6px 16px 0 rgba(0, 0, 0, 0.32),
-    0 3px 6px -4px rgba(0, 0, 0, 0.4),
-    0 9px 28px 8px rgba(0, 0, 0, 0.28);
-  --ant-box-shadow-drawer-down:
-    0 -6px 16px 0 rgba(0, 0, 0, 0.32),
-    0 -3px 6px -4px rgba(0, 0, 0, 0.4),
-    0 -9px 28px 8px rgba(0, 0, 0, 0.28);
-  --ant-box-shadow-tabs-overflow-left: inset 10px 0 8px -8px rgba(0, 0, 0, 0.5);
-  --ant-box-shadow-tabs-overflow-right: inset -10px 0 8px -8px rgba(0, 0, 0, 0.5);
-  --ant-box-shadow-tabs-overflow-top: inset 0 10px 8px -8px rgba(0, 0, 0, 0.5);
-  --ant-box-shadow-tabs-overflow-bottom: inset 0 -10px 8px -8px rgba(0, 0, 0, 0.5);
+  --ant-drop-shadow-popover: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.35)) drop-shadow(0 3px 6px rgba(0, 0, 0, 0.28)) drop-shadow(0 9px 28px rgba(0, 0, 0, 0.25));
+  --ant-box-shadow-card: 0 1px 2px -2px rgba(0, 0, 0, 0.45),
+  0 3px 6px 0 rgba(0, 0, 0, 0.35),
+  0 5px 12px 4px rgba(0, 0, 0, 0.25);
+  --ant-box-shadow-drawer-right: -6px 0 16px 0 rgba(0, 0, 0, 0.35),
+  -3px 0 6px -4px rgba(0, 0, 0, 0.35),
+  -9px 0 28px 8px rgba(0, 0, 0, 0.25);
+  --ant-box-shadow-drawer-left: 6px 0 16px 0 rgba(0, 0, 0, 0.35),
+  3px 0 6px -4px rgba(0, 0, 0, 0.35),
+  9px 0 28px 8px rgba(0, 0, 0, 0.25);
+  --ant-box-shadow-drawer-up: 0 6px 16px 0 rgba(0, 0, 0, 0.35),
+  0 3px 6px -4px rgba(0, 0, 0, 0.35),
+  0 9px 28px 8px rgba(0, 0, 0, 0.25);
+  --ant-box-shadow-drawer-down: 0 -6px 16px 0 rgba(0, 0, 0, 0.35),
+  0 -3px 6px -4px rgba(0, 0, 0, 0.35),
+  0 -9px 28px 8px rgba(0, 0, 0, 0.25);
+  --ant-box-shadow-tabs-overflow-left: inset 10px 0 8px -8px rgba(0, 0, 0, 0.45);
+  --ant-box-shadow-tabs-overflow-right: inset -10px 0 8px -8px rgba(0, 0, 0, 0.45);
+  --ant-box-shadow-tabs-overflow-top: inset 0 10px 8px -8px rgba(0, 0, 0, 0.45);
+  --ant-box-shadow-tabs-overflow-bottom: inset 0 -10px 8px -8px rgba(0, 0, 0, 0.45);
 
   .ant-input,
   .ant-input-css-var,
   .ant-otp {
-    --ant-input-addon-bg: rgba(250, 250, 250, 0.04);
-    --ant-input-active-border-color: #FAFAFA;
-    --ant-input-hover-border-color: #71717A;
+    --ant-input-addon-bg: rgba(255, 255, 255, 0.04);
+    --ant-input-active-border-color: #737373;
+    --ant-input-hover-border-color: #525252;
     --ant-input-active-shadow: none;
     --ant-input-error-active-shadow: 0 0 0 2px rgba(248, 113, 113, 0.16);
-    --ant-input-warning-active-shadow: 0 0 0 2px rgba(249, 115, 22, 0.18);
-    --ant-input-hover-bg: #09090B;
-    --ant-input-active-bg: #09090B;
+    --ant-input-warning-active-shadow: 0 0 0 2px rgba(249, 115, 22, 0.16);
+    --ant-input-hover-bg: #262626;
+    --ant-input-active-bg: #262626;
   }
 
   .ant-select-css-var {
     --ant-select-option-selected-color: #FAFAFA;
-    --ant-select-option-selected-bg: #27272A;
-    --ant-select-option-active-bg: #18181B;
-    --ant-select-selector-bg: #09090B;
-    --ant-select-clear-bg: #18181B;
-    --ant-select-multiple-item-bg: #27272A;
+    --ant-select-option-selected-bg: #404040;
+    --ant-select-option-active-bg: #333333;
+    --ant-select-selector-bg: #262626;
+    --ant-select-clear-bg: #262626;
+    --ant-select-multiple-item-bg: rgba(255, 255, 255, 0.12);
     --ant-select-multiple-item-border-color: transparent;
-    --ant-select-multiple-selector-bg-disabled: rgba(250, 250, 250, 0.08);
-    --ant-select-multiple-item-color-disabled: #52525B;
+    --ant-select-multiple-selector-bg-disabled: rgba(255, 255, 255, 0.08);
+    --ant-select-multiple-item-color-disabled: #737373;
     --ant-select-multiple-item-border-color-disabled: transparent;
-    --ant-select-hover-border-color: #A1A1AA;
-    --ant-select-active-border-color: #FAFAFA;
-    --ant-select-active-outline-color: rgba(255, 255, 255, 0.1);
+    --ant-select-hover-border-color: #737373;
+    --ant-select-active-border-color: #A3A3A3;
+    --ant-select-active-outline-color: rgba(255, 255, 255, 0.12);
   }
 
   .ant-btn {
-    --ant-button-primary-color: #18181B;
-    --ant-button-danger-color: #FFFFFF;
-    --ant-button-border-color-disabled: #3F3F46;
+    --ant-button-primary-color: #262626;
+    --ant-button-danger-color: #262626;
+    --ant-button-border-color-disabled: rgba(255, 255, 255, 0.08);
     --ant-button-default-ghost-color: #FAFAFA;
-    --ant-button-default-ghost-border-color: #FAFAFA;
-    --ant-button-group-border-color: #A1A1AA;
+    --ant-button-default-ghost-border-color: rgba(255, 255, 255, 0.25);
+    --ant-button-group-border-color: #737373;
     --ant-button-text-text-color: #FAFAFA;
     --ant-button-text-text-hover-color: #FAFAFA;
-    --ant-button-text-text-active-color: #D4D4D8;
-    --ant-button-text-hover-bg: rgba(250, 250, 250, 0.08);
+    --ant-button-text-text-active-color: #D4D4D4;
+    --ant-button-text-hover-bg: rgba(255, 255, 255, 0.08);
     --ant-button-default-color: #FAFAFA;
-    --ant-button-default-bg: #18181B;
-    --ant-button-default-border-color: rgba(255, 255, 255, 0.1);
-    --ant-button-default-border-color-disabled: #3F3F46;
-    --ant-button-default-hover-bg: #27272A;
+    --ant-button-default-bg: #262626;
+    --ant-button-default-border-color: rgba(255, 255, 255, 0.15);
+    --ant-button-default-border-color-disabled: rgba(255, 255, 255, 0.08);
+    --ant-button-default-hover-bg: #404040;
     --ant-button-default-hover-color: #FAFAFA;
-    --ant-button-default-hover-border-color: #3F3F46;
-    --ant-button-default-active-bg: #3F3F46;
+    --ant-button-default-hover-border-color: rgba(255, 255, 255, 0.22);
+    --ant-button-default-active-bg: #525252;
     --ant-button-default-active-color: #FAFAFA;
-    --ant-button-default-active-border-color: #52525B;
-    --ant-button-solid-text-color: #18181B;
-    --ant-button-default-bg-disabled: rgba(250, 250, 250, 0.08);
-    --ant-button-dashed-bg-disabled: rgba(250, 250, 250, 0.08);
+    --ant-button-default-active-border-color: rgba(255, 255, 255, 0.25);
+    --ant-button-solid-text-color: #262626;
+    --ant-button-default-bg-disabled: rgba(255, 255, 255, 0.08);
+    --ant-button-dashed-bg-disabled: rgba(255, 255, 255, 0.08);
   }
 
   .ant-picker-css-var {
-    --ant-date-picker-addon-bg: rgba(250, 250, 250, 0.04);
-    --ant-date-picker-active-border-color: #FAFAFA;
-    --ant-date-picker-hover-border-color: #A1A1AA;
-    --ant-date-picker-active-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+    --ant-date-picker-addon-bg: rgba(255, 255, 255, 0.04);
+    --ant-date-picker-active-border-color: #A3A3A3;
+    --ant-date-picker-hover-border-color: #737373;
+    --ant-date-picker-active-shadow: 0 0 0 2px rgba(255, 255, 255, 0.12);
     --ant-date-picker-error-active-shadow: 0 0 0 2px rgba(248, 113, 113, 0.16);
-    --ant-date-picker-warning-active-shadow: 0 0 0 2px rgba(249, 115, 22, 0.18);
-    --ant-date-picker-hover-bg: #09090B;
-    --ant-date-picker-active-bg: #09090B;
-    --ant-date-picker-cell-hover-bg: rgba(250, 250, 250, 0.08);
-    --ant-date-picker-cell-active-with-range-bg: #27272A;
-    --ant-date-picker-cell-hover-with-range-bg: #3F3F46;
-    --ant-date-picker-cell-range-border-color: #71717A;
-    --ant-date-picker-cell-bg-disabled: rgba(250, 250, 250, 0.08);
-    --ant-date-picker-multiple-item-bg: #27272A;
+    --ant-date-picker-warning-active-shadow: 0 0 0 2px rgba(249, 115, 22, 0.16);
+    --ant-date-picker-hover-bg: #262626;
+    --ant-date-picker-active-bg: #262626;
+    --ant-date-picker-cell-hover-bg: rgba(255, 255, 255, 0.08);
+    --ant-date-picker-cell-active-with-range-bg: #404040;
+    --ant-date-picker-cell-hover-with-range-bg: #525252;
+    --ant-date-picker-cell-range-border-color: #737373;
+    --ant-date-picker-cell-bg-disabled: rgba(255, 255, 255, 0.08);
+    --ant-date-picker-multiple-item-bg: rgba(255, 255, 255, 0.12);
     --ant-date-picker-multiple-item-border-color: transparent;
-    --ant-date-picker-multiple-selector-bg-disabled: rgba(250, 250, 250, 0.08);
-    --ant-date-picker-multiple-item-color-disabled: #52525B;
+    --ant-date-picker-multiple-selector-bg-disabled: rgba(255, 255, 255, 0.08);
+    --ant-date-picker-multiple-item-color-disabled: #737373;
     --ant-date-picker-multiple-item-border-color-disabled: transparent;
   }
 
   .ant-radio-css-var {
-    --ant-radio-dot-color-disabled: #52525B;
-    --ant-radio-button-solid-checked-color: #18181B;
-    --ant-radio-button-solid-checked-bg: #FAFAFA;
-    --ant-radio-button-solid-checked-hover-bg: #E4E4E7;
-    --ant-radio-button-solid-checked-active-bg: #D4D4D8;
-    --ant-radio-button-bg: #09090B;
-    --ant-radio-button-checked-bg: #18181B;
+    --ant-radio-dot-color-disabled: #737373;
+    --ant-radio-button-solid-checked-color: #262626;
+    --ant-radio-button-solid-checked-bg: #E5E5E5;
+    --ant-radio-button-solid-checked-hover-bg: #FAFAFA;
+    --ant-radio-button-solid-checked-active-bg: #D4D4D4;
+    --ant-radio-button-bg: #262626;
+    --ant-radio-button-checked-bg: #262626;
     --ant-radio-button-color: #FAFAFA;
-    --ant-radio-button-checked-bg-disabled: rgba(250, 250, 250, 0.08);
-    --ant-radio-button-checked-color-disabled: #52525B;
-    --ant-radio-radio-color: #18181B;
-    --ant-radio-radio-bg-color: #FAFAFA;
+    --ant-radio-button-checked-bg-disabled: rgba(255, 255, 255, 0.08);
+    --ant-radio-button-checked-color-disabled: #737373;
+    --ant-radio-radio-color: #262626;
+    --ant-radio-radio-bg-color: #E5E5E5;
   }
 
   .ant-switch {
     --ant-switch-handle-bg: #FAFAFA;
-    --ant-switch-handle-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.35);
+    --ant-switch-handle-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.45);
   }
 
   .ant-progress {
     --ant-progress-circle-text-color: #FAFAFA;
-    --ant-progress-default-color: #FAFAFA;
-    --ant-progress-remaining-color: #27272A;
+    --ant-progress-default-color: #E5E5E5;
+    --ant-progress-remaining-color: #404040;
   }
 
   .ant-steps {
-    --ant-steps-nav-arrow-color: #71717A;
-    --ant-steps-wait-icon-color: #A1A1AA;
-    --ant-steps-wait-icon-bg-color: rgba(250, 250, 250, 0.08);
+    --ant-steps-nav-arrow-color: #737373;
+    --ant-steps-wait-icon-color: #D4D4D4;
+    --ant-steps-wait-icon-bg-color: rgba(255, 255, 255, 0.12);
     --ant-steps-wait-icon-border-color: transparent;
-    --ant-steps-finish-icon-bg-color: #27272A;
-    --ant-steps-finish-icon-border-color: #27272A;
+    --ant-steps-finish-icon-bg-color: #404040;
+    --ant-steps-finish-icon-border-color: #404040;
   }
 
   .ant-qrcode {
-    --ant-qr-code-qr-code-cover-background-color: rgba(24, 24, 27, 0.96);
+    --ant-qr-code-qr-code-cover-background-color: rgba(38, 38, 38, 0.96);
   }
 
   .ant-rate {
-    --ant-rate-star-bg: rgba(250, 250, 250, 0.12);
+    --ant-rate-star-color: #D8BD14;
+    --ant-rate-star-bg: rgba(255, 255, 255, 0.12);
   }
 
   .ant-tag {
-    --ant-tag-default-bg: #27272A;
+    --ant-tag-default-bg: #404040;
     --ant-tag-default-color: #FAFAFA;
-    --ant-tag-solid-text-color: #18181B;
+    --ant-tag-solid-text-color: #262626;
   }
 
   .ant-segmented {
-    --ant-segmented-track-bg: #18181B;
-    --ant-segmented-item-color: #D4D4D8;
+    --ant-segmented-track-bg: #171717;
+    --ant-segmented-item-color: #D4D4D4;
     --ant-segmented-item-hover-color: #FAFAFA;
-    --ant-segmented-item-hover-bg: rgba(250, 250, 250, 0.08);
-    --ant-segmented-item-selected-bg: #27272A;
-    --ant-segmented-item-active-bg: rgba(250, 250, 250, 0.16);
+    --ant-segmented-item-hover-bg: rgba(255, 255, 255, 0.08);
+    --ant-segmented-item-selected-bg: #262626;
+    --ant-segmented-item-active-bg: rgba(255, 255, 255, 0.14);
     --ant-segmented-item-selected-color: #FAFAFA;
   }
 
   .ant-avatar-css-var {
-    --ant-avatar-group-border-color: #09090B;
+    --ant-avatar-group-border-color: #262626;
   }
 
   .ant-notification-css-var {
-    --ant-notification-progress-bg: linear-gradient(90deg, #71717A, #FAFAFA);
+    --ant-notification-progress-bg: linear-gradient(90deg, #737373, #E5E5E5);
   }
 
   .ant-card {
     --ant-card-header-bg: transparent;
-    --ant-card-actions-bg: #18181B;
+    --ant-card-actions-bg: #262626;
     --ant-card-extra-color: #FAFAFA;
   }
 }
