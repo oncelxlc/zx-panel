@@ -9,6 +9,21 @@
   <link rel="icon" type="image/ico" href="/icons/favicon.ico"/>
   <link rel="manifest" href="/icons/site.webmanifest"/>
   <title>ZX Panel</title>
+  <script>
+    (function () {
+      try {
+        var key = "zx-panel-theme";
+        var stored = window.localStorage.getItem(key);
+        var preference = stored === "light" || stored === "dark" ? stored : "system";
+        var systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var theme = preference === "system" ? (systemDark ? "dark" : "light") : preference;
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.classList.toggle("dark", theme === "dark");
+      } catch (error) {
+        document.documentElement.dataset.theme = "light";
+      }
+    })();
+  </script>
 </head>
 <body>
 <div id="root"></div>
