@@ -1,3 +1,4 @@
+import { Button } from "antd";
 import type { MouseEvent } from "react";
 import { useEffect, useState } from "react";
 
@@ -121,6 +122,7 @@ export default function App() {
         <p className="sidebar__description">
           使用 Vite 管理单页应用入口，当前按路径渲染原有三个页面。
         </p>
+        <Button type="primary">Button</Button>
 
         <nav className="nav">
           {routes.map((route) => {

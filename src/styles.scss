@@ -1,8 +1,7 @@
 :root {
-  color: #f4efe6;
-  background:
-    radial-gradient(circle at top, rgba(244, 157, 26, 0.22), transparent 32%),
-    linear-gradient(135deg, #161616 0%, #0e1726 52%, #10243b 100%);
+  color: #F4EFE6;
+  background: radial-gradient(circle at top, rgba(244, 157, 26, 0.22), transparent 32%),
+  linear-gradient(135deg, #161616 0%, #0E1726 52%, #10243B 100%);
   font-family: "Trebuchet MS", "Segoe UI Variable", sans-serif;
   line-height: 1.5;
   font-weight: 400;
@@ -79,7 +78,7 @@ select {
 .sidebar__eyebrow,
 .content__eyebrow {
   margin: 0;
-  color: #f49d1a;
+  color: #F49D1A;
   font-size: 0.8rem;
   font-weight: 700;
   letter-spacing: 0.18em;
@@ -117,10 +116,9 @@ select {
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.03);
-  transition:
-    transform 160ms ease,
-    border-color 160ms ease,
-    background 160ms ease;
+  transition: transform 160ms ease,
+  border-color 160ms ease,
+  background 160ms ease;
 }
 
 .nav__link span {
@@ -142,9 +140,9 @@ select {
 .nav__link--active {
   border-color: rgba(244, 157, 26, 0.65);
   background: linear-gradient(
-    135deg,
-    rgba(244, 157, 26, 0.18),
-    rgba(255, 255, 255, 0.04)
+      135deg,
+      rgba(244, 157, 26, 0.18),
+      rgba(255, 255, 255, 0.04)
   );
 }
 
@@ -189,7 +187,7 @@ select {
   width: 10px;
   height: 10px;
   border-radius: 999px;
-  background: #f49d1a;
+  background: #F49D1A;
   box-shadow: 0 0 18px rgba(244, 157, 26, 0.65);
 }
 
