@@ -15,6 +15,7 @@ ZX Panel 是一个混合脚手架项目：前端使用 Vite + React + TypeScript
 - Node.js：`^22.22.0 || >=24.0.0`
 - pnpm：`>=10.0.0`
 - Go：`1.25.0`
+- SQLite CLI：后端启动会检查全局 `sqlite3` 命令；若根目录缺少 `system.sqlite`，会使用它创建运行时数据库。
 
 ## 快速开始
 
