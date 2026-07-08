@@ -1,7 +1,10 @@
+import { Layout } from "antd";
 import { Outlet } from "react-router";
 
 export default function MainLayout() {
   return (
-    <Outlet/>
+    <Layout hasSider>
+      <Outlet/>
+    </Layout>
   );
 }

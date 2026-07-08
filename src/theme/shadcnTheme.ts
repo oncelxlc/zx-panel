@@ -1,81 +1,53 @@
+import { ShadcnTokenSet, ThemeMode } from "@/types/theme.type";
 import type { ThemeConfig } from "antd";
 import { theme as antdTheme } from "antd";
 
-export type ThemeMode = "light" | "dark";
-export type ThemePreference = ThemeMode | "system";
-
-export const THEME_STORAGE_KEY = "zx-panel-theme";
-
-type ShadcnTokenSet = {
-  background: string;
-  foreground: string;
-  card: string;
-  cardForeground: string;
-  popover: string;
-  popoverForeground: string;
-  primary: string;
-  primaryForeground: string;
-  secondary: string;
-  secondaryForeground: string;
-  muted: string;
-  mutedForeground: string;
-  accent: string;
-  accentForeground: string;
-  destructive: string;
-  border: string;
-  input: string;
-  ring: string;
-  radius: number;
-  success: string;
-  warning: string;
-};
-
 export const shadcnTokens: Record<ThemeMode, ShadcnTokenSet> = {
   light: {
-    background: "#ffffff",
-    foreground: "#252525",
-    card: "#ffffff",
-    cardForeground: "#252525",
-    popover: "#ffffff",
+    background: "#FFFFFF",
+    foreground: "#0A0A0A",
+    card: "#FFFFFF",
+    cardForeground: "#0A0A0A",
+    popover: "#FFFFFF",
     popoverForeground: "#252525",
-    primary: "#343434",
-    primaryForeground: "#fafafa",
-    secondary: "#f7f7f7",
-    secondaryForeground: "#343434",
-    muted: "#f7f7f7",
-    mutedForeground: "#8e8e8e",
-    accent: "#f7f7f7",
-    accentForeground: "#343434",
-    destructive: "#dc2626",
-    border: "#e5e5e5",
-    input: "#e5e5e5",
-    ring: "#a3a3a3",
+    primary: "#171717",
+    primaryForeground: "#FAFAFA",
+    secondary: "#F5F5F5",
+    secondaryForeground: "#171717",
+    muted: "#F7F7F7",
+    mutedForeground: "#737373",
+    accent: "#F5F5F5",
+    accentForeground: "#171717",
+    destructive: "#E7000B",
+    border: "#E5E5E5",
+    input: "#E5E5E5",
+    ring: "#A1A1A1",
     radius: 10,
-    success: "#16a34a",
-    warning: "#d97706",
+    success: "#009689",
+    warning: "#FE9A00",
   },
   dark: {
-    background: "#252525",
-    foreground: "#fafafa",
-    card: "#343434",
-    cardForeground: "#fafafa",
-    popover: "#343434",
-    popoverForeground: "#fafafa",
-    primary: "#e5e5e5",
-    primaryForeground: "#343434",
-    secondary: "#454545",
-    secondaryForeground: "#fafafa",
-    muted: "#454545",
-    mutedForeground: "#a3a3a3",
-    accent: "#454545",
-    accentForeground: "#fafafa",
-    destructive: "#fb7185",
-    border: "rgba(255, 255, 255, 0.1)",
-    input: "rgba(255, 255, 255, 0.15)",
-    ring: "#8e8e8e",
+    background: "#0A0A0A",
+    foreground: "#FAFAFA",
+    card: "#171717",
+    cardForeground: "#FAFAFA",
+    popover: "#171717",
+    popoverForeground: "#FAFAFA",
+    primary: "#E5E5E5",
+    primaryForeground: "#171717",
+    secondary: "#262626",
+    secondaryForeground: "#FAFAFA",
+    muted: "#262626",
+    mutedForeground: "#A1A1A1",
+    accent: "#262626",
+    accentForeground: "#FAFAFA",
+    destructive: "#FF6467",
+    border: "#FFFFFF1A",
+    input: "#FFFFFF26",
+    ring: "#737373",
     radius: 10,
-    success: "#22c55e",
-    warning: "#f59e0b",
+    success: "#00BC7D",
+    warning: "#FE9A00",
   },
 };
 
@@ -127,9 +99,9 @@ export function createAntdTheme(mode: ThemeMode): ThemeConfig {
       colorWarning: tokens.warning,
       controlHeight: 36,
       fontFamily:
-        'Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+        "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
       fontFamilyCode:
-        '"Cascadia Code", "SFMono-Regular", Consolas, "Liberation Mono", monospace',
+        "\"Cascadia Code\", \"SFMono-Regular\", Consolas, \"Liberation Mono\", monospace",
       fontSize: 14,
       lineType: "solid",
       lineWidth: 1,

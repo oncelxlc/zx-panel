@@ -1,5 +1,5 @@
+import { ThemeMode, ThemePreference } from "@/types/theme.type";
 import { createContext, useContext } from "react";
-import type { ThemeMode, ThemePreference } from "./shadcnTheme";
 
 export type ThemeContextValue = {
   preference: ThemePreference;
@@ -8,9 +8,17 @@ export type ThemeContextValue = {
   toggleTheme: () => void;
 };
 
-export const ThemeContext = createContext<ThemeContextValue | null>(null);
+/**
+ * 上下文提供与主题相关的值和功能
+ * @type {React.Context<ThemeContextValue | null>}
+ */
+export const ThemeContext: React.Context<ThemeContextValue | null> = createContext<ThemeContextValue | null>(null);
 
-export function useThemeMode() {
+/**
+ * 用于访问主题上下文的自定义Hook
+ * @returns {ThemeContextValue}
+ */
+export function useThemeMode(): ThemeContextValue {
   const context = useContext(ThemeContext);
 
   if (!context) {

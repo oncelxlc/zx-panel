@@ -1,3 +1,4 @@
+import { THEME_STORAGE_KEY, ThemeMode, ThemePreference } from "@/types/theme.type";
 import {
   App as AntdApp,
   ConfigProvider,
@@ -11,12 +12,7 @@ import {
   useMemo,
   useState,
 } from "react";
-import {
-  createAntdTheme,
-  THEME_STORAGE_KEY,
-  type ThemeMode,
-  type ThemePreference,
-} from "./shadcnTheme";
+import { createAntdTheme } from "./shadcnTheme";
 import { ThemeContext, type ThemeContextValue } from "./themeContext";
 
 function isThemeMode(value: string | null): value is ThemeMode {
