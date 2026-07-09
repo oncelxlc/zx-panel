@@ -3,6 +3,10 @@ import { createBrowserRouter } from "react-router";
 
 export const router = createBrowserRouter([
   {
+    path: "/login",
+    lazy: () => import("@/pages/login/Login").then((module) => ({Component: module.LoginPage})),
+  },
+  {
     path: "/",
     Component: MainLayout,
     children: [

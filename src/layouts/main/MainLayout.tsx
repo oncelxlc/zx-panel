@@ -3,7 +3,7 @@ import { Layout, theme } from "antd";
 import { CSSProperties } from "react";
 import { Outlet } from "react-router";
 
-const {Header, Content, Footer, Sider} = Layout;
+const {Header, Content, Sider} = Layout;
 
 const siderStyle: CSSProperties = {
   height: "100vh",
