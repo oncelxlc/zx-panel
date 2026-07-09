@@ -12,6 +12,11 @@ html {
   outline-color: color-mix(in oklch, var(--ring) 50%, transparent);
 }
 
+::selection {
+  color: var(--selection-foreground);
+  background: var(--selection-background);
+}
+
 html,
 body,
 #root {

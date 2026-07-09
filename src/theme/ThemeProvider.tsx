@@ -12,7 +12,7 @@ import {
   useMemo,
   useState,
 } from "react";
-import { createAntdTheme } from "./shadcnTheme";
+import { createAntdTheme, shadcnTokens } from "./shadcnTheme";
 import { ThemeContext, type ThemeContextValue } from "./themeContext";
 
 function isThemeMode(value: string | null): value is ThemeMode {
@@ -48,9 +48,12 @@ function syncDocumentTheme(mode: ThemeMode) {
     return;
   }
 
+  const tokens = shadcnTokens[mode];
   const root = document.documentElement;
   root.dataset.theme = mode;
   root.classList.toggle("dark", mode === "dark");
+  root.style.setProperty("--selection-background", tokens.primary);
+  root.style.setProperty("--selection-foreground", tokens.primaryForeground);
 }
 
 type ThemeProviderProps = {
