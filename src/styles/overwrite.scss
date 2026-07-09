@@ -1,0 +1,7 @@
+.ant-layout-sider {
+  overflow-y: hidden;
+
+  &:hover {
+    overflow-y: auto;
+  }
+}

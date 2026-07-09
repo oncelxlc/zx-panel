@@ -1,3 +1,11 @@
+@use "./styles/overwrite";
+
+html {
+  scrollbar-width: thin;
+  scrollbar-color: #EAEAEA transparent;
+  overscroll-behavior-x: contain;
+}
+
 * {
   box-sizing: border-box;
   border-color: var(--border);

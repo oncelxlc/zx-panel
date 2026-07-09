@@ -83,7 +83,7 @@ export function MainSider() {
       defaultSelectedKeys={["1"]}
       defaultOpenKeys={["sub1"]}
       mode="inline"
-      items={items}
+      items={[...items, ...items, ...items]}
     />
   );
 }

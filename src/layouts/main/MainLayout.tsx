@@ -1,11 +1,11 @@
 import { MainSider } from "@/layouts/main/MainSider";
 import { Layout, theme } from "antd";
+import { CSSProperties } from "react";
 import { Outlet } from "react-router";
 
 const {Header, Content, Footer, Sider} = Layout;
 
-const siderStyle: React.CSSProperties = {
-  overflow: "auto",
+const siderStyle: CSSProperties = {
   height: "100vh",
   position: "sticky",
   insetInlineStart: 0,
@@ -20,8 +20,8 @@ export default function MainLayout() {
   } = theme.useToken();
 
   return (
-    <Layout hasSider>
-      <Sider style={siderStyle}>
+    <Layout hasSider style={{minHeight: "100vh", borderRadius: borderRadiusLG}}>
+      <Sider style={siderStyle} width={240}>
         <MainSider/>
       </Sider>
       <Layout>
