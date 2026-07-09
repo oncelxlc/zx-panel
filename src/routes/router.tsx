@@ -1,4 +1,4 @@
-import MainLayout from "@/layouts/MainLayout";
+import MainLayout from "@/layouts/main/MainLayout";
 import { createBrowserRouter } from "react-router";
 
 export const router = createBrowserRouter([
@@ -8,7 +8,7 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
-        lazy: () => import("@/pages/Index/Index").then((module) => ({Component: module.IndexPage})),
+        lazy: () => import("@/pages/index/Index").then((module) => ({Component: module.IndexPage})),
       },
     ],
   },
