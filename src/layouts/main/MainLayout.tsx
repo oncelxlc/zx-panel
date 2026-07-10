@@ -1,5 +1,6 @@
+import { MainHeader } from "@/layouts/main/MainHeader";
 import { MainSider } from "@/layouts/main/MainSider";
-import { Layout, theme } from "antd";
+import { Layout } from "antd";
 import { CSSProperties } from "react";
 import { Outlet } from "react-router";
 
@@ -15,20 +16,21 @@ const siderStyle: CSSProperties = {
 };
 
 export default function MainLayout() {
-  const {
-    token: {colorBgContainer, borderRadiusLG},
-  } = theme.useToken();
 
   return (
-    <Layout hasSider style={{minHeight: "100vh", borderRadius: borderRadiusLG}}>
-      <Sider style={siderStyle} width={240}>
-        <MainSider/>
-      </Sider>
+    <Layout style={{minHeight: "100vh"}}>
+      <Header style={{padding: 0}}>
+        <MainHeader/>
+      </Header>
       <Layout>
-        <Header style={{padding: 0, background: colorBgContainer}}/>
-        <Content>
-          <Outlet/>
-        </Content>
+        <Sider style={siderStyle} width={240}>
+          <MainSider/>
+        </Sider>
+        <Layout>
+          <Content>
+            <Outlet/>
+          </Content>
+        </Layout>
       </Layout>
     </Layout>
   );
