@@ -14,8 +14,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// DefaultMaxBodyBytes 是安全中间件允许读取和扫描的默认请求体大小。
 const DefaultMaxBodyBytes int64 = 1 << 20
 
+// Middleware 返回基础安全中间件，负责请求体限流和危险输入拦截。
 func Middleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if err := scanRequest(c); err != nil {
@@ -32,6 +34,7 @@ func Middleware() gin.HandlerFunc {
 	}
 }
 
+// scanRequest 按请求方法和内容类型扫描 query、form 与 JSON body。
 func scanRequest(c *gin.Context) error {
 	if err := validateInputValue(c.Request.URL.Query()); err != nil {
 		return invalidInputError("query")
@@ -49,6 +52,7 @@ func scanRequest(c *gin.Context) error {
 
 	switch mediaType {
 	case "application/json":
+		// JSON body 扫描后必须恢复，保证下游 handler 仍可正常绑定或读取。
 		body, err := readAndRestoreBody(c.Request, DefaultMaxBodyBytes)
 		if err != nil {
 			return err
@@ -67,6 +71,7 @@ func scanRequest(c *gin.Context) error {
 			return invalidInputError("json body")
 		}
 	case "application/x-www-form-urlencoded":
+		// form-urlencoded 与 query 使用同类结构，统一走递归输入检测。
 		body, err := readAndRestoreBody(c.Request, DefaultMaxBodyBytes)
 		if err != nil {
 			return err
@@ -79,6 +84,7 @@ func scanRequest(c *gin.Context) error {
 			return invalidInputError("form body")
 		}
 	case "multipart/form-data":
+		// multipart 只扫描普通字段，文件内容不在基础输入防护层内解析。
 		body, err := readAndRestoreBody(c.Request, DefaultMaxBodyBytes)
 		if err != nil {
 			return err
@@ -96,12 +102,14 @@ func scanRequest(c *gin.Context) error {
 			return invalidInputError("multipart form")
 		}
 	default:
+		// 未识别内容类型仍套上 MaxBytesReader，至少保留请求体大小防线。
 		c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, DefaultMaxBodyBytes)
 	}
 
 	return nil
 }
 
+// shouldScanBody 判断当前 HTTP 方法是否可能携带需要扫描的业务请求体。
 func shouldScanBody(method string) bool {
 	switch method {
 	case http.MethodPost, http.MethodPut, http.MethodPatch:
@@ -111,6 +119,7 @@ func shouldScanBody(method string) bool {
 	}
 }
 
+// readAndRestoreBody 读取请求体用于扫描，并把 body 放回请求供后续处理继续使用。
 func readAndRestoreBody(request *http.Request, maxBytes int64) ([]byte, error) {
 	if request.Body == nil {
 		return nil, nil
@@ -134,6 +143,7 @@ func readAndRestoreBody(request *http.Request, maxBytes int64) ([]byte, error) {
 	return body, nil
 }
 
+// abortSecurityError 输出与现有 API 响应结构一致的安全错误。
 func abortSecurityError(c *gin.Context, status int, code string, message string) {
 	c.AbortWithStatusJSON(status, gin.H{
 		"success": false,

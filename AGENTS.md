@@ -54,6 +54,7 @@
   - `success`
   - `data`
   - `error`
+- For Go code changes, add or maintain Chinese comments for methods/functions and important logic nodes so future backend work remains easy to follow.
 - Keep runnable backend startup logic under `cmd/server` and reusable service/domain logic under `internal/*`.
 - Do not add new dependencies unless there is a clear need; explain the reason, alternatives, and impact if you do.
 

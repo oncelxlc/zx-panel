@@ -7,6 +7,7 @@ import (
 	"testing"
 )
 
+// TestFindProjectRoot 验证项目根目录会从嵌套目录向上定位到 go.mod。
 func TestFindProjectRoot(t *testing.T) {
 	rootDir := t.TempDir()
 	if err := os.WriteFile(filepath.Join(rootDir, "go.mod"), []byte("module test\n"), 0o644); err != nil {
@@ -27,6 +28,7 @@ func TestFindProjectRoot(t *testing.T) {
 	}
 }
 
+// TestEnsureSystemSQLiteAtCreatesDatabase 验证缺少数据库文件时会通过 sqlite3 创建。
 func TestEnsureSystemSQLiteAtCreatesDatabase(t *testing.T) {
 	rootDir := t.TempDir()
 	sqlitePath := writeFakeSQLite(t)
@@ -45,6 +47,7 @@ func TestEnsureSystemSQLiteAtCreatesDatabase(t *testing.T) {
 	}
 }
 
+// TestEnsureSystemSQLiteAtRejectsDirectory 验证同名目录不会被误当作数据库文件。
 func TestEnsureSystemSQLiteAtRejectsDirectory(t *testing.T) {
 	rootDir := t.TempDir()
 	if err := os.Mkdir(filepath.Join(rootDir, SystemSQLiteName), 0o755); err != nil {
@@ -56,6 +59,7 @@ func TestEnsureSystemSQLiteAtRejectsDirectory(t *testing.T) {
 	}
 }
 
+// writeFakeSQLite 生成测试用 sqlite3 命令，避免依赖本机真实 SQLite。
 func writeFakeSQLite(t *testing.T) string {
 	t.Helper()
 

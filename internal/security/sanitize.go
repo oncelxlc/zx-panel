@@ -6,6 +6,7 @@ import (
 	"unicode"
 )
 
+// SanitizeString 清理字符串中的 NUL 和危险控制字符，并裁剪首尾空白。
 func SanitizeString(input string) string {
 	cleaned := strings.Map(func(r rune) rune {
 		if r == 0 {
@@ -21,6 +22,7 @@ func SanitizeString(input string) string {
 	return strings.TrimSpace(cleaned)
 }
 
+// SanitizeValue 返回清洗后的值副本，支持常见结构、切片、数组和 map。
 func SanitizeValue(value any) any {
 	if value == nil {
 		return nil
@@ -34,6 +36,7 @@ func SanitizeValue(value any) any {
 	return sanitized.Interface()
 }
 
+// sanitizeInPlace 原地清洗绑定后的 DTO，用于 Gin bind helper。
 func sanitizeInPlace(value any) {
 	if value == nil {
 		return
@@ -42,11 +45,13 @@ func sanitizeInPlace(value any) {
 	sanitizeValueInPlace(reflect.ValueOf(value))
 }
 
+// sanitizeValueInPlace 通过反射递归清洗可设置字段。
 func sanitizeValueInPlace(value reflect.Value) {
 	if !value.IsValid() {
 		return
 	}
 	if value.Kind() == reflect.Pointer {
+		// 指针字段进入其元素，避免替换整个指针造成调用方引用丢失。
 		if value.IsNil() {
 			return
 		}
@@ -54,6 +59,7 @@ func sanitizeValueInPlace(value reflect.Value) {
 		return
 	}
 	if value.Kind() == reflect.Interface {
+		// interface 字段优先替换为清洗副本，不可赋值时再深入底层值。
 		if value.IsNil() {
 			return
 		}
@@ -74,6 +80,7 @@ func sanitizeValueInPlace(value reflect.Value) {
 	case reflect.Struct:
 		for i := 0; i < value.NumField(); i++ {
 			field := value.Field(i)
+			// 跳过不可设置的非结构字段，避免反射 panic。
 			if field.CanSet() || field.Kind() == reflect.Pointer || field.Kind() == reflect.Struct {
 				sanitizeValueInPlace(field)
 			}
@@ -97,6 +104,7 @@ func sanitizeValueInPlace(value reflect.Value) {
 	}
 }
 
+// sanitizeCopy 构造清洗后的反射值副本，适用于 map key 等不能原地修改的场景。
 func sanitizeCopy(value reflect.Value) reflect.Value {
 	if !value.IsValid() {
 		return reflect.Value{}
@@ -130,6 +138,7 @@ func sanitizeCopy(value reflect.Value) reflect.Value {
 		}
 		return value
 	case reflect.Struct:
+		// 结构体副本只写入可设置字段，未导出字段保持零值以避免越权访问。
 		sanitized := reflect.New(value.Type()).Elem()
 		for i := 0; i < value.NumField(); i++ {
 			sourceField := value.Field(i)
@@ -174,6 +183,7 @@ func sanitizeCopy(value reflect.Value) reflect.Value {
 		if value.IsNil() {
 			return reflect.Zero(value.Type())
 		}
+		// map key 也可能来自外部输入，需要复制到新 map 中统一清洗。
 		sanitized := reflect.MakeMapWithSize(value.Type(), value.Len())
 		iter := value.MapRange()
 		for iter.Next() {

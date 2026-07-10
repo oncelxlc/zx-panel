@@ -6,6 +6,7 @@ import (
 	"sort"
 )
 
+// MapSliceMain 演示 map、slice 和结构体组合使用的基础操作。
 func MapSliceMain() {
 	var people = make(map[string]int)
 	people["Alice"] = 25
@@ -66,6 +67,7 @@ func MapSliceMain() {
 	}, 2, "Engineer"))
 }
 
+// averageAge 计算姓名到年龄映射中的平均年龄。
 func averageAge(m map[string]int) float64 {
 	var total int
 	for _, age := range m {
@@ -74,6 +76,7 @@ func averageAge(m map[string]int) float64 {
 	return float64(total) / float64(len(m))
 }
 
+// oldestPerson 返回年龄最大的人的姓名。
 func oldestPerson(m map[string]int) string {
 	var oldestName string
 	var oldestAge int
@@ -86,6 +89,7 @@ func oldestPerson(m map[string]int) string {
 	return oldestName
 }
 
+// youngestPerson 返回年龄最小的人的姓名，空数据时返回提示文本。
 func youngestPerson(m map[string]int) string {
 	if len(m) == 0 {
 		return "No data"
@@ -101,6 +105,7 @@ func youngestPerson(m map[string]int) string {
 	return youngestName
 }
 
+// youngestPersons 返回所有并列最年轻的人员姓名。
 func youngestPersons(m map[string]int) []string {
 	if len(m) == 0 {
 		return []string{"No data"}
@@ -120,6 +125,7 @@ func youngestPersons(m map[string]int) []string {
 	return youngestPeople
 }
 
+// oldestPersons 返回所有并列最年长的人员及其年龄。
 func oldestPersons(m map[string]int) map[string]int {
 	if len(m) == 0 {
 		return map[string]int{}
@@ -138,11 +144,13 @@ func oldestPersons(m map[string]int) map[string]int {
 	return result
 }
 
+// Person 表示用于排序示例的人员信息。
 type Person struct {
 	name string
 	age  int
 }
 
+// sortPerson 按年龄降序、姓名升序返回人员列表。
 func sortPerson(m map[string]int) []Person {
 	if len(m) == 0 {
 		return []Person{}
@@ -158,12 +166,14 @@ func sortPerson(m map[string]int) []Person {
 	return result
 }
 
+// PersonNew 表示带性别和职业字段的人员信息。
 type PersonNew struct {
 	Age    int
 	Gender string
 	Job    string
 }
 
+// findByJob 查找指定职业的人员姓名。
 func findByJob(m map[string]PersonNew, job string) []string {
 	var result = make([]string, 0, len(m))
 	for name, item := range m {
@@ -174,6 +184,7 @@ func findByJob(m map[string]PersonNew, job string) []string {
 	return result
 }
 
+// findFirstN 查找年龄大于 minAge 的前 N 个人员姓名。
 func findFirstN(m map[string]PersonNew, n int, minAge int) []string {
 	result := make([]string, 0, n)
 	count := 0
@@ -190,6 +201,7 @@ func findFirstN(m map[string]PersonNew, n int, minAge int) []string {
 	return result
 }
 
+// findFirstNByJob 查找指定职业的前 N 个人员姓名。
 func findFirstNByJob(m map[string]PersonNew, n int, job string) []string {
 	result := make([]string, 0, n)
 	count := 0

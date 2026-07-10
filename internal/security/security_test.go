@@ -11,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// TestIsUnsafeStringAllowsCommonInput 验证均衡策略不会误伤普通业务输入。
 func TestIsUnsafeStringAllowsCommonInput(t *testing.T) {
 	inputs := []string{
 		"普通中文搜索 select admin",
@@ -27,6 +28,7 @@ func TestIsUnsafeStringAllowsCommonInput(t *testing.T) {
 	}
 }
 
+// TestIsUnsafeStringDetectsInjectionShapes 验证典型 SQL、NoSQL 和命令注入形态会被识别。
 func TestIsUnsafeStringDetectsInjectionShapes(t *testing.T) {
 	inputs := []string{
 		"' OR '1'='1",
@@ -47,6 +49,7 @@ func TestIsUnsafeStringDetectsInjectionShapes(t *testing.T) {
 	}
 }
 
+// TestValidateInputValueDetectsNoSQLOperatorKeys 验证 JSON key 中的 NoSQL 操作符会被拦截。
 func TestValidateInputValueDetectsNoSQLOperatorKeys(t *testing.T) {
 	payload := map[string]any{
 		"username": map[string]any{
@@ -59,6 +62,7 @@ func TestValidateInputValueDetectsNoSQLOperatorKeys(t *testing.T) {
 	}
 }
 
+// TestSanitizeString 验证字符串清洗会移除危险控制字符并保留合法文本。
 func TestSanitizeString(t *testing.T) {
 	got := SanitizeString(" \x00\t中文\u0008 value\n ")
 	want := "中文 value"
@@ -67,6 +71,7 @@ func TestSanitizeString(t *testing.T) {
 	}
 }
 
+// TestSanitizeValue 验证嵌套 map 和 slice 中的字符串会被递归清洗。
 func TestSanitizeValue(t *testing.T) {
 	got := SanitizeValue(map[string]any{
 		" name ": " Alice\x00 ",
@@ -88,6 +93,7 @@ func TestSanitizeValue(t *testing.T) {
 	}
 }
 
+// TestMiddlewareRejectsUnsafeQuery 验证中间件对 query 注入载荷返回统一错误。
 func TestMiddlewareRejectsUnsafeQuery(t *testing.T) {
 	router := testRouter()
 	router.GET("/ping", func(c *gin.Context) {
@@ -112,6 +118,7 @@ func TestMiddlewareRejectsUnsafeQuery(t *testing.T) {
 	}
 }
 
+// TestMiddlewareRejectsUnsafeJSONAndRestoresSafeBody 验证危险 JSON 被拒绝且安全 JSON 会恢复 body。
 func TestMiddlewareRejectsUnsafeJSONAndRestoresSafeBody(t *testing.T) {
 	router := testRouter()
 	router.POST("/echo", func(c *gin.Context) {
@@ -144,6 +151,7 @@ func TestMiddlewareRejectsUnsafeJSONAndRestoresSafeBody(t *testing.T) {
 	}
 }
 
+// TestMiddlewareRejectsLargeBody 验证请求体大小限制会在读取阶段生效。
 func TestMiddlewareRejectsLargeBody(t *testing.T) {
 	router := testRouter()
 	router.POST("/echo", func(c *gin.Context) {
@@ -160,6 +168,7 @@ func TestMiddlewareRejectsLargeBody(t *testing.T) {
 	}
 }
 
+// TestBindJSONSanitizesAndValidates 验证绑定 helper 会先清洗字符串再执行结构体验证。
 func TestBindJSONSanitizesAndValidates(t *testing.T) {
 	type payload struct {
 		Name string            `json:"name" binding:"required"`
@@ -203,6 +212,7 @@ func TestBindJSONSanitizesAndValidates(t *testing.T) {
 	}
 }
 
+// testRouter 创建只挂载安全中间件的测试路由。
 func testRouter() *gin.Engine {
 	gin.SetMode(gin.TestMode)
 	router := gin.New()
