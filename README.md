@@ -106,6 +106,28 @@ go run ./cmd/server
 }
 ```
 
+## 后端安全基线
+
+后端 Gin 路由默认启用 `internal/security` 中间件，提供基础输入防护：
+
+- 请求体默认限制为 1 MiB。
+- `GET`、`DELETE` 请求会扫描 query 参数。
+- `POST`、`PUT`、`PATCH` 请求会扫描 query、JSON、URL encoded form 和 multipart form 字段。
+- 中间件会拒绝明显 SQL、NoSQL 和命令注入形态的输入，并返回统一错误结构：
+
+```json
+{
+  "success": false,
+  "data": null,
+  "error": {
+    "code": "INVALID_INPUT",
+    "message": "request contains unsafe input"
+  }
+}
+```
+
+新增 handler 绑定 DTO 时应优先使用 `security.BindJSON(c, &dto)` 或 `security.BindQuery(c, &dto)`，它们会复用 Gin 的 `binding` 校验标签，并在绑定后清洗字符串字段。该安全层是基础防线，不能替代 SQL 参数化查询、Mongo 安全 filter 构造或命令 allowlist 校验；涉及命令执行时应使用固定命令名和 `security.LookPathAllowed` 这类 allowlist helper，禁止拼接用户输入到 shell 命令中。
+
 ## 开发约定
 
 - 前端使用 TypeScript、React 函数组件和 Hooks。
