@@ -22,14 +22,6 @@ export function LoginPage() {
 
   return (
     <main className="login-page">
-      <section className="login-page__brand" aria-label="ZX Panel">
-        <p className="login-page__eyebrow">ZX PANEL</p>
-        <h1 className="login-page__title">控制台登录</h1>
-        <p className="login-page__description">
-          进入本地管理界面，继续配置和维护服务面板。
-        </p>
-      </section>
-
       <Card className="login-page__card" variant="outlined">
         <div className="login-page__card-header">
           <p className="login-page__card-eyebrow">Account</p>
@@ -37,6 +29,7 @@ export function LoginPage() {
         </div>
 
         <Form<LoginFormValues>
+          className="login-page__form"
           name="login"
           layout="vertical"
           autoComplete="off"

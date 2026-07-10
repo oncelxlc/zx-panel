@@ -1,51 +1,53 @@
 .login-page {
+  --login-bg-image: url("/login/login-bg-light.png");
+  --login-bg-base: var(--ant-color-bg-base, #FFFFFF);
+  --login-card-bg: var(--ant-color-bg-container, #FFFFFF);
+  --login-text: var(--ant-color-text, #0A0A0A);
+  --login-text-muted: var(--ant-color-text-secondary, #737373);
+  --login-primary: var(--ant-color-primary, #171717);
+  --login-border: var(--ant-color-border, #E5E5E5);
+  position: relative;
+  isolation: isolate;
   display: grid;
   min-height: 100vh;
-  grid-template-columns: minmax(280px, 0.9fr) minmax(320px, 440px);
+  grid-template-columns: minmax(0, 1fr) minmax(200px, 280px);
   align-items: center;
-  gap: clamp(32px, 7vw, 96px);
+  justify-items: end;
   padding: clamp(24px, 6vw, 72px);
-  background:
-    linear-gradient(
-      135deg,
-      color-mix(in oklch, var(--background) 94%, var(--primary)),
-      var(--muted)
-    );
+  overflow: hidden;
+  background-image: var(--login-bg-image);
+  background-position: center;
+  background-size: 100% auto;
 }
 
-.login-page__brand {
-  max-width: 560px;
+html[data-theme="dark"] .login-page {
+  --login-bg-image: url("/login/login-bg-dart.png");
+  --login-bg-base: var(--ant-color-bg-base, #0A0A0A);
+  --login-card-bg: var(--ant-color-bg-container, #171717);
+  --login-text: var(--ant-color-text, #FAFAFA);
+  --login-text-muted: var(--ant-color-text-secondary, #A1A1A1);
+  --login-primary: var(--ant-color-primary, #E5E5E5);
+  --login-border: var(--ant-color-border, #FFFFFF1A);
 }
 
-.login-page__eyebrow,
 .login-page__card-eyebrow {
   margin: 0;
-  color: var(--primary);
+  color: var(--login-primary);
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
-.login-page__title {
-  margin: 14px 0 0;
-  color: var(--foreground);
-  font-size: clamp(2.4rem, 7vw, 5.2rem);
-  line-height: 0.98;
-}
-
-.login-page__description {
-  max-width: 460px;
-  margin: 22px 0 0;
-  color: var(--muted-foreground);
-  font-size: 1.08rem;
-  line-height: 1.8;
-}
-
 .login-page__card {
+  position: relative;
+  z-index: 1;
   width: 100%;
+  max-width: 440px;
   border-radius: 8px;
-  box-shadow: 0 18px 60px color-mix(in oklch, var(--foreground) 10%, transparent);
+  border-color: color-mix(in oklch, var(--login-border) 76%, transparent);
+  background: color-mix(in oklch, var(--login-card-bg) 82%, transparent);
+  backdrop-filter: blur(18px);
 }
 
 .login-page__card .ant-card-body {
@@ -58,7 +60,7 @@
 
 .login-page__card-header h2 {
   margin: 8px 0 0;
-  color: var(--foreground);
+  color: var(--login-text);
   font-size: 1.8rem;
   line-height: 1.2;
 }
@@ -67,13 +69,74 @@
   margin-bottom: 24px;
 }
 
+.login-page__form {
+  animation: login-form-enter 560ms cubic-bezier(0.16, 1, 0.3, 1) 120ms both;
+}
+
+.login-page__form .ant-form-item,
+.login-page__form .ant-btn {
+  animation: login-input-enter 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.login-page__form .ant-form-item:nth-child(1) {
+  animation-delay: 180ms;
+}
+
+.login-page__form .ant-form-item:nth-child(2) {
+  animation-delay: 260ms;
+}
+
+.login-page__form .ant-btn {
+  animation-delay: 340ms;
+}
+
+@keyframes login-form-enter {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes login-input-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @media (max-width: 820px) {
   .login-page {
     grid-template-columns: 1fr;
     align-content: center;
+    justify-items: stretch;
+    background-position: 24% center;
   }
 
-  .login-page__brand {
+  .login-page__card {
     max-width: none;
+  }
+}
+
+@media (max-width: 540px) {
+  .login-page {
+    padding: 22px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-page__form,
+  .login-page__form .ant-form-item,
+  .login-page__form .ant-btn {
+    animation: none;
   }
 }
