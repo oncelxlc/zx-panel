@@ -15,6 +15,7 @@ ZX Panel 是一个混合脚手架项目：前端使用 Vite + React + TypeScript
 - Node.js：`^22.22.0 || >=24.0.0`
 - pnpm：`>=10.0.0`
 - Go：`1.25.0`
+- Docker Engine / Docker Desktop：支持 Docker Compose v2（使用 `docker compose` 命令）
 - SQLite CLI：后端启动会检查全局 `sqlite3` 命令；若根目录缺少 `system.sqlite`，会使用它创建运行时数据库。
 
 ## 快速开始
@@ -41,6 +42,52 @@ go run ./cmd/server
 
 默认后端地址为 `http://localhost:25000`，可通过 `PORT` 环境变量覆盖端口。
 
+## Redis 与 PostgreSQL
+
+项目根目录的 `compose.yaml` 提供 Redis 和 PostgreSQL 开发环境。配置使用 Docker 命名卷持久化数据，不依赖 Linux/Windows 的宿主机绝对路径，可用于 Linux Docker Engine 和 Windows Docker Desktop 的 Linux 容器模式。
+
+首次启动前复制环境变量示例：
+
+Linux/macOS：
+
+```bash
+cp .env.example .env
+```
+
+Windows PowerShell：
+
+```powershell
+Copy-Item .env.example .env
+```
+
+请至少修改 `.env` 中的 `POSTGRES_PASSWORD` 和 `REDIS_PASSWORD`，然后启动服务：
+
+```bash
+docker compose up -d
+docker compose ps
+```
+
+默认连接信息：
+
+| 服务 | 宿主机地址 | 容器内地址 | 默认数据库/用户 |
+|------|------------|------------|-----------------|
+| PostgreSQL | `127.0.0.1:5432` | `postgres:5432` | 数据库 `zx_panel`，用户 `zx_panel` |
+| Redis | `127.0.0.1:6379` | `redis:6379` | 使用 `REDIS_PASSWORD` 认证 |
+
+停止容器但保留数据：
+
+```bash
+docker compose down
+```
+
+停止容器并删除 PostgreSQL、Redis 数据卷：
+
+```bash
+docker compose down -v
+```
+
+默认端口只绑定到 `127.0.0.1`，避免数据库意外暴露到局域网。确需从其他主机连接时，可在 `.env` 中设置 `DOCKER_BIND_HOST=0.0.0.0`，同时应使用强密码并配置主机防火墙。当前 Go 后端尚未接入这两个服务；后续接入时，容器间连接应使用表格中的服务名，不要硬编码宿主机地址。
+
 ## 可用脚本
 
 | 命令 | 说明 |
@@ -53,6 +100,8 @@ go run ./cmd/server
 | `pnpm lint:fix` | 自动修复可修复的 ESLint 问题 |
 | `go run ./cmd/server` | 启动 Go/Gin 后端服务 |
 | `go test ./...` | 运行 Go 测试 |
+| `docker compose up -d` | 后台启动 PostgreSQL 与 Redis |
+| `docker compose down` | 停止数据服务并保留命名卷 |
 
 ## 项目结构
 
@@ -70,6 +119,9 @@ go run ./cmd/server
 │   ├── config/server.go    # 服务配置
 │   └── server/run.go       # HTTP server 启动逻辑
 ├── learn/                  # Go 学习/demo 代码
+├── docker/redis/redis.conf # Redis 持久化配置
+├── compose.yaml            # PostgreSQL 与 Redis 容器编排
+├── .env.example            # Docker 开发环境变量示例
 ├── vite.config.ts          # Vite 配置
 ├── tsconfig.json           # TypeScript 配置
 └── eslint.config.mjs       # ESLint flat config
