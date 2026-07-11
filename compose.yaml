@@ -5,6 +5,7 @@ services:
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-zx_panel}
       POSTGRES_USER: ${POSTGRES_USER:-zx_panel}
+      # Compose 自动读取根目录 .env；变量缺失或为空时使用开发默认密码。
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_me_postgres}
     command:
       - postgres
@@ -39,6 +40,7 @@ services:
     image: redis:latest
     restart: unless-stopped
     environment:
+      # Compose 自动读取根目录 .env；变量缺失或为空时使用开发默认密码。
       REDIS_PASSWORD: ${REDIS_PASSWORD:-change_me_redis}
     command:
       - redis-server
