@@ -73,6 +73,10 @@ html[data-theme="dark"] .login-page {
   animation: login-form-enter 560ms cubic-bezier(0.16, 1, 0.3, 1) 120ms both;
 }
 
+.login-page__error {
+  margin-bottom: 20px;
+}
+
 .login-page__form .ant-form-item,
 .login-page__form .ant-btn {
   animation: login-input-enter 520ms cubic-bezier(0.16, 1, 0.3, 1) both;

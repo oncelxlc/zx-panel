@@ -7,6 +7,9 @@ export default defineConfig({
   server: {
     port: 6500,
     strictPort: true, // 端口被占用时直接报错，不自动尝试下一个可用端口
+    proxy: {
+      "/api": "http://127.0.0.1:25000",
+    },
   },
   resolve: {
     alias: {

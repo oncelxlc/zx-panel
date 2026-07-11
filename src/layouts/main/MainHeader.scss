@@ -21,6 +21,18 @@
 
   > .header-layout__right {
     flex: auto;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 0 24px;
     overflow: hidden;
+  }
+
+  .header-layout__user {
+    color: var(--ant-color-text-secondary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }

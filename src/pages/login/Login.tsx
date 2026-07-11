@@ -3,9 +3,11 @@ import {
   LoginOutlined,
   UserOutlined,
 } from "@ant-design/icons";
+import { ApiError, login } from "@/auth/api";
 import type { FormProps } from "antd";
-import { Button, Card, Form, Input } from "antd";
-import { useNavigate } from "react-router";
+import { Alert, Button, Card, Form, Input } from "antd";
+import { useState } from "react";
+import { useLocation, useNavigate } from "react-router";
 import "./Login.scss";
 
 type LoginFormValues = {
@@ -15,9 +17,27 @@ type LoginFormValues = {
 
 export function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [submitting, setSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const handleFinish: FormProps<LoginFormValues>["onFinish"] = () => {
-    navigate("/", {replace: true});
+  const handleFinish: FormProps<LoginFormValues>["onFinish"] = async (values) => {
+    setSubmitting(true);
+    setErrorMessage("");
+    try {
+      await login(values.username, values.password);
+      const requestedPath = (location.state as {from?: unknown} | null)?.from;
+      const target = typeof requestedPath === "string"
+        && requestedPath.startsWith("/")
+        && !requestedPath.startsWith("//")
+        ? requestedPath
+        : "/";
+      navigate(target, {replace: true});
+    } catch (error) {
+      setErrorMessage(error instanceof ApiError ? error.message : "登录失败，请稍后重试");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -36,6 +56,15 @@ export function LoginPage() {
           requiredMark={false}
           onFinish={handleFinish}
         >
+          {errorMessage && (
+            <Alert
+              className="login-page__error"
+              showIcon
+              title={errorMessage}
+              type="error"
+            />
+          )}
+
           <Form.Item<LoginFormValues>
             label="账号"
             name="username"
@@ -79,6 +108,7 @@ export function LoginPage() {
             block
             htmlType="submit"
             icon={<LoginOutlined/>}
+            loading={submitting}
             size="large"
             type="primary"
           >

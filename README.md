@@ -5,10 +5,10 @@ ZX Panel 是一个混合脚手架项目：前端使用 Vite + React + TypeScript
 ## 当前状态
 
 - 前端已切换为 Vite SPA，不再使用 Next.js App Router。
-- 前端入口为 `index.html`、`src/main.tsx` 和 `src/App.tsx`。
-- 当前保留的前端路径语义：`/`、`/nginx`、`/nginx/index`。
-- 后端已有 Gin server 骨架，提供健康检查和 ping 接口。
-- 前后端尚未建立完整 API 客户端/服务端集成契约。
+- 前端入口为 `index.html`、`src/main.tsx` 和 `src/routes/router.tsx`。
+- 当前页面路径为公开的 `/login` 和需要登录的 `/`。
+- 后端已连接 PostgreSQL，启动时自动创建基础用户表和会话表。
+- 前后端已接入登录、当前用户、退出和全局未登录校验。
 
 ## 环境要求
 
@@ -16,7 +16,6 @@ ZX Panel 是一个混合脚手架项目：前端使用 Vite + React + TypeScript
 - pnpm：`>=10.0.0`
 - Go：`1.25.0`
 - Docker Engine / Docker Desktop：支持 Docker Compose v2（使用 `docker compose` 命令）
-- SQLite CLI：后端启动会检查全局 `sqlite3` 命令；若根目录缺少 `system.sqlite`，会使用它创建运行时数据库。
 
 ## 快速开始
 
@@ -26,6 +25,32 @@ ZX Panel 是一个混合脚手架项目：前端使用 Vite + React + TypeScript
 pnpm install
 ```
 
+先启动 PostgreSQL 与 Redis：
+
+```bash
+docker compose up -d
+```
+
+首次启动后端前，必须设置初始管理员密码。Go 进程读取进程环境变量，不会自动加载 Compose 的 `.env`。
+
+Linux/macOS：
+
+```bash
+export POSTGRES_PASSWORD='与 .env 中一致的数据库密码'
+export ADMIN_PASSWORD='请替换为强密码'
+go run ./cmd/server
+```
+
+Windows PowerShell：
+
+```powershell
+$env:POSTGRES_PASSWORD = "与 .env 中一致的数据库密码"
+$env:ADMIN_PASSWORD = "请替换为强密码"
+go run ./cmd/server
+```
+
+`ADMIN_USERNAME` 默认为 `admin`。仅当用户表为空时，后端才使用 `ADMIN_USERNAME` 和 `ADMIN_PASSWORD` 创建初始管理员；后续启动不会覆盖现有密码。也可通过 `DATABASE_URL` 提供完整 PostgreSQL 连接串。
+
 启动前端开发服务器：
 
 ```bash
@@ -33,12 +58,6 @@ pnpm dev
 ```
 
 Vite 开发地址为 [http://localhost:6500](http://localhost:6500)。`vite.config.ts` 启用了 `strictPort`，如果端口被占用会直接报错。
-
-启动后端服务器：
-
-```bash
-go run ./cmd/server
-```
 
 默认后端地址为 `http://localhost:25000`，可通过 `PORT` 环境变量覆盖端口。
 
@@ -86,7 +105,7 @@ docker compose down
 docker compose down -v
 ```
 
-默认端口只绑定到 `127.0.0.1`，避免数据库意外暴露到局域网。确需从其他主机连接时，可在 `.env` 中设置 `DOCKER_BIND_HOST=0.0.0.0`，同时应使用强密码并配置主机防火墙。当前 Go 后端尚未接入这两个服务；后续接入时，容器间连接应使用表格中的服务名，不要硬编码宿主机地址。
+默认端口只绑定到 `127.0.0.1`，避免数据库意外暴露到局域网。确需从其他主机连接时，可在 `.env` 中设置 `DOCKER_BIND_HOST=0.0.0.0`，同时应使用强密码并配置主机防火墙。Go 后端默认连接 `127.0.0.1:5432`；容器化后端应将 `POSTGRES_HOST` 设置为 `postgres`。
 
 ## 可用脚本
 
@@ -110,13 +129,16 @@ docker compose down -v
 ├── index.html              # Vite HTML 入口
 ├── src/
 │   ├── main.tsx            # React 挂载入口
-│   ├── App.tsx             # 当前 SPA shell 与路径分发
+│   ├── routes/router.tsx   # React Router 路由与全局鉴权边界
+│   ├── auth/               # API 客户端、会话存储与鉴权守卫
 │   ├── styles.scss         # 全局样式
 │   └── theme/              # 主题上下文与 Ant Design 主题配置
 ├── cmd/server/main.go      # 后端服务入口
 ├── internal/
-│   ├── api/router.go       # Gin 路由
+│   ├── api/router.go       # Gin 路由与认证接口
+│   ├── auth/               # 认证服务与 Bearer 中间件
 │   ├── config/server.go    # 服务配置
+│   ├── storage/postgres.go # PostgreSQL 连接、迁移与用户存储
 │   └── server/run.go       # HTTP server 启动逻辑
 ├── learn/                  # Go 学习/demo 代码
 ├── docker/redis/redis.conf # Redis 持久化配置
@@ -129,15 +151,14 @@ docker compose down -v
 
 ## 前端说明
 
-当前前端没有引入正式路由库，而是在 `src/App.tsx` 中基于 `window.location.pathname` 做简单路径分发。
+前端使用 React Router。`src/auth/AuthGuard.tsx` 包裹主布局：进入受保护页面时会调用当前用户接口校验服务端会话；令牌不存在、过期、被注销，或任意 API 返回 401 时，都会清理本地会话并跳转 `/login`。
 
 已映射路径：
 
-- `/`
-- `/nginx`
-- `/nginx/index`
+- `/login`：公开登录页
+- `/`：需要登录的主界面
 
-如果生产环境需要直接访问 `/nginx` 或 `/nginx/index`，静态服务器需要将未知请求回退到 `index.html`。
+生产环境应将未知前端路径回退到 `index.html`，并将同源 `/api` 转发到 Go 后端。开发环境已由 Vite 代理 `/api` 到 `http://127.0.0.1:25000`；跨域部署时可设置 `VITE_API_BASE_URL` 后重新构建。
 
 ## 后端接口
 
@@ -147,6 +168,11 @@ docker compose down -v
 |------|------|------|
 | `GET` | `/healthz` | 健康检查，返回 `status: "ok"` |
 | `GET` | `/api/v1/ping` | 连通性检查，返回 `message: "pong"` |
+| `POST` | `/api/v1/auth/login` | 使用账号密码登录并返回会话令牌 |
+| `GET` | `/api/v1/auth/me` | 读取当前用户，需要 Bearer Token |
+| `POST` | `/api/v1/auth/logout` | 注销当前会话，需要 Bearer Token |
+
+登录令牌由加密安全随机数生成，浏览器存储在 `sessionStorage`，数据库只保存 SHA-256 摘要。密码使用 bcrypt 哈希保存；会话默认 24 小时过期，退出后立即失效。
 
 响应结构当前统一为：
 
