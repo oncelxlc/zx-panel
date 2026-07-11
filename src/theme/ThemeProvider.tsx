@@ -1,4 +1,10 @@
-import { THEME_STORAGE_KEY, ThemeMode, ThemePreference } from "@/types/theme.type";
+import { THEME_STORAGE_KEY } from "@/theme/constants";
+import type {
+  ThemeContextValue,
+  ThemeMode,
+  ThemePreference,
+  ThemeProviderProps,
+} from "@/types/theme.type";
 import {
   App as AntdApp,
   ConfigProvider,
@@ -6,23 +12,34 @@ import {
 } from "antd";
 import zhCN from "antd/locale/zh_CN";
 import {
-  type ReactNode,
   useCallback,
   useEffect,
   useMemo,
   useState,
 } from "react";
 import { createAntdTheme, shadcnTokens } from "./shadcnTheme";
-import { ThemeContext, type ThemeContextValue } from "./themeContext";
+import { ThemeContext } from "./themeContext";
 
+/**
+ * isThemeMode 判断存储值是否是可直接应用的亮暗主题模式。
+ * 类型谓词帮助后续逻辑收窄到 ThemeMode。
+ */
 function isThemeMode(value: string | null): value is ThemeMode {
   return value === "light" || value === "dark";
 }
 
+/**
+ * isThemePreference 判断存储值是否是受支持的主题偏好。
+ * 除亮暗模式外还允许跟随系统的 system 值。
+ */
 function isThemePreference(value: string | null): value is ThemePreference {
   return value === "system" || isThemeMode(value);
 }
 
+/**
+ * getSystemTheme 根据浏览器媒体查询解析当前系统主题。
+ * SSR 或无窗口环境统一回退到亮色模式。
+ */
 function getSystemTheme(): ThemeMode {
   if (
     typeof window !== "undefined" &&
@@ -34,6 +51,10 @@ function getSystemTheme(): ThemeMode {
   return "light";
 }
 
+/**
+ * getStoredPreference 从本地存储读取并校验主题偏好。
+ * 缺失、非法或无窗口环境时统一回退到跟随系统。
+ */
 function getStoredPreference(): ThemePreference {
   if (typeof window === "undefined") {
     return "system";
@@ -43,6 +64,10 @@ function getStoredPreference(): ThemePreference {
   return isThemePreference(storedPreference) ? storedPreference : "system";
 }
 
+/**
+ * syncDocumentTheme 将实际主题模式同步到根元素和全局 CSS 变量。
+ * 无 document 的渲染环境会跳过所有 DOM 操作。
+ */
 function syncDocumentTheme(mode: ThemeMode) {
   if (typeof document === "undefined") {
     return;
@@ -56,10 +81,10 @@ function syncDocumentTheme(mode: ThemeMode) {
   root.style.setProperty("--selection-foreground", tokens.primaryForeground);
 }
 
-type ThemeProviderProps = {
-  children: ReactNode;
-};
-
+/**
+ * ThemeProvider 管理用户主题偏好并配置 Ant Design 主题上下文。
+ * 组件同时监听系统主题变化并把最终模式同步到文档根节点。
+ */
 export function ThemeProvider({children}: ThemeProviderProps) {
   const [preference, setPreferenceState] =
     useState<ThemePreference>(getStoredPreference);
@@ -78,6 +103,7 @@ export function ThemeProvider({children}: ThemeProviderProps) {
       return;
     }
 
+    // 浏览器环境持久化用户选择，后续访问可直接恢复。
     window.localStorage.setItem(THEME_STORAGE_KEY, nextPreference);
   }, []);
 
@@ -90,6 +116,7 @@ export function ThemeProvider({children}: ThemeProviderProps) {
   }, [resolvedMode]);
 
   useEffect(() => {
+    // 系统模式变化时只更新 system 偏好依赖的实际模式。
     const query = window.matchMedia("(prefers-color-scheme: dark)");
     const handleChange = () => {
       setSystemMode(query.matches ? "dark" : "light");

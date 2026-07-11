@@ -23,7 +23,7 @@
 - Backend:
   - `cmd/server/main.go` is the main server entrypoint.
   - Root `main.go` currently starts the same server stack.
-  - `internal/config/server.go` loads server config; `PORT` overrides the default `25000`.
+  - `internal/config/server.go` loads optional root `.env` plus process environment; process environment wins, and `PORT` overrides the default `25000`.
   - `internal/server/run.go` creates the HTTP server.
   - `internal/api/router.go` creates the Gin router with health, ping, login, current-user, and logout endpoints.
   - `internal/auth/*` contains authentication service and middleware logic.
@@ -48,6 +48,9 @@
 
 ## Conventions to Follow
 - Use TypeScript and functional React components for frontend work.
+- Place every project-defined frontend `type` and `interface` under `src/types`; ambient declarations such as `src/vite-env.d.ts` are exempt.
+- Add Chinese JSDoc block comments (`/** ... */`) to frontend components, hooks, functions, classes, custom types/interfaces, and module-level constants. Comments must explain responsibility, boundaries, or usage instead of restating the identifier.
+- Inside frontend functions and methods, use single-line `//` comments only for important state transitions, security checks, error handling, resource cleanup, or other non-obvious logic; avoid line-by-line narration.
 - Prefer existing React hooks and local context patterns over adding global state libraries.
 - Use the configured alias `@/* -> src/*` when it improves clarity.
 - Keep styling aligned with the current SCSS/global class pattern in `src/styles.scss`.
@@ -57,7 +60,9 @@
   - `success`
   - `data`
   - `error`
-- For Go code changes, add or maintain Chinese comments for methods/functions and important logic nodes so future backend work remains easy to follow.
+- Add or maintain Chinese Go doc comments for package-level types, interfaces, constants, variables, functions, and methods in product code and tests. Each definition comment must use at least two consecutive `//` lines, start with the symbol name when Go conventions require it, and explain responsibility or boundaries rather than merely restating the name.
+- Inside Go functions and methods, use single-line `//` comments for important branches, security boundaries, state transitions, and resource lifecycle operations; avoid comments on obvious assignments or returns.
+- Apply these comment rules to root `main.go`, `cmd/**`, `internal/**`, tests, and all frontend files under `src/**`; `learn/**` remains excluded unless a task explicitly targets it.
 - Keep runnable backend startup logic under `cmd/server` and reusable service/domain logic under `internal/*`.
 - Do not add new dependencies unless there is a clear need; explain the reason, alternatives, and impact if you do.
 

@@ -1,22 +1,15 @@
-import { ThemeMode, ThemePreference } from "@/types/theme.type";
+import type { ThemeContextValue } from "@/types/theme.type";
 import { createContext, useContext } from "react";
 
-export type ThemeContextValue = {
-  preference: ThemePreference;
-  resolvedMode: ThemeMode;
-  setPreference: (preference: ThemePreference) => void;
-  toggleTheme: () => void;
-};
-
 /**
- * 上下文提供与主题相关的值和功能
- * @type {React.Context<ThemeContextValue | null>}
+ * ThemeContext 向组件树提供主题偏好、实际模式和切换操作。
+ * 默认空值用于检测组件是否错误地脱离 ThemeProvider 使用。
  */
 export const ThemeContext: React.Context<ThemeContextValue | null> = createContext<ThemeContextValue | null>(null);
 
 /**
- * 用于访问主题上下文的自定义Hook
- * @returns {ThemeContextValue}
+ * useThemeMode 读取主题上下文并返回类型安全的主题操作。
+ * 在 ThemeProvider 外调用时抛出明确错误，避免静默使用无效状态。
  */
 export function useThemeMode(): ThemeContextValue {
   const context = useContext(ThemeContext);

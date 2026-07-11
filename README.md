@@ -25,31 +25,28 @@ ZX Panel 是一个混合脚手架项目：前端使用 Vite + React + TypeScript
 pnpm install
 ```
 
-先启动 PostgreSQL 与 Redis：
-
-```bash
-docker compose up -d
-```
-
-首次启动后端前，必须设置初始管理员密码。Go 进程读取进程环境变量，不会自动加载 Compose 的 `.env`。
+复制环境变量示例并修改数据库、Redis 和初始管理员密码：
 
 Linux/macOS：
 
 ```bash
-export POSTGRES_PASSWORD='与 .env 中一致的数据库密码'
-export ADMIN_PASSWORD='请替换为强密码'
-go run ./cmd/server
+cp .env.example .env
 ```
 
 Windows PowerShell：
 
 ```powershell
-$env:POSTGRES_PASSWORD = "与 .env 中一致的数据库密码"
-$env:ADMIN_PASSWORD = "请替换为强密码"
+Copy-Item .env.example .env
+```
+
+Go、Docker Compose 和 Vite 都会读取根目录 `.env`。请至少修改 `POSTGRES_PASSWORD`、`REDIS_PASSWORD` 和 `ADMIN_PASSWORD`；初始管理员密码必须为 6–72 个 UTF-8 字节。然后直接启动数据服务和后端，无需手动导出环境变量：
+
+```bash
+docker compose up -d
 go run ./cmd/server
 ```
 
-`ADMIN_USERNAME` 默认为 `admin`。仅当用户表为空时，后端才使用 `ADMIN_USERNAME` 和 `ADMIN_PASSWORD` 创建初始管理员；后续启动不会覆盖现有密码。也可通过 `DATABASE_URL` 提供完整 PostgreSQL 连接串。
+系统环境变量优先于 `.env`，因此容器、CI 和生产部署仍可覆盖文件配置；缺少 `.env` 时后端继续使用系统环境变量和默认值，文件存在但不可读或格式错误时会拒绝启动。`ADMIN_USERNAME` 默认为 `admin`，仅当用户表为空时创建初始管理员，后续启动不会覆盖现有密码。也可通过 `DATABASE_URL` 提供完整 PostgreSQL 连接串。
 
 启动前端开发服务器：
 
@@ -65,21 +62,7 @@ Vite 开发地址为 [http://localhost:6500](http://localhost:6500)。`vite.conf
 
 项目根目录的 `compose.yaml` 提供 Redis 和 PostgreSQL 开发环境。配置使用 Docker 命名卷持久化数据，不依赖 Linux/Windows 的宿主机绝对路径，可用于 Linux Docker Engine 和 Windows Docker Desktop 的 Linux 容器模式。
 
-首次启动前复制环境变量示例：
-
-Linux/macOS：
-
-```bash
-cp .env.example .env
-```
-
-Windows PowerShell：
-
-```powershell
-Copy-Item .env.example .env
-```
-
-请至少修改 `.env` 中的 `POSTGRES_PASSWORD` 和 `REDIS_PASSWORD`，然后启动服务：
+完成快速开始中的 `.env` 配置后，可独立管理数据服务：
 
 ```bash
 docker compose up -d

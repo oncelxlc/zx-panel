@@ -1,7 +1,11 @@
-import { ShadcnTokenSet, ThemeMode } from "@/types/theme.type";
+import type { ShadcnTokenSet, ThemeMode } from "@/types/theme.type";
 import type { ThemeConfig } from "antd";
 import { theme as antdTheme } from "antd";
 
+/**
+ * shadcnTokens 集中定义亮色和暗色模式的基础设计令牌。
+ * Ant Design 组件主题和全局样式均从该映射派生。
+ */
 export const shadcnTokens: Record<ThemeMode, ShadcnTokenSet> = {
   light: {
     background: "#FFFFFF",
@@ -51,6 +55,10 @@ export const shadcnTokens: Record<ThemeMode, ShadcnTokenSet> = {
   },
 };
 
+/**
+ * alpha 为十六进制或 rgb 颜色添加指定透明度。
+ * 无法识别的颜色格式保持原值，避免破坏合法 CSS 颜色。
+ */
 function alpha(color: string, opacity: number) {
   if (color.startsWith("#") && color.length === 7) {
     const red = Number.parseInt(color.slice(1, 3), 16);
@@ -67,6 +75,10 @@ function alpha(color: string, opacity: number) {
   return color;
 }
 
+/**
+ * createAntdTheme 根据当前模式生成完整的 Ant Design 主题配置。
+ * 主题令牌统一继承 shadcnTokens，确保组件视觉与全局风格一致。
+ */
 export function createAntdTheme(mode: ThemeMode): ThemeConfig {
   const tokens = shadcnTokens[mode];
   const isDark = mode === "dark";

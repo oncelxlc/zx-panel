@@ -4,29 +4,34 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 import { ApiError, login } from "@/auth/api";
+import type {
+  LoginFormValues,
+  LoginLocationState,
+} from "@/types/auth.type";
 import type { FormProps } from "antd";
 import { Alert, Button, Card, Form, Input } from "antd";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import "./Login.scss";
 
-type LoginFormValues = {
-  username: string;
-  password: string;
-};
-
+/**
+ * LoginPage 渲染账号密码表单并调用真实登录接口。
+ * 登录成功后会安全返回鉴权守卫记录的原始访问路径。
+ */
 export function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
+  // 提交期间锁定按钮，并将服务端错误转换为页面内提示。
   const handleFinish: FormProps<LoginFormValues>["onFinish"] = async (values) => {
     setSubmitting(true);
     setErrorMessage("");
     try {
       await login(values.username, values.password);
-      const requestedPath = (location.state as {from?: unknown} | null)?.from;
+      // 只允许站内绝对路径，避免登录后产生开放重定向。
+      const requestedPath = (location.state as LoginLocationState | null)?.from;
       const target = typeof requestedPath === "string"
         && requestedPath.startsWith("/")
         && !requestedPath.startsWith("//")

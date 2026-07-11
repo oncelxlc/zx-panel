@@ -14,10 +14,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// DefaultMaxBodyBytes 是安全中间件允许读取和扫描的默认请求体大小。
+// DefaultMaxBodyBytes 是安全中间件允许扫描的默认请求体大小。
+// 超出一 MiB 的请求会在进入业务 handler 前被拒绝。
 const DefaultMaxBodyBytes int64 = 1 << 20
 
-// Middleware 返回基础安全中间件，负责请求体限流和危险输入拦截。
+// Middleware 返回处理请求体限流和危险输入拦截的安全中间件。
+// 中间件使用统一响应结构返回可识别的安全错误码。
 func Middleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if err := scanRequest(c); err != nil {
@@ -35,6 +37,7 @@ func Middleware() gin.HandlerFunc {
 }
 
 // scanRequest 按请求方法和内容类型扫描 query、form 与 JSON body。
+// 扫描后的请求体会恢复，保证下游仍可正常绑定或读取。
 func scanRequest(c *gin.Context) error {
 	if err := validateInputValue(c.Request.URL.Query()); err != nil {
 		return invalidInputError("query")
@@ -109,7 +112,8 @@ func scanRequest(c *gin.Context) error {
 	return nil
 }
 
-// shouldScanBody 判断当前 HTTP 方法是否可能携带需要扫描的业务请求体。
+// shouldScanBody 判断 HTTP 方法是否需要扫描业务请求体。
+// 当前只处理可能写入资源的 POST、PUT 和 PATCH。
 func shouldScanBody(method string) bool {
 	switch method {
 	case http.MethodPost, http.MethodPut, http.MethodPatch:
@@ -119,7 +123,8 @@ func shouldScanBody(method string) bool {
 	}
 }
 
-// readAndRestoreBody 读取请求体用于扫描，并把 body 放回请求供后续处理继续使用。
+// readAndRestoreBody 限量读取请求体并恢复请求流。
+// 超限时返回哨兵错误，同时保留内容供错误链路处理。
 func readAndRestoreBody(request *http.Request, maxBytes int64) ([]byte, error) {
 	if request.Body == nil {
 		return nil, nil
@@ -143,7 +148,8 @@ func readAndRestoreBody(request *http.Request, maxBytes int64) ([]byte, error) {
 	return body, nil
 }
 
-// abortSecurityError 输出与现有 API 响应结构一致的安全错误。
+// abortSecurityError 输出统一结构的安全错误并中止请求链。
+// code 和 message 由调用方根据具体安全边界传入。
 func abortSecurityError(c *gin.Context, status int, code string, message string) {
 	c.AbortWithStatusJSON(status, gin.H{
 		"success": false,

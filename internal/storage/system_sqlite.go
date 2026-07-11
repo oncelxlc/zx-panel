@@ -11,9 +11,11 @@ import (
 )
 
 // SystemSQLiteName 是项目根目录下的运行时 SQLite 数据库文件名。
+// 该常量保留给现有系统 SQLite 工具和测试使用。
 const SystemSQLiteName = "system.sqlite"
 
 // EnsureSystemSQLite 确保项目根目录存在系统 SQLite 数据库文件。
+// 创建过程依赖受控的 sqlite3 命令并拒绝 shell 字符串拼接。
 func EnsureSystemSQLite() (string, error) {
 	// 固定查找 sqlite3 命令，不接收用户输入，避免命令注入风险。
 	sqlitePath, err := exec.LookPath("sqlite3")
@@ -35,6 +37,7 @@ func EnsureSystemSQLite() (string, error) {
 }
 
 // ensureSystemSQLiteAt 在指定项目根目录创建或复用系统 SQLite 文件。
+// 同名目录或无法检查的路径会返回错误，避免误判为可用数据库。
 func ensureSystemSQLiteAt(rootDir string, sqlitePath string) (string, error) {
 	dbPath := filepath.Join(rootDir, SystemSQLiteName)
 
@@ -68,6 +71,7 @@ func ensureSystemSQLiteAt(rootDir string, sqlitePath string) (string, error) {
 }
 
 // findProjectRoot 从起始目录向上查找包含 go.mod 的项目根目录。
+// 到达文件系统根仍未命中时返回明确错误。
 func findProjectRoot(startDir string) (string, error) {
 	dir, err := filepath.Abs(startDir)
 	if err != nil {
@@ -89,7 +93,8 @@ func findProjectRoot(startDir string) (string, error) {
 	}
 }
 
-// commandOutputSuffix 将命令输出整理为错误消息后缀，避免空输出污染错误文本。
+// commandOutputSuffix 将命令输出整理为错误消息后缀。
+// 空输出不会产生多余标点，非空输出会先去除两端空白。
 func commandOutputSuffix(output []byte) string {
 	output = bytes.TrimSpace(output)
 	if len(output) == 0 {

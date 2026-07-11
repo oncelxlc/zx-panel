@@ -11,7 +11,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// TestIsUnsafeStringAllowsCommonInput 验证均衡策略不会误伤普通业务输入。
+// TestIsUnsafeStringAllowsCommonInput 验证普通业务输入不会被误伤。
+// 样本覆盖中文、邮箱、路径和包含常见 SQL 单词的自然语言。
 func TestIsUnsafeStringAllowsCommonInput(t *testing.T) {
 	inputs := []string{
 		"普通中文搜索 select admin",
@@ -28,7 +29,8 @@ func TestIsUnsafeStringAllowsCommonInput(t *testing.T) {
 	}
 }
 
-// TestIsUnsafeStringDetectsInjectionShapes 验证典型 SQL、NoSQL 和命令注入形态会被识别。
+// TestIsUnsafeStringDetectsInjectionShapes 验证典型注入形态会被识别。
+// 样本覆盖 SQL、NoSQL、shell 控制符和命令替换。
 func TestIsUnsafeStringDetectsInjectionShapes(t *testing.T) {
 	inputs := []string{
 		"' OR '1'='1",
@@ -49,7 +51,8 @@ func TestIsUnsafeStringDetectsInjectionShapes(t *testing.T) {
 	}
 }
 
-// TestValidateInputValueDetectsNoSQLOperatorKeys 验证 JSON key 中的 NoSQL 操作符会被拦截。
+// TestValidateInputValueDetectsNoSQLOperatorKeys 验证危险 NoSQL 键会被拦截。
+// 嵌套对象中的操作符同样必须触发非法输入错误。
 func TestValidateInputValueDetectsNoSQLOperatorKeys(t *testing.T) {
 	payload := map[string]any{
 		"username": map[string]any{
@@ -62,7 +65,8 @@ func TestValidateInputValueDetectsNoSQLOperatorKeys(t *testing.T) {
 	}
 }
 
-// TestSanitizeString 验证字符串清洗会移除危险控制字符并保留合法文本。
+// TestSanitizeString 验证字符串清洗移除危险控制字符。
+// 合法中文、空格和允许的换行类字符应按预期保留或裁剪。
 func TestSanitizeString(t *testing.T) {
 	got := SanitizeString(" \x00\t中文\u0008 value\n ")
 	want := "中文 value"
@@ -71,7 +75,8 @@ func TestSanitizeString(t *testing.T) {
 	}
 }
 
-// TestSanitizeValue 验证嵌套 map 和 slice 中的字符串会被递归清洗。
+// TestSanitizeValue 验证嵌套复合值会被递归清洗。
+// map 键、map 值和 slice 元素均包含在验证范围内。
 func TestSanitizeValue(t *testing.T) {
 	got := SanitizeValue(map[string]any{
 		" name ": " Alice\x00 ",
@@ -93,7 +98,8 @@ func TestSanitizeValue(t *testing.T) {
 	}
 }
 
-// TestMiddlewareRejectsUnsafeQuery 验证中间件对 query 注入载荷返回统一错误。
+// TestMiddlewareRejectsUnsafeQuery 验证危险 query 会返回统一错误。
+// 响应状态和业务错误码都必须符合安全 API 契约。
 func TestMiddlewareRejectsUnsafeQuery(t *testing.T) {
 	router := testRouter()
 	router.GET("/ping", func(c *gin.Context) {
@@ -118,7 +124,8 @@ func TestMiddlewareRejectsUnsafeQuery(t *testing.T) {
 	}
 }
 
-// TestMiddlewareRejectsUnsafeJSONAndRestoresSafeBody 验证危险 JSON 被拒绝且安全 JSON 会恢复 body。
+// TestMiddlewareRejectsUnsafeJSONAndRestoresSafeBody 验证 JSON 扫描边界。
+// 危险内容必须拒绝，安全内容的请求体必须完整恢复给下游。
 func TestMiddlewareRejectsUnsafeJSONAndRestoresSafeBody(t *testing.T) {
 	router := testRouter()
 	router.POST("/echo", func(c *gin.Context) {
@@ -151,7 +158,8 @@ func TestMiddlewareRejectsUnsafeJSONAndRestoresSafeBody(t *testing.T) {
 	}
 }
 
-// TestMiddlewareRejectsLargeBody 验证请求体大小限制会在读取阶段生效。
+// TestMiddlewareRejectsLargeBody 验证请求体大小限制在读取阶段生效。
+// 超过默认上限一个字节的请求必须返回 HTTP 413。
 func TestMiddlewareRejectsLargeBody(t *testing.T) {
 	router := testRouter()
 	router.POST("/echo", func(c *gin.Context) {
@@ -168,8 +176,10 @@ func TestMiddlewareRejectsLargeBody(t *testing.T) {
 	}
 }
 
-// TestBindJSONSanitizesAndValidates 验证绑定 helper 会先清洗字符串再执行结构体验证。
+// TestBindJSONSanitizesAndValidates 验证绑定 helper 的处理顺序。
+// 字符串应先清洗再验证，清洗为空的必填字段必须被拒绝。
 func TestBindJSONSanitizesAndValidates(t *testing.T) {
+	// payload 描述绑定测试覆盖的字符串、切片和 map 字段。
 	type payload struct {
 		Name string            `json:"name" binding:"required"`
 		Tags []string          `json:"tags"`
@@ -213,6 +223,7 @@ func TestBindJSONSanitizesAndValidates(t *testing.T) {
 }
 
 // testRouter 创建只挂载安全中间件的测试路由。
+// 每个测试获得独立 Gin Engine，避免路由注册相互影响。
 func testRouter() *gin.Engine {
 	gin.SetMode(gin.TestMode)
 	router := gin.New()

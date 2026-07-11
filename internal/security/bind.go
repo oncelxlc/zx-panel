@@ -7,7 +7,8 @@ import (
 	"github.com/gin-gonic/gin/binding"
 )
 
-// BindJSON 绑定 JSON 请求体，随后清洗字符串字段并执行结构体验证。
+// BindJSON 绑定 JSON 请求体并清洗、验证目标结构。
+// 任一步失败都会写入统一错误响应并返回 false。
 func BindJSON(c *gin.Context, dst any) bool {
 	if err := c.ShouldBindJSON(dst); err != nil {
 		abortInvalidInput(c, err)
@@ -23,7 +24,8 @@ func BindJSON(c *gin.Context, dst any) bool {
 	return true
 }
 
-// BindQuery 绑定 query 参数，随后清洗字符串字段并执行结构体验证。
+// BindQuery 绑定 query 参数并清洗、验证目标结构。
+// 任一步失败都会写入统一错误响应并返回 false。
 func BindQuery(c *gin.Context, dst any) bool {
 	if err := c.ShouldBindQuery(dst); err != nil {
 		abortInvalidInput(c, err)
@@ -39,7 +41,8 @@ func BindQuery(c *gin.Context, dst any) bool {
 	return true
 }
 
-// ValidateStruct 复用 Gin 当前的 validator，实现 binding 标签一致校验。
+// ValidateStruct 复用 Gin 当前注册的结构体验证器。
+// 该入口保证手动校验与 binding 标签使用相同规则。
 func ValidateStruct(value any) error {
 	if binding.Validator == nil {
 		return nil
@@ -48,7 +51,8 @@ func ValidateStruct(value any) error {
 	return binding.Validator.ValidateStruct(value)
 }
 
-// abortInvalidInput 将绑定、清洗和校验失败统一转换为 API 错误响应。
+// abortInvalidInput 将绑定、清洗和校验失败转换为统一错误响应。
+// 对外消息保持安全，不直接泄露内部验证器实现细节。
 func abortInvalidInput(c *gin.Context, err error) {
 	message := defaultInvalidInputReason
 	if err != nil && !errors.Is(err, ErrInvalidInput) {

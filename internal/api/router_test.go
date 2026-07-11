@@ -11,7 +11,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// TestNewRouterHealthAndPing 验证基础路由在安全中间件接入后仍可正常访问。
+// TestNewRouterHealthAndPing 验证健康检查和 ping 公共路由可访问。
+// 用例确保基础安全中间件不会破坏正常请求链路。
 func TestNewRouterHealthAndPing(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	router := NewRouter()
@@ -38,6 +39,7 @@ func TestNewRouterHealthAndPing(t *testing.T) {
 }
 
 // TestNewRouterRejectsUnsafeQuery 验证全局安全中间件会拦截危险 query。
+// 响应同时必须保持统一 INVALID_INPUT 错误码。
 func TestNewRouterRejectsUnsafeQuery(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	router := NewRouter()
@@ -54,7 +56,8 @@ func TestNewRouterRejectsUnsafeQuery(t *testing.T) {
 	}
 }
 
-// TestNewRouterRestoresScannedJSONBody 验证 JSON body 被扫描后仍能被下游读取。
+// TestNewRouterRestoresScannedJSONBody 验证 JSON body 扫描后仍可读取。
+// 用例防止安全中间件消费请求体后导致下游 handler 获得空内容。
 func TestNewRouterRestoresScannedJSONBody(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	router := NewRouter()

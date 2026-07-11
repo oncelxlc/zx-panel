@@ -6,7 +6,8 @@ import (
 	"unicode"
 )
 
-// SanitizeString 清理字符串中的 NUL 和危险控制字符，并裁剪首尾空白。
+// SanitizeString 清理字符串中的 NUL、危险控制字符和首尾空白。
+// 正常可见业务文本保持原顺序，不执行内容转义或替换。
 func SanitizeString(input string) string {
 	cleaned := strings.Map(func(r rune) rune {
 		if r == 0 {
@@ -22,7 +23,8 @@ func SanitizeString(input string) string {
 	return strings.TrimSpace(cleaned)
 }
 
-// SanitizeValue 返回清洗后的值副本，支持常见结构、切片、数组和 map。
+// SanitizeValue 返回输入值的递归清洗副本。
+// 常见结构、切片、数组和 map 在不修改原值的前提下完成处理。
 func SanitizeValue(value any) any {
 	if value == nil {
 		return nil
@@ -36,7 +38,8 @@ func SanitizeValue(value any) any {
 	return sanitized.Interface()
 }
 
-// sanitizeInPlace 原地清洗绑定后的 DTO，用于 Gin bind helper。
+// sanitizeInPlace 原地清洗 Gin 绑定后的 DTO。
+// 空值或无效指针会被安全跳过，避免反射操作触发 panic。
 func sanitizeInPlace(value any) {
 	if value == nil {
 		return
@@ -46,6 +49,7 @@ func sanitizeInPlace(value any) {
 }
 
 // sanitizeValueInPlace 通过反射递归清洗可设置字段。
+// 该函数服务于请求绑定流程并原地更新字符串内容。
 func sanitizeValueInPlace(value reflect.Value) {
 	if !value.IsValid() {
 		return
@@ -104,7 +108,8 @@ func sanitizeValueInPlace(value reflect.Value) {
 	}
 }
 
-// sanitizeCopy 构造清洗后的反射值副本，适用于 map key 等不能原地修改的场景。
+// sanitizeCopy 构造清洗后的反射值副本。
+// 该实现支持 map key 等不能原地修改的输入位置。
 func sanitizeCopy(value reflect.Value) reflect.Value {
 	if !value.IsValid() {
 		return reflect.Value{}

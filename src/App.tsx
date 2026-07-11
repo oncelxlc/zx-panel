@@ -1,18 +1,13 @@
 import { Button } from "antd";
+import type { RouteContent, RoutePath } from "@/types/navigation.type";
 import type { MouseEvent } from "react";
 import { useEffect, useState } from "react";
 import { useThemeMode } from "./theme/themeContext";
 
-type RoutePath = "/" | "/nginx" | "/nginx/index";
-
-type RouteContent = {
-  path: RoutePath;
-  eyebrow: string;
-  title: string;
-  description: string;
-  details: string[];
-};
-
+/**
+ * routes 保存旧版兼容页面的静态路径与展示内容。
+ * 当前正式入口使用 React Router，该列表仅供保留页面复用。
+ */
 const routes: RouteContent[] = [
   {
     path: "/",
@@ -50,6 +45,10 @@ const routes: RouteContent[] = [
   },
 ];
 
+/**
+ * normalizePath 统一浏览器路径格式并移除非根路径末尾斜杠。
+ * 空路径会回退到根路径，保证后续匹配具有稳定输入。
+ */
 function normalizePath(pathname: string) {
   if (!pathname) {
     return "/";
@@ -62,14 +61,23 @@ function normalizePath(pathname: string) {
   return pathname;
 }
 
+/**
+ * getRoute 根据规范化路径查找旧版页面配置。
+ * 未找到时返回 undefined，由页面渲染 404 内容。
+ */
 function getRoute(pathname: string) {
   return routes.find((route) => route.path === pathname);
 }
 
+/**
+ * useCurrentPath 订阅浏览器历史变化并维护当前路径。
+ * Hook 同时向旧版页面暴露主动更新路径的能力。
+ */
 function useCurrentPath() {
   const [currentPath, setCurrentPath] = useState("/");
 
   useEffect(() => {
+    // 浏览器前进后退时重新同步规范化路径。
     const syncPath = () => {
       setCurrentPath(normalizePath(window.location.pathname));
     };
@@ -85,11 +93,16 @@ function useCurrentPath() {
   return { currentPath, setCurrentPath };
 }
 
+/**
+ * App 渲染保留的手动路径分发页面。
+ * 组件当前不作为正式入口，但继续保持可编译和可维护状态。
+ */
 export default function App() {
   const { currentPath, setCurrentPath } = useCurrentPath();
   const { resolvedMode, toggleTheme } = useThemeMode();
   const activeRoute = getRoute(currentPath);
 
+  // 仅拦截普通左键导航，保留浏览器新窗口和修饰键行为。
   const handleNavigate = (
     event: MouseEvent<HTMLAnchorElement>,
     path: RoutePath,
@@ -112,6 +125,7 @@ export default function App() {
       return;
     }
 
+    // 同步浏览器历史与组件状态，避免触发整页刷新。
     window.history.pushState({}, "", nextPath);
     setCurrentPath(nextPath);
   };

@@ -1,8 +1,11 @@
 import { AppstoreOutlined, MailOutlined, SettingOutlined } from "@ant-design/icons";
-import { Menu, MenuProps } from "antd";
+import type { MenuItem } from "@/types/navigation.type";
+import { Menu, type MenuProps } from "antd";
 
-type MenuItem = Required<MenuProps>["items"][number];
-
+/**
+ * items 描述当前主侧栏的分组、子菜单和占位导航项。
+ * 配置使用 Ant Design 原生菜单项类型保证结构合法。
+ */
 const items: MenuItem[] = [
   {
     key: "sub1",
@@ -71,7 +74,12 @@ const items: MenuItem[] = [
   },
 ];
 
+/**
+ * MainSider 渲染主布局的可滚动导航菜单。
+ * 当前点击处理保留调试输出，后续可接入真实路由。
+ */
 export function MainSider() {
+  // 菜单尚未绑定业务路由，暂时记录点击信息便于开发调试。
   const onClick: MenuProps["onClick"] = (e) => {
     console.log("click ", e);
   };

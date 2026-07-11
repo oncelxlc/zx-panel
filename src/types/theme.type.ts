@@ -9,12 +9,6 @@ export type ThemeMode = "light" | "dark";
 export type ThemePreference = ThemeMode | "system";
 
 /**
- * 用于在本地存储中保存用户主题偏好的键
- * @type {string}
- */
-export const THEME_STORAGE_KEY = "zx-panel-theme";
-
-/**
  * Shadcn 主题的一组设计标记，包括颜色和其他样式属性。
  */
 export type ShadcnTokenSet = {
@@ -40,3 +34,23 @@ export type ShadcnTokenSet = {
   success: string;
   warning: string;
 };
+
+/**
+ * ThemeContextValue 描述主题上下文对组件暴露的状态和操作。
+ * preference 保留用户选择，resolvedMode 表示实际生效模式。
+ */
+export type ThemeContextValue = {
+  preference: ThemePreference;
+  resolvedMode: ThemeMode;
+  setPreference: (preference: ThemePreference) => void;
+  toggleTheme: () => void;
+};
+
+/**
+ * ThemeProviderProps 描述主题提供器包裹的 React 内容。
+ * children 会在 Ant Design 与自定义主题上下文内渲染。
+ */
+export type ThemeProviderProps = {
+  children: ReactNode;
+};
+import type { ReactNode } from "react";

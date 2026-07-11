@@ -12,7 +12,8 @@ import (
 	"zx-panel/internal/storage"
 )
 
-// Run 完成后端启动前置检查并启动 HTTP 服务。
+// Run 完成数据库检查、迁移和管理员初始化后启动 HTTP 服务。
+// 任一启动前置失败都会直接返回，避免进程接受不完整请求。
 func Run(cfg config.ServerConfig) error {
 	// 启动阶段完成数据库连通性、表迁移和首个管理员检查，避免带病接受 HTTP 请求。
 	startupContext, cancel := context.WithTimeout(context.Background(), 15*time.Second)
