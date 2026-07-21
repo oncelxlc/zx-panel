@@ -15,12 +15,19 @@ const {Header, Content, Sider} = Layout;
  * 样式对象使用 React CSSProperties 执行属性类型检查。
  */
 const siderStyle: CSSProperties = {
-  height: "100vh",
+  height: "calc(100vh - 56px)",
   position: "sticky",
   insetInlineStart: 0,
-  top: 0,
+  top: "56px",
   scrollbarWidth: "thin",
   scrollbarGutter: "stable",
+};
+
+const headerStyle: CSSProperties = {
+  padding: 0,
+  position: "sticky",
+  top: 0,
+  zIndex: 1000,
 };
 
 /**
@@ -30,7 +37,7 @@ const siderStyle: CSSProperties = {
 export default function MainLayout() {
   return (
     <Layout style={{minHeight: "100vh"}}>
-      <Header style={{padding: 0}}>
+      <Header style={headerStyle}>
         <MainHeader/>
       </Header>
       <Layout>

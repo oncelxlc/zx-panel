@@ -9,9 +9,9 @@ export function IndexPage() {
   const {resolvedMode, toggleTheme} = useThemeMode();
 
   return (
-    <div>
+    <div style={{height: "106vh"}}>
       <Button type="primary">按钮</Button>
-      <Button type='dashed' onClick={toggleTheme}>
+      <Button type="dashed" onClick={toggleTheme}>
         {resolvedMode === "dark" ? "切换亮色" : "切换暗色"}
       </Button>
     </div>

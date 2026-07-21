@@ -2,8 +2,13 @@
 
 html {
   scrollbar-width: thin;
-  scrollbar-color: #EAEAEA transparent;
   overscroll-behavior-x: contain;
+  scrollbar-color: #00000000 transparent;
+  background-color: var(--selection-foreground);
+
+  &:hover {
+    scrollbar-color: #EAEAEA transparent;
+  }
 }
 
 * {
