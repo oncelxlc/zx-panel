@@ -23,6 +23,10 @@ const siderStyle: CSSProperties = {
   scrollbarGutter: "stable",
 };
 
+/**
+ * headerStyle 固定页头并保持在视口顶部。
+ * 样式对象使用 React CSSProperties 执行属性类型检查。
+ */
 const headerStyle: CSSProperties = {
   padding: 0,
   position: "sticky",
