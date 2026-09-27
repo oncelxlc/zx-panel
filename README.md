@@ -73,7 +73,7 @@ docker compose ps
 
 | 服务 | 宿主机地址 | 容器内地址 | 默认数据库/用户 |
 |------|------------|------------|-----------------|
-| PostgreSQL | `127.0.0.1:5432` | `postgres:5432` | 数据库 `zx_panel`，用户 `zx_panel` |
+| PostgreSQL | `127.0.0.1:25432` | `postgres:25432` | 数据库 `zx_panel`，用户 `zx_panel` |
 | Redis | `127.0.0.1:6379` | `redis:6379` | 使用 `REDIS_PASSWORD` 认证 |
 
 停止容器但保留数据：
@@ -88,7 +88,7 @@ docker compose down
 docker compose down -v
 ```
 
-默认端口只绑定到 `127.0.0.1`，避免数据库意外暴露到局域网。确需从其他主机连接时，可在 `.env` 中设置 `DOCKER_BIND_HOST=0.0.0.0`，同时应使用强密码并配置主机防火墙。Go 后端默认连接 `127.0.0.1:5432`；容器化后端应将 `POSTGRES_HOST` 设置为 `postgres`。
+默认端口只绑定到 `127.0.0.1`，避免数据库意外暴露到局域网。确需从其他主机连接时，可在 `.env` 中设置 `DOCKER_BIND_HOST=0.0.0.0`，同时应使用强密码并配置主机防火墙。Go 后端默认连接 `127.0.0.1:25432`；容器化后端应将 `POSTGRES_HOST` 设置为 `postgres`。
 
 ## 可用脚本
 

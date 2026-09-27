@@ -57,7 +57,7 @@ func loadDatabaseURL() string {
 			envOrDefault("POSTGRES_USER", "zx_panel"),
 			envOrDefault("POSTGRES_PASSWORD", "change_me_postgres"),
 		),
-		Host: envOrDefault("POSTGRES_HOST", "127.0.0.1") + ":" + envOrDefault("POSTGRES_PORT", "5432"),
+		Host: envOrDefault("POSTGRES_HOST", "127.0.0.1") + ":" + envOrDefault("POSTGRES_PORT", "25432"),
 		Path: envOrDefault("POSTGRES_DB", "zx_panel"),
 	}
 	query := connectionURL.Query()
