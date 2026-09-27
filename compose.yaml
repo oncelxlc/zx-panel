@@ -18,6 +18,8 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_me_postgres}
     command:
       - postgres
+      - -p
+      - '25432'
       - -c
       - max_connections=100
       - -c
@@ -41,7 +43,7 @@ services:
       # 初始化脚本
       - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}" ]
+      test: [ "CMD-SHELL", "pg_isready -p 25432 -U $${POSTGRES_USER} -d $${POSTGRES_DB}" ]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -62,10 +64,13 @@ services:
     container_name: zx-panel-redis
     restart: unless-stopped
     environment:
-      # Compose 自动读取根目录 .env；变量缺失或为空时使用开发默认密码。
-      REDIS_PASSWORD: ${REDIS_PASSWORD:-change_me_redis}
+      # 密码必须在 .env 或进程环境中设置，与启动命令和健康检查保持一致。
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
     command:
       - redis-server
+      - /usr/local/etc/redis/redis.conf
+      - --port
+      - '26379'
       - --requirepass
       - ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
       - --appendonly
@@ -78,7 +83,7 @@ services:
       - ./docker/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
       - redis_data:/data
     healthcheck:
-      test: [ "CMD-SHELL", "REDISCLI_AUTH=\"$$REDIS_PASSWORD\" redis-cli ping | grep PONG" ]
+      test: [ "CMD-SHELL", "REDISCLI_AUTH=\"$$REDIS_PASSWORD\" redis-cli -p 26379 ping | grep PONG" ]
       interval: 10s
       timeout: 5s
       retries: 5

@@ -46,6 +46,8 @@ docker compose up -d
 go run ./cmd/server
 ```
 
+Windows 下 Docker 安装在 WSL 中时，在仓库根目录使用 `wsl docker compose up -d` 启动数据服务，再在 Windows 中运行 Go 后端。
+
 系统环境变量优先于 `.env`，因此容器、CI 和生产部署仍可覆盖文件配置；缺少 `.env` 时后端继续使用系统环境变量和默认值，文件存在但不可读或格式错误时会拒绝启动。`ADMIN_USERNAME` 默认为 `admin`，仅当用户表为空时创建初始管理员，后续启动不会覆盖现有密码。也可通过 `DATABASE_URL` 提供完整 PostgreSQL 连接串。
 
 启动前端开发服务器：
@@ -54,8 +56,8 @@ go run ./cmd/server
 pnpm dev
 ```
 
-Vite 开发地址为 [http://localhost:6500](http://localhost:6500)。`vite.config.ts` 启用了 `strictPort`，如果端口被占用会直接报错。
-
+Vite 开发地址为 [http://localhost:6500](http://localhost:7200)。`vite.config.ts` 启用了 `strictPort`，如果端口被占用会直接报错。
+``
 默认后端地址为 `http://localhost:25000`，可通过 `PORT` 环境变量覆盖端口。
 
 ## Redis 与 PostgreSQL
@@ -74,7 +76,7 @@ docker compose ps
 | 服务 | 宿主机地址 | 容器内地址 | 默认数据库/用户 |
 |------|------------|------------|-----------------|
 | PostgreSQL | `127.0.0.1:25432` | `postgres:25432` | 数据库 `zx_panel`，用户 `zx_panel` |
-| Redis | `127.0.0.1:6379` | `redis:6379` | 使用 `REDIS_PASSWORD` 认证 |
+| Redis | `127.0.0.1:26379` | `redis:26379` | 使用 `REDIS_PASSWORD` 认证 |
 
 停止容器但保留数据：
 
@@ -89,6 +91,10 @@ docker compose down -v
 ```
 
 默认端口只绑定到 `127.0.0.1`，避免数据库意外暴露到局域网。确需从其他主机连接时，可在 `.env` 中设置 `DOCKER_BIND_HOST=0.0.0.0`，同时应使用强密码并配置主机防火墙。Go 后端默认连接 `127.0.0.1:25432`；容器化后端应将 `POSTGRES_HOST` 设置为 `postgres`。
+
+PostgreSQL 和 Redis 的容器监听端口及健康检查分别使用 `25432` 和 `26379`，与 Compose 映射目标一致。修改 Compose 启动参数后，重新执行 `docker compose up -d` 应用配置并保留原有数据卷；仅重启 Go 后端不会应用容器配置变更。
+
+Redis 加载挂载的 `docker/redis/redis.conf`，启用 512 MB 数据内存上限、`allkeys-lru` 淘汰策略及 RDB/AOF 持久化；`REDIS_PASSWORD` 必须通过 `.env` 或进程环境提供。
 
 ## 可用脚本
 

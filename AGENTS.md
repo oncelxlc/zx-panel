@@ -17,7 +17,7 @@
   - `src/theme/*` contains theme context and Ant Design theme integration.
   - `src/styles.scss` contains global SCSS styles.
 - Frontend tooling:
-  - `vite.config.ts` configures React, `@/* -> src/*`, and dev server port `6500` with `strictPort: true`.
+  - `vite.config.ts` configures React, `@/* -> src/*`, and dev server port `7200` with `strictPort: true`.
   - `tsconfig.json` enables strict TypeScript and includes `src` plus `vite.config.ts`.
   - `eslint.config.mjs` uses flat ESLint config with TypeScript, React Hooks, and React Refresh rules.
 - Backend:
@@ -33,7 +33,7 @@
 ## Developer Workflows
 - Frontend runtime target is modern Node (`package.json` engines: Node `^22.22.0 || >=24.0.0`).
 - Use pnpm for frontend package scripts:
-  - `pnpm dev` starts Vite on `http://localhost:6500`.
+  - `pnpm dev` starts Vite on `http://localhost:7200`.
   - `pnpm build` builds production assets into `dist/`.
   - `pnpm start` or `pnpm preview` previews the built frontend.
   - `pnpm lint` runs ESLint.
