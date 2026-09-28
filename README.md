@@ -205,8 +205,9 @@ Redis 加载挂载的 `docker/redis/redis.conf`，启用 512 MB 数据内存上�
 - Tailwind v4 和主题变量由独立的 `src/styles/theme.css` 提供；页面布局继续使用 SCSS，不在 SCSS 中导入 Tailwind。
 - 登录与后台的展示及交互使用 shadcn 组件组合；SCSS 仅负责背景、布局和断点，不覆盖组件的字号、颜色、阴影。侧栏使用官方 Sidebar，移动端通过 Sheet 显示。
 - 使用 `pnpm exec shadcn add @shadcn/<组件名>` 按需添加官方组件，并遵循 `src/types` 类型归档和中文注释约定。
-- 登录表单沿用账号密码认证，支持密码显隐、逐字段校验、安全站内回跳及亮暗背景切换；主题偏好继续保存于 `zx-panel-theme`。
-- 前端验证命令：`pnpm exec tsc --noEmit`、`pnpm lint`、`pnpm test:login`、`pnpm build`。
+- 登录表单沿用账号密码认证，支持密码显隐、逐字段校验和安全站内回跳。登录页强制跟随系统主题且无切换按钮；系统未明确偏好亮色或媒体查询不可用时默认暗色。后台主题偏好继续保存于 `zx-panel-theme`。
+- 主题在路由内统一管理，首屏脚本提前应用同一策略；后续切换使用 360ms 原生淡入淡出，减少动态效果或不支持 View Transitions 时直接切换。
+- 前端验证命令：`pnpm exec tsc --noEmit`、`pnpm lint`、`pnpm test:login`、`pnpm test:theme`、`pnpm build`。
 - 后端新增可运行逻辑放在 `cmd/server`，可复用业务代码放在 `internal/*`。
 - 不要硬编码环境相关 URL；新增前后端集成时优先使用环境变量或配置。
 - 提交信息使用 Conventional Commits，例如 `feat: add nginx page`、`fix: handle api error`、`docs: update readme`。

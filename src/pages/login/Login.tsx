@@ -27,7 +27,6 @@ import {
 } from "@/components/ui/input-group";
 import { Item, ItemContent, ItemMedia, ItemTitle } from "@/components/ui/item";
 import { Spinner } from "@/components/ui/spinner";
-import { ThemeToggle } from "@/theme/ThemeToggle";
 import type { LoginFormErrors, LoginFormValues } from "@/types/auth.type";
 import {
   ArrowRight,
@@ -132,23 +131,20 @@ export function LoginPage() {
 
   return (
     <main className="login-page">
-      <div className="login-page__theme">
-        <ThemeToggle />
-      </div>
       <div className="login-page__body">
         <section className="login-page__panel" aria-labelledby="login-title">
-          <Item size="sm" className="p-0">
-            <ItemMedia>
-              <Avatar aria-hidden="true">
-                <AvatarFallback>Z</AvatarFallback>
-              </Avatar>
-            </ItemMedia>
-            <ItemContent>
-              <ItemTitle>ZX PANEL</ItemTitle>
-            </ItemContent>
-          </Item>
-          <Card>
-            <CardHeader className="gap-3">
+          <Card size="lg" variant="glass">
+            <CardHeader className="gap-2">
+              <Item size="sm" className="mb-5 gap-3 p-0">
+                <ItemMedia>
+                  <Avatar size="lg" aria-hidden="true">
+                    <AvatarFallback>Z</AvatarFallback>
+                  </Avatar>
+                </ItemMedia>
+                <ItemContent>
+                  <ItemTitle>ZX PANEL</ItemTitle>
+                </ItemContent>
+              </Item>
               <CardTitle id="login-title" role="heading" aria-level={1}>
                 欢迎回来
               </CardTitle>
@@ -156,7 +152,7 @@ export function LoginPage() {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} noValidate aria-busy={submitting}>
-                <FieldGroup className="gap-6">
+                <FieldGroup className="gap-5">
                   {errorMessage && (
                     <Alert variant="destructive">
                       <CircleAlert aria-hidden="true" />
@@ -169,10 +165,11 @@ export function LoginPage() {
                   >
                     <FieldLabel htmlFor="username">账号</FieldLabel>
                     <InputGroup className="h-12">
-                      <InputGroupAddon>
+                      <InputGroupAddon className="pl-3.5">
                         <UserRound aria-hidden="true" />
                       </InputGroupAddon>
                       <InputGroupInput
+                        className="h-full"
                         ref={usernameRef}
                         id="username"
                         name="username"
@@ -216,10 +213,11 @@ export function LoginPage() {
                   >
                     <FieldLabel htmlFor="password">密码</FieldLabel>
                     <InputGroup className="h-12">
-                      <InputGroupAddon>
+                      <InputGroupAddon className="pl-3.5">
                         <LockKeyhole aria-hidden="true" />
                       </InputGroupAddon>
                       <InputGroupInput
+                        className="h-full"
                         ref={passwordRef}
                         id="password"
                         name="password"
@@ -260,7 +258,7 @@ export function LoginPage() {
                     )}
                   </Field>
                   <Button
-                    className="h-12 w-full"
+                    className="mt-1 h-12 w-full"
                     type="submit"
                     disabled={submitting}
                   >
@@ -278,7 +276,7 @@ export function LoginPage() {
                 </span>
               </form>
             </CardContent>
-            <CardFooter className="justify-center">
+            <CardFooter className="justify-center py-4">
               <Badge variant="secondary">
                 <ShieldCheck data-icon="inline-start" aria-hidden="true" />
                 仅限授权用户访问

@@ -7,7 +7,7 @@ import {
 import { useThemeMode } from "@/theme/themeContext";
 import { Moon, Sun } from "lucide-react";
 
-/** 为登录页和后台提供同一主题切换操作，首次访问仍默认跟随系统。 */
+/** 为后台提供主题切换操作；登录页强制跟随系统，不展示手动入口。 */
 export function ThemeToggle() {
   const { resolvedMode, toggleTheme } = useThemeMode();
   const label = resolvedMode === "dark" ? "切换亮色主题" : "切换暗色主题";

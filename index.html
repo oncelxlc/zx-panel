@@ -1,8 +1,9 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" class="dark" data-theme="dark">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="color-scheme" content="dark light"/>
   <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png"/>
   <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png"/>
   <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png"/>
@@ -11,17 +12,21 @@
   <title>ZX Panel</title>
   <script>
     (function () {
+      var theme = "dark";
       try {
-        var key = "zx-panel-theme";
-        var stored = window.localStorage.getItem(key);
-        var preference = stored === "light" || stored === "dark" ? stored : "system";
-        var systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-        var theme = preference === "system" ? (systemDark ? "dark" : "light") : preference;
-        document.documentElement.dataset.theme = theme;
-        document.documentElement.classList.toggle("dark", theme === "dark");
+        theme = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches
+          ? "light"
+          : "dark";
+        // 登录页忽略历史选择，首屏与路由内的主题策略保持一致。
+        if (!/^\/login\/*$/i.test(window.location.pathname)) {
+          var stored = window.localStorage.getItem("zx-panel-theme");
+          if (stored === "light" || stored === "dark") theme = stored;
+        }
       } catch (error) {
-        document.documentElement.dataset.theme = "light";
+        // 无法读取偏好时保留已解析的系统主题或默认暗色。
       }
+      document.documentElement.dataset.theme = theme;
+      document.documentElement.classList.toggle("dark", theme === "dark");
     })();
   </script>
 </head>

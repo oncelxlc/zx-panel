@@ -4,10 +4,23 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* 系统主题变化时整体淡入淡出，图片背景和表单保持同步。 */
+::view-transition-group(root) {
+  animation-duration: 360ms;
+  animation-timing-function: ease-in-out;
+}
+
+::view-transition {
+  pointer-events: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
-  *::after {
+  *::after,
+  ::view-transition-group(root),
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
@@ -129,6 +142,40 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+}
+
+/* 登录页从背景提取冷蓝色，仅在此作用域内调整组件的语义颜色。 */
+.login-page {
+  --background: oklch(0.975 0.012 250);
+  --foreground: oklch(0.27 0.04 250);
+  --card: oklch(0.99 0.006 250 / 88%);
+  --card-foreground: var(--foreground);
+  --primary: oklch(0.45 0.155 255);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.94 0.025 250);
+  --secondary-foreground: oklch(0.43 0.1 250);
+  --muted: oklch(0.955 0.015 250);
+  --muted-foreground: oklch(0.49 0.035 250);
+  --accent: var(--secondary);
+  --accent-foreground: var(--foreground);
+  --border: oklch(0.87 0.025 250);
+  --input: oklch(0.66 0.035 250);
+  --ring: var(--primary);
+  --radius: 0.875rem;
+}
+
+.dark .login-page {
+  --background: oklch(0.14 0.02 250);
+  --foreground: oklch(0.95 0.014 250);
+  --card: oklch(0.205 0.03 250 / 92%);
+  --primary: oklch(0.54 0.17 250);
+  --secondary: oklch(0.29 0.05 250);
+  --secondary-foreground: oklch(0.84 0.075 250);
+  --muted: oklch(0.25 0.03 250);
+  --muted-foreground: oklch(0.74 0.035 250);
+  --border: oklch(0.37 0.05 250);
+  --input: oklch(0.6 0.04 250);
+  --ring: oklch(0.7 0.13 250);
 }
 
 @layer base {

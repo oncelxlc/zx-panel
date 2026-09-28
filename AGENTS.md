@@ -10,8 +10,8 @@
 ## Architecture Map
 - Frontend:
   - `index.html` is the Vite HTML entry.
-  - `src/main.tsx` mounts React and wraps the app with `ThemeProvider`.
-  - `src/routes/router.tsx` is the active React Router configuration.
+  - `src/main.tsx` mounts React and the shared `TooltipProvider`.
+  - `src/routes/router.tsx` is the active React Router configuration and wraps routes with `ThemeProvider` so theme policy follows navigation.
   - Existing UI paths are public `/login` and authenticated `/`.
   - `src/auth/*` contains the API client, session storage, and global authentication guard.
   - `src/theme/*` contains theme preference, system-theme listeners, and the shared theme toggle.
@@ -41,6 +41,7 @@
   - `pnpm lint` runs ESLint.
   - `pnpm exec tsc --noEmit` checks frontend types.
   - `pnpm test:login` runs Node built-in tests for login validation and safe return paths.
+  - `pnpm test:theme` checks login theme policy, dark fallback, and theme transition cleanup.
   - `pnpm lint:fix` applies fixable ESLint changes.
 - Backend commands:
   - `go run ./cmd/server` starts the Gin server on `PORT` or `25000`.
@@ -59,7 +60,7 @@
 - Use the configured alias `@/* -> src/*` when it improves clarity.
 - Keep styling aligned with the current SCSS/global class pattern in `src/styles.scss`.
 - Use existing shadcn/ui controls before adding new UI dependencies. Add official components with `pnpm exec shadcn add @shadcn/<component>` and review generated files for type/comment conventions.
-- Keep theme colors in `src/styles/theme.css`; preserve the `zx-panel-theme` preference and the initial theme script in `index.html`.
+- Keep theme colors in `src/styles/theme.css` and the initial theme script in `index.html` aligned with runtime theme policy. Login always follows the system with dark fallback and no toggle; preserve `zx-panel-theme` preferences for authenticated pages. Theme transitions respect reduced motion.
 - Build visual and interactive UI from shadcn components, including login branding, cards, feedback, navigation, and tooltips. Keep native elements for semantic structure and layout only; page SCSS must not override component colors, typography, or shadows.
 - Use the official Sidebar composition for the main navigation, with `SidebarMenuButton render={<NavLink ... />}`. Use `Item render={<a ... />}` for other structured links so native link semantics remain intact.
 - Keep the sidebar context and hook in `src/hooks/use-sidebar.ts`; TooltipProvider is mounted at the app entry.

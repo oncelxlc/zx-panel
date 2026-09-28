@@ -1,4 +1,9 @@
 import { THEME_STORAGE_KEY } from "@/theme/constants";
+import {
+  getSystemTheme,
+  isSystemThemePath,
+  syncDocumentTheme,
+} from "@/theme/systemTheme";
 import type {
   ThemeContextValue,
   ThemeMode,
@@ -6,6 +11,7 @@ import type {
   ThemeProviderProps,
 } from "@/types/theme.type";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useLocation } from "react-router";
 import { ThemeContext } from "./themeContext";
 
 /**
@@ -25,21 +31,6 @@ function isThemePreference(value: string | null): value is ThemePreference {
 }
 
 /**
- * getSystemTheme 根据浏览器媒体查询解析当前系统主题。
- * SSR 或无窗口环境统一回退到亮色模式。
- */
-function getSystemTheme(): ThemeMode {
-  if (
-    typeof window !== "undefined" &&
-    window.matchMedia("(prefers-color-scheme: dark)").matches
-  ) {
-    return "dark";
-  }
-
-  return "light";
-}
-
-/**
  * getStoredPreference 从本地存储读取并校验主题偏好。
  * 缺失、非法或无窗口环境时统一回退到跟随系统。
  */
@@ -48,34 +39,29 @@ function getStoredPreference(): ThemePreference {
     return "system";
   }
 
-  const storedPreference = window.localStorage.getItem(THEME_STORAGE_KEY);
-  return isThemePreference(storedPreference) ? storedPreference : "system";
-}
-
-/**
- * syncDocumentTheme 将实际主题同步到根元素，由 CSS 变量控制页面与组件。
- * 无 document 的渲染环境会跳过所有 DOM 操作。
- */
-function syncDocumentTheme(mode: ThemeMode) {
-  if (typeof document === "undefined") {
-    return;
+  try {
+    const storedPreference = window.localStorage.getItem(THEME_STORAGE_KEY);
+    return isThemePreference(storedPreference) ? storedPreference : "system";
+  } catch {
+    // 浏览器禁用存储时继续跟随系统，避免主题偏好阻止登录页渲染。
+    return "system";
   }
-
-  const root = document.documentElement;
-  root.dataset.theme = mode;
-  root.classList.toggle("dark", mode === "dark");
 }
 
 /**
- * ThemeProvider 管理用户主题偏好，向页面提供统一的主题切换入口。
- * 组件同时监听系统主题变化并把最终模式同步到文档根节点。
+ * ThemeProvider 在路由内管理主题；登录页强制跟随系统，后台使用已保存偏好。
+ * 系统变化与站内导航统一同步根节点主题，并清理尚未完成的切换动画。
  */
 export function ThemeProvider({ children }: ThemeProviderProps) {
+  const { pathname } = useLocation();
   const [preference, setPreferenceState] =
     useState<ThemePreference>(getStoredPreference);
   const [systemMode, setSystemMode] = useState<ThemeMode>(getSystemTheme);
 
-  const resolvedMode = preference === "system" ? systemMode : preference;
+  const resolvedMode =
+    isSystemThemePath(pathname) || preference === "system"
+      ? systemMode
+      : preference;
 
   const setPreference = useCallback((nextPreference: ThemePreference) => {
     setPreferenceState(nextPreference);
@@ -85,22 +71,25 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     }
 
     // 浏览器环境持久化用户选择，后续访问可直接恢复。
-    window.localStorage.setItem(THEME_STORAGE_KEY, nextPreference);
+    try {
+      window.localStorage.setItem(THEME_STORAGE_KEY, nextPreference);
+    } catch {
+      // 存储不可用时仍允许后台在当前会话中切换主题。
+    }
   }, []);
 
   const toggleTheme = useCallback(() => {
     setPreference(resolvedMode === "dark" ? "light" : "dark");
   }, [resolvedMode, setPreference]);
 
-  useEffect(() => {
-    syncDocumentTheme(resolvedMode);
-  }, [resolvedMode]);
+  useEffect(() => syncDocumentTheme(resolvedMode), [resolvedMode]);
 
   useEffect(() => {
-    // 系统模式变化时只更新 system 偏好依赖的实际模式。
-    const query = window.matchMedia("(prefers-color-scheme: dark)");
+    if (typeof window.matchMedia !== "function") return;
+    // 仅明确的亮色偏好启用亮色，与首屏脚本及无偏好时的暗色回退一致。
+    const query = window.matchMedia("(prefers-color-scheme: light)");
     const handleChange = () => {
-      setSystemMode(query.matches ? "dark" : "light");
+      setSystemMode(query.matches ? "light" : "dark");
     };
 
     handleChange();

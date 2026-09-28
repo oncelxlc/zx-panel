@@ -10,6 +10,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test:login": "node --experimental-strip-types --test tests/login.test.mjs",
+    "test:theme": "node --experimental-strip-types --test tests/theme.test.mjs",
     "prepare": "husky",
     "commitlint": "commitlint --edit"
   },

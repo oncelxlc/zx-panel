@@ -13,8 +13,11 @@ import type { badgeVariants } from "@/lib/badgeVariants";
 export type ButtonProps = BaseButton.Props &
   VariantProps<typeof buttonVariants>;
 
-/** 卡片保留原生容器属性，仅增加内容密度选项。 */
-export type CardProps = ComponentProps<"div"> & { size?: "default" | "sm" };
+/** 卡片保留原生容器属性；大尺寸用于独立表单，玻璃变体用于图片背景。 */
+export type CardProps = ComponentProps<"div"> & {
+  size?: "default" | "sm" | "lg";
+  variant?: "default" | "glass";
+};
 
 /** 提示容器通过语义变体区分普通反馈和错误。 */
 export type AlertProps = ComponentProps<"div"> & {
