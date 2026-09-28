@@ -1,4 +1,26 @@
-import { Button } from "antd";
+import { Badge } from "@/components/ui/badge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyTitle,
+} from "@/components/ui/empty";
+import {
+  Item,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemTitle,
+} from "@/components/ui/item";
+import { Button } from "@/components/ui/button";
 import type { RouteContent, RoutePath } from "@/types/navigation.type";
 import type { MouseEvent } from "react";
 import { useEffect, useState } from "react";
@@ -102,7 +124,7 @@ export default function App() {
   const { resolvedMode, toggleTheme } = useThemeMode();
   const activeRoute = getRoute(currentPath);
 
-  // 仅拦截普通左键导航，保留浏览器新窗口和修饰键行为。
+  /** 仅拦截普通左键导航，保留浏览器新窗口和修饰键行为。 */
   const handleNavigate = (
     event: MouseEvent<HTMLAnchorElement>,
     path: RoutePath,
@@ -132,67 +154,83 @@ export default function App() {
 
   return (
     <div className="shell">
-      <aside className="sidebar">
-        <p className="sidebar__eyebrow">ZX PANEL</p>
-        <h1 className="sidebar__title">Frontend Workspace</h1>
-        <p className="sidebar__description">
-          使用 Vite 管理单页应用入口，当前按路径渲染原有三个页面。
-        </p>
-        <div className="theme-actions">
-          <Button type="primary">Button</Button>
-          <Button onClick={toggleTheme}>
+      <Card>
+        <CardHeader>
+          <Badge variant="secondary">ZX PANEL</Badge>
+          <CardTitle role="heading" aria-level={1}>
+            Frontend Workspace
+          </CardTitle>
+          <CardDescription>
+            使用 Vite 管理单页应用入口，当前按路径渲染原有三个页面。
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ItemGroup role="navigation" aria-label="兼容页面导航">
+            {routes.map((route) => (
+              <Item
+                key={route.path}
+                variant={route.path === currentPath ? "muted" : "default"}
+                render={
+                  <a
+                    href={route.path}
+                    aria-current={
+                      route.path === currentPath ? "page" : undefined
+                    }
+                    onClick={(event) => handleNavigate(event, route.path)}
+                  />
+                }
+              >
+                <ItemContent>
+                  <ItemTitle>{route.eyebrow}</ItemTitle>
+                  <ItemDescription>{route.path}</ItemDescription>
+                </ItemContent>
+              </Item>
+            ))}
+          </ItemGroup>
+        </CardContent>
+        <CardFooter className="flex-wrap gap-2">
+          <Button>Button</Button>
+          <Button variant="outline" onClick={toggleTheme}>
             {resolvedMode === "dark" ? "切换亮色" : "切换暗色"}
           </Button>
-        </div>
-
-        <nav className="nav">
-          {routes.map((route) => {
-            const isActive = route.path === currentPath;
-
-            return (
-              <a
-                key={route.path}
-                className={`nav__link${isActive ? " nav__link--active" : ""}`}
-                href={route.path}
-                onClick={(event) => handleNavigate(event, route.path)}
-              >
-                <span>{route.path}</span>
-                <strong>{route.eyebrow}</strong>
-              </a>
-            );
-          })}
-        </nav>
-      </aside>
-
-      <main className="content">
-        {activeRoute ? (
-          <>
-            <p className="content__eyebrow">{activeRoute.eyebrow}</p>
-            <h2 className="content__title">{activeRoute.title}</h2>
-            <p className="content__description">{activeRoute.description}</p>
-
-            <section className="panel">
-              <div className="panel__header">
-                <span className="panel__dot" />
-                <span>Route details</span>
-              </div>
-              <ul className="panel__list">
-                {activeRoute.details.map((detail) => (
-                  <li key={detail}>{detail}</li>
-                ))}
-              </ul>
-            </section>
-          </>
-        ) : (
-          <>
-            <p className="content__eyebrow">404</p>
-            <h2 className="content__title">Path not mapped</h2>
-            <p className="content__description">
-              当前 Vite 入口仅保留了原项目已有的三个路径。访问其他路径时需要新增映射。
-            </p>
-          </>
-        )}
-      </main>
+        </CardFooter>
+      </Card>
+      {activeRoute ? (
+        <Card>
+          <CardHeader>
+            <Badge variant="outline">{activeRoute.eyebrow}</Badge>
+            <CardTitle role="heading" aria-level={2}>
+              {activeRoute.title}
+            </CardTitle>
+            <CardDescription>{activeRoute.description}</CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-4">
+            <ItemTitle>Route details</ItemTitle>
+            <ItemGroup>
+              {activeRoute.details.map((detail) => (
+                <Item key={detail} role="listitem" variant="muted" size="sm">
+                  <ItemContent>
+                    <ItemDescription>{detail}</ItemDescription>
+                  </ItemContent>
+                </Item>
+              ))}
+            </ItemGroup>
+          </CardContent>
+        </Card>
+      ) : (
+        <Empty>
+          <EmptyHeader>
+            <Badge variant="outline">404</Badge>
+            <EmptyTitle role="heading" aria-level={2}>
+              Path not mapped
+            </EmptyTitle>
+            <EmptyDescription>
+              当前 Vite
+              入口仅保留了原项目已有的三个路径。访问其他路径时需要新增映射。
+            </EmptyDescription>
+          </EmptyHeader>
+        </Empty>
+      )}
     </div>
   );
 }

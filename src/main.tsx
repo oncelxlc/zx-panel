@@ -2,6 +2,8 @@ import { router } from "@/routes/router";
 import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
 import { RouterProvider } from "react-router";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import "./styles/theme.css";
 import "./styles.scss";
 import { ThemeProvider } from "./theme/ThemeProvider";
 
@@ -9,7 +11,9 @@ import { ThemeProvider } from "./theme/ThemeProvider";
 ReactDOM.createRoot(document.getElementById("root") as HTMLDivElement).render(
   <StrictMode>
     <ThemeProvider>
-      <RouterProvider router={router}/>
+      <TooltipProvider>
+        <RouterProvider router={router} />
+      </TooltipProvider>
     </ThemeProvider>
   </StrictMode>,
 );

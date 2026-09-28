@@ -5,19 +5,7 @@ import type {
   ThemePreference,
   ThemeProviderProps,
 } from "@/types/theme.type";
-import {
-  App as AntdApp,
-  ConfigProvider,
-  type ThemeConfig,
-} from "antd";
-import zhCN from "antd/locale/zh_CN";
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-import { createAntdTheme, shadcnTokens } from "./shadcnTheme";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { ThemeContext } from "./themeContext";
 
 /**
@@ -65,7 +53,7 @@ function getStoredPreference(): ThemePreference {
 }
 
 /**
- * syncDocumentTheme 将实际主题模式同步到根元素和全局 CSS 变量。
+ * syncDocumentTheme 将实际主题同步到根元素，由 CSS 变量控制页面与组件。
  * 无 document 的渲染环境会跳过所有 DOM 操作。
  */
 function syncDocumentTheme(mode: ThemeMode) {
@@ -73,28 +61,21 @@ function syncDocumentTheme(mode: ThemeMode) {
     return;
   }
 
-  const tokens = shadcnTokens[mode];
   const root = document.documentElement;
   root.dataset.theme = mode;
   root.classList.toggle("dark", mode === "dark");
-  root.style.setProperty("--selection-background", tokens.primary);
-  root.style.setProperty("--selection-foreground", tokens.primaryForeground);
 }
 
 /**
- * ThemeProvider 管理用户主题偏好并配置 Ant Design 主题上下文。
+ * ThemeProvider 管理用户主题偏好，向页面提供统一的主题切换入口。
  * 组件同时监听系统主题变化并把最终模式同步到文档根节点。
  */
-export function ThemeProvider({children}: ThemeProviderProps) {
+export function ThemeProvider({ children }: ThemeProviderProps) {
   const [preference, setPreferenceState] =
     useState<ThemePreference>(getStoredPreference);
   const [systemMode, setSystemMode] = useState<ThemeMode>(getSystemTheme);
 
   const resolvedMode = preference === "system" ? systemMode : preference;
-  const antdTheme = useMemo<ThemeConfig>(
-    () => createAntdTheme(resolvedMode),
-    [resolvedMode],
-  );
 
   const setPreference = useCallback((nextPreference: ThemePreference) => {
     setPreferenceState(nextPreference);
@@ -141,10 +122,6 @@ export function ThemeProvider({children}: ThemeProviderProps) {
   );
 
   return (
-    <ThemeContext.Provider value={value}>
-      <ConfigProvider theme={antdTheme} locale={zhCN}>
-        <AntdApp>{children}</AntdApp>
-      </ConfigProvider>
-    </ThemeContext.Provider>
+    <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
   );
 }

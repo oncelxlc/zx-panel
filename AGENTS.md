@@ -14,8 +14,10 @@
   - `src/routes/router.tsx` is the active React Router configuration.
   - Existing UI paths are public `/login` and authenticated `/`.
   - `src/auth/*` contains the API client, session storage, and global authentication guard.
-  - `src/theme/*` contains theme context and Ant Design theme integration.
-  - `src/styles.scss` contains global SCSS styles.
+  - `src/theme/*` contains theme preference, system-theme listeners, and the shared theme toggle.
+  - `src/components/ui/*` contains official shadcn/ui source components (Base UI + Nova, neutral colors, Lucide icons).
+  - `src/styles/theme.css` is the Tailwind v4 entry and the source of truth for semantic light/dark CSS tokens.
+  - `src/styles.scss` and page SCSS files contain layout styles; do not process Tailwind through Sass.
 - Frontend tooling:
   - `vite.config.ts` configures React, `@/* -> src/*`, and dev server port `7200` with `strictPort: true`.
   - `tsconfig.json` enables strict TypeScript and includes `src` plus `vite.config.ts`.
@@ -37,6 +39,8 @@
   - `pnpm build` builds production assets into `dist/`.
   - `pnpm start` or `pnpm preview` previews the built frontend.
   - `pnpm lint` runs ESLint.
+  - `pnpm exec tsc --noEmit` checks frontend types.
+  - `pnpm test:login` runs Node built-in tests for login validation and safe return paths.
   - `pnpm lint:fix` applies fixable ESLint changes.
 - Backend commands:
   - `go run ./cmd/server` starts the Gin server on `PORT` or `25000`.
@@ -54,7 +58,11 @@
 - Prefer existing React hooks and local context patterns over adding global state libraries.
 - Use the configured alias `@/* -> src/*` when it improves clarity.
 - Keep styling aligned with the current SCSS/global class pattern in `src/styles.scss`.
-- Ant Design is already installed; prefer it for standard UI controls before adding new UI dependencies.
+- Use existing shadcn/ui controls before adding new UI dependencies. Add official components with `pnpm exec shadcn add @shadcn/<component>` and review generated files for type/comment conventions.
+- Keep theme colors in `src/styles/theme.css`; preserve the `zx-panel-theme` preference and the initial theme script in `index.html`.
+- Build visual and interactive UI from shadcn components, including login branding, cards, feedback, navigation, and tooltips. Keep native elements for semantic structure and layout only; page SCSS must not override component colors, typography, or shadows.
+- Use the official Sidebar composition for the main navigation, with `SidebarMenuButton render={<NavLink ... />}`. Use `Item render={<a ... />}` for other structured links so native link semantics remain intact.
+- Keep the sidebar context and hook in `src/hooks/use-sidebar.ts`; TooltipProvider is mounted at the app entry.
 - Extend the existing React Router configuration rather than adding another routing layer.
 - For backend code, use idiomatic Go, explicit error handling, and the existing Gin response shape:
   - `success`

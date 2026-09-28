@@ -50,6 +50,9 @@ export type LoginFormValues = {
   password: string;
 };
 
+/** 登录表单逐字段的校验消息；缺失的字段表示当前没有错误。 */
+export type LoginFormErrors = Partial<Record<keyof LoginFormValues, string>>;
+
 /**
  * LoginLocationState 保存鉴权守卫传给登录页的原始访问路径。
  * from 保持 unknown，登录成功前仍需执行安全类型检查。

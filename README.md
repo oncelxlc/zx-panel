@@ -121,7 +121,9 @@ Redis 加载挂载的 `docker/redis/redis.conf`，启用 512 MB 数据内存上�
 │   ├── routes/router.tsx   # React Router 路由与全局鉴权边界
 │   ├── auth/               # API 客户端、会话存储与鉴权守卫
 │   ├── styles.scss         # 全局样式
-│   └── theme/              # 主题上下文与 Ant Design 主题配置
+│   ├── components/ui/      # 官方 shadcn/ui 本地组件（Base UI + Nova）
+│   ├── styles/theme.css    # Tailwind v4 入口与亮暗主题变量
+│   └── theme/              # 主题偏好、系统主题监听与切换入口
 ├── cmd/server/main.go      # 后端服务入口
 ├── internal/
 │   ├── api/router.go       # Gin 路由与认证接口
@@ -199,8 +201,12 @@ Redis 加载挂载的 `docker/redis/redis.conf`，启用 512 MB 数据内存上�
 
 - 前端使用 TypeScript、React 函数组件和 Hooks。
 - 路径别名 `@/*` 指向 `src/*`。
-- 样式沿用 `src/styles.scss` 中的 SCSS/全局 class 方式。
-- UI 控件优先使用已安装的 Ant Design。
+- UI 控件使用本地 shadcn/ui 组件（Base UI、Nova、neutral、Lucide），配置见 `components.json`。
+- Tailwind v4 和主题变量由独立的 `src/styles/theme.css` 提供；页面布局继续使用 SCSS，不在 SCSS 中导入 Tailwind。
+- 登录与后台的展示及交互使用 shadcn 组件组合；SCSS 仅负责背景、布局和断点，不覆盖组件的字号、颜色、阴影。侧栏使用官方 Sidebar，移动端通过 Sheet 显示。
+- 使用 `pnpm exec shadcn add @shadcn/<组件名>` 按需添加官方组件，并遵循 `src/types` 类型归档和中文注释约定。
+- 登录表单沿用账号密码认证，支持密码显隐、逐字段校验、安全站内回跳及亮暗背景切换；主题偏好继续保存于 `zx-panel-theme`。
+- 前端验证命令：`pnpm exec tsc --noEmit`、`pnpm lint`、`pnpm test:login`、`pnpm build`。
 - 后端新增可运行逻辑放在 `cmd/server`，可复用业务代码放在 `internal/*`。
 - 不要硬编码环境相关 URL；新增前后端集成时优先使用环境变量或配置。
 - 提交信息使用 Conventional Commits，例如 `feat: add nginx page`、`fix: handle api error`、`docs: update readme`。

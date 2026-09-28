@@ -1,126 +1,295 @@
-import {
-  LockOutlined,
-  LoginOutlined,
-  UserOutlined,
-} from "@ant-design/icons";
 import { ApiError, login } from "@/auth/api";
-import type {
-  LoginFormValues,
-  LoginLocationState,
-} from "@/types/auth.type";
-import type { FormProps } from "antd";
-import { Alert, Button, Card, Form, Input } from "antd";
-import { useState } from "react";
+import { getLoginTarget, validateLoginForm } from "@/auth/loginForm";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Field,
+  FieldError,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@/components/ui/input-group";
+import { Item, ItemContent, ItemMedia, ItemTitle } from "@/components/ui/item";
+import { Spinner } from "@/components/ui/spinner";
+import { ThemeToggle } from "@/theme/ThemeToggle";
+import type { LoginFormErrors, LoginFormValues } from "@/types/auth.type";
+import {
+  ArrowRight,
+  CircleAlert,
+  Eye,
+  EyeOff,
+  LockKeyhole,
+  ShieldCheck,
+  UserRound,
+  X,
+} from "lucide-react";
+import { useRef, useState } from "react";
+import type { ChangeEvent, FocusEvent, FormEvent } from "react";
 import { useLocation, useNavigate } from "react-router";
 import "./Login.scss";
 
-/**
- * LoginPage 渲染账号密码表单并调用真实登录接口。
- * 登录成功后会安全返回鉴权守卫记录的原始访问路径。
- */
+/** 渲染公开登录表单；认证与令牌存储交给 API 客户端，页面负责反馈和安全回跳。 */
 export function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [values, setValues] = useState<LoginFormValues>({
+    username: "",
+    password: "",
+  });
+  const [errors, setErrors] = useState<LoginFormErrors>({});
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const usernameRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const submittingRef = useRef(false);
 
-  // 提交期间锁定按钮，并将服务端错误转换为页面内提示。
-  const handleFinish: FormProps<LoginFormValues>["onFinish"] = async (values) => {
-    setSubmitting(true);
+  /** 同步输入并重新校验已报错的字段，未交互字段不提前显示错误。 */
+  function handleChange(event: ChangeEvent<HTMLInputElement>) {
+    const { name, value } = event.currentTarget;
+    if (name !== "username" && name !== "password") return;
+    const nextValues = { ...values, [name]: value };
+    setValues(nextValues);
     setErrorMessage("");
+    if (errors[name]) {
+      setErrors({ ...errors, [name]: validateLoginForm(nextValues)[name] });
+    }
+  }
+
+  /** 字段失焦后展示局部校验结果，支持键盘和鼠标切换输入。 */
+  function handleBlur(event: FocusEvent<HTMLInputElement>) {
+    const { name } = event.currentTarget;
+    if (name !== "username" && name !== "password") return;
+    setErrors((previous) => ({
+      ...previous,
+      [name]: validateLoginForm(values)[name],
+    }));
+  }
+
+  /** 清空账号后将焦点交还输入框，方便立即重新输入。 */
+  function clearUsername() {
+    setValues({ ...values, username: "" });
+    setErrors({ ...errors, username: undefined });
+    setErrorMessage("");
+    usernameRef.current?.focus();
+  }
+
+  /** 提交前读取实际表单值以兼容密码管理器，并在请求期间阻止重复提交。 */
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (submittingRef.current) return;
+    const form = new FormData(event.currentTarget);
+    const username = form.get("username");
+    const password = form.get("password");
+    const submittedValues = {
+      username: typeof username === "string" ? username : "",
+      password: typeof password === "string" ? password : "",
+    };
+    const nextErrors = validateLoginForm(submittedValues);
+    setValues(submittedValues);
+    setErrors(nextErrors);
+    setErrorMessage("");
+    if (nextErrors.username || nextErrors.password) {
+      (nextErrors.username ? usernameRef : passwordRef).current?.focus();
+      return;
+    }
+
+    submittingRef.current = true;
+    setSubmitting(true);
     try {
-      await login(values.username, values.password);
-      // 只允许站内绝对路径，避免登录后产生开放重定向。
-      const requestedPath = (location.state as LoginLocationState | null)?.from;
-      const target = typeof requestedPath === "string"
-        && requestedPath.startsWith("/")
-        && !requestedPath.startsWith("//")
-        ? requestedPath
-        : "/";
-      navigate(target, {replace: true});
+      await login(submittedValues.username, submittedValues.password);
+      const state: unknown = location.state;
+      const from =
+        state && typeof state === "object" && "from" in state
+          ? state.from
+          : undefined;
+      navigate(getLoginTarget(from, window.location.origin), { replace: true });
     } catch (error) {
-      setErrorMessage(error instanceof ApiError ? error.message : "登录失败，请稍后重试");
+      setErrorMessage(
+        error instanceof ApiError ? error.message : "登录失败，请稍后重试",
+      );
     } finally {
+      submittingRef.current = false;
       setSubmitting(false);
     }
-  };
+  }
 
   return (
     <main className="login-page">
-      <Card className="login-page__card" variant="outlined">
-        <div className="login-page__card-header">
-          <p className="login-page__card-eyebrow">Account</p>
-          <h2>登录</h2>
-        </div>
-
-        <Form<LoginFormValues>
-          className="login-page__form"
-          name="login"
-          layout="vertical"
-          autoComplete="off"
-          requiredMark={false}
-          onFinish={handleFinish}
-        >
-          {errorMessage && (
-            <Alert
-              className="login-page__error"
-              showIcon
-              title={errorMessage}
-              type="error"
-            />
-          )}
-
-          <Form.Item<LoginFormValues>
-            label="账号"
-            name="username"
-            rules={[
-              {required: true, whitespace: true, message: "请输入账号"},
-              {min: 3, message: "账号至少 3 个字符"},
-              {max: 32, message: "账号不能超过 32 个字符"},
-              {
-                pattern: /^[A-Za-z0-9_.-]+$/,
-                message: "账号仅支持字母、数字、下划线、点和短横线",
-              },
-            ]}
-          >
-            <Input
-              allowClear
-              autoComplete="username"
-              prefix={<UserOutlined/>}
-              size="large"
-              placeholder="admin"
-            />
-          </Form.Item>
-
-          <Form.Item<LoginFormValues>
-            label="密码"
-            name="password"
-            rules={[
-              {required: true, message: "请输入密码"},
-              {min: 6, message: "密码至少 6 个字符"},
-              {max: 32, message: "密码不能超过 32 个字符"},
-            ]}
-          >
-            <Input.Password
-              autoComplete="current-password"
-              prefix={<LockOutlined/>}
-              size="large"
-              placeholder="请输入密码"
-            />
-          </Form.Item>
-
-          <Button
-            block
-            htmlType="submit"
-            icon={<LoginOutlined/>}
-            loading={submitting}
-            size="large"
-            type="primary"
-          >
-            登录
-          </Button>
-        </Form>
-      </Card>
+      <div className="login-page__theme">
+        <ThemeToggle />
+      </div>
+      <div className="login-page__body">
+        <section className="login-page__panel" aria-labelledby="login-title">
+          <Item size="sm" className="p-0">
+            <ItemMedia>
+              <Avatar aria-hidden="true">
+                <AvatarFallback>Z</AvatarFallback>
+              </Avatar>
+            </ItemMedia>
+            <ItemContent>
+              <ItemTitle>ZX PANEL</ItemTitle>
+            </ItemContent>
+          </Item>
+          <Card>
+            <CardHeader className="gap-3">
+              <CardTitle id="login-title" role="heading" aria-level={1}>
+                欢迎回来
+              </CardTitle>
+              <CardDescription>登录你的账号，进入管理控制台。</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} noValidate aria-busy={submitting}>
+                <FieldGroup className="gap-6">
+                  {errorMessage && (
+                    <Alert variant="destructive">
+                      <CircleAlert aria-hidden="true" />
+                      <AlertDescription>{errorMessage}</AlertDescription>
+                    </Alert>
+                  )}
+                  <Field
+                    data-invalid={Boolean(errors.username)}
+                    data-disabled={submitting}
+                  >
+                    <FieldLabel htmlFor="username">账号</FieldLabel>
+                    <InputGroup className="h-12">
+                      <InputGroupAddon>
+                        <UserRound aria-hidden="true" />
+                      </InputGroupAddon>
+                      <InputGroupInput
+                        ref={usernameRef}
+                        id="username"
+                        name="username"
+                        value={values.username}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        placeholder="请输入账号"
+                        autoComplete="username"
+                        autoCapitalize="none"
+                        spellCheck={false}
+                        required
+                        disabled={submitting}
+                        aria-invalid={Boolean(errors.username)}
+                        aria-describedby={
+                          errors.username ? "username-error" : undefined
+                        }
+                      />
+                      <InputGroupAddon align="inline-end" className="w-12">
+                        {values.username && (
+                          <InputGroupButton
+                            size="icon-sm"
+                            className="size-11"
+                            onClick={clearUsername}
+                            disabled={submitting}
+                            aria-label="清空账号"
+                          >
+                            <X aria-hidden="true" />
+                          </InputGroupButton>
+                        )}
+                      </InputGroupAddon>
+                    </InputGroup>
+                    {errors.username && (
+                      <FieldError id="username-error">
+                        {errors.username}
+                      </FieldError>
+                    )}
+                  </Field>
+                  <Field
+                    data-invalid={Boolean(errors.password)}
+                    data-disabled={submitting}
+                  >
+                    <FieldLabel htmlFor="password">密码</FieldLabel>
+                    <InputGroup className="h-12">
+                      <InputGroupAddon>
+                        <LockKeyhole aria-hidden="true" />
+                      </InputGroupAddon>
+                      <InputGroupInput
+                        ref={passwordRef}
+                        id="password"
+                        name="password"
+                        type={showPassword ? "text" : "password"}
+                        value={values.password}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        placeholder="请输入密码"
+                        autoComplete="current-password"
+                        required
+                        disabled={submitting}
+                        aria-invalid={Boolean(errors.password)}
+                        aria-describedby={
+                          errors.password ? "password-error" : undefined
+                        }
+                      />
+                      <InputGroupAddon align="inline-end">
+                        <InputGroupButton
+                          size="icon-sm"
+                          className="size-11"
+                          onClick={() => setShowPassword(!showPassword)}
+                          disabled={submitting}
+                          aria-label={showPassword ? "隐藏密码" : "显示密码"}
+                          aria-pressed={showPassword}
+                        >
+                          {showPassword ? (
+                            <EyeOff aria-hidden="true" />
+                          ) : (
+                            <Eye aria-hidden="true" />
+                          )}
+                        </InputGroupButton>
+                      </InputGroupAddon>
+                    </InputGroup>
+                    {errors.password && (
+                      <FieldError id="password-error">
+                        {errors.password}
+                      </FieldError>
+                    )}
+                  </Field>
+                  <Button
+                    className="h-12 w-full"
+                    type="submit"
+                    disabled={submitting}
+                  >
+                    {submitting && (
+                      <Spinner data-icon="inline-start" aria-hidden="true" />
+                    )}
+                    {submitting ? "正在登录…" : "登录控制台"}
+                    {!submitting && (
+                      <ArrowRight data-icon="inline-end" aria-hidden="true" />
+                    )}
+                  </Button>
+                </FieldGroup>
+                <span className="sr-only" role="status">
+                  {submitting ? "正在登录，请稍候" : ""}
+                </span>
+              </form>
+            </CardContent>
+            <CardFooter className="justify-center">
+              <Badge variant="secondary">
+                <ShieldCheck data-icon="inline-start" aria-hidden="true" />
+                仅限授权用户访问
+              </Badge>
+            </CardFooter>
+          </Card>
+          <FieldDescription className="mx-auto w-fit">
+            ZX Panel · 让管理更简单
+          </FieldDescription>
+        </section>
+      </div>
     </main>
   );
 }
