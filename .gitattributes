@@ -1,0 +1,4 @@
+# Migration checksums must be identical on Windows and Linux checkouts.
+internal/storage/migrations/*.sql text eol=lf
+# WSL executes these directly from a Windows checkout.
+scripts/*.sh text eol=lf

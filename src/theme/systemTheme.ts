@@ -2,7 +2,7 @@ import type { ThemeMode } from "@/types/theme.type";
 
 /** 登录页始终跟随系统；匹配路由允许的大小写和末尾斜杠。 */
 export function isSystemThemePath(pathname: string): boolean {
-  return /^\/login\/*$/i.test(pathname);
+  return /^\/(?:login|setup)\/*$/i.test(pathname);
 }
 
 /** 仅在系统明确偏好亮色时启用亮色；SSR 和不支持媒体查询时默认暗色。 */

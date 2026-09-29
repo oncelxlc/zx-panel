@@ -32,6 +32,7 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 !.env.example
+!.env.mock
 
 # vercel
 .vercel
@@ -45,3 +46,14 @@ yarn-error.log*
 findings.md
 progress.md
 task_plan.md
+/var/
+/local-secrets/
+/configs/dev.json
+/internal/web/ui/dist/
+/playwright-report/
+/test-results/
+/test-results-api/
+
+release/
+scripts/.schema-*.mjs
+__pycache__/

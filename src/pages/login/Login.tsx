@@ -1,4 +1,6 @@
 import { ApiError, login } from "@/auth/api";
+import { queryClient, setupStatusQuery } from "@/features/panel/queries";
+import { useQuery } from "@tanstack/react-query";
 import { getLoginTarget, validateLoginForm } from "@/auth/loginForm";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -40,7 +42,7 @@ import {
 } from "lucide-react";
 import { useRef, useState } from "react";
 import type { ChangeEvent, FocusEvent, FormEvent } from "react";
-import { useLocation, useNavigate } from "react-router";
+import { Navigate, useLocation, useNavigate } from "react-router";
 import "./Login.scss";
 
 /** 渲染公开登录表单；认证与令牌存储交给 API 客户端，页面负责反馈和安全回跳。 */
@@ -58,6 +60,7 @@ export function LoginPage() {
   const usernameRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
   const submittingRef = useRef(false);
+  const setupStatus = useQuery(setupStatusQuery);
 
   /** 同步输入并重新校验已报错的字段，未交互字段不提前显示错误。 */
   function handleChange(event: ChangeEvent<HTMLInputElement>) {
@@ -113,6 +116,7 @@ export function LoginPage() {
     setSubmitting(true);
     try {
       await login(submittedValues.username, submittedValues.password);
+      await queryClient.invalidateQueries({ queryKey: ["session"] });
       const state: unknown = location.state;
       const from =
         state && typeof state === "object" && "from" in state
@@ -129,6 +133,7 @@ export function LoginPage() {
     }
   }
 
+  if (setupStatus.data?.setupRequired) return <Navigate to="/setup" replace />;
   return (
     <main className="login-page">
       <div className="login-page__body">

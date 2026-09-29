@@ -1,0 +1,7 @@
+{
+  "mode": "production",
+  "http": {"listen": "127.0.0.1:25000", "publicOrigin": "https://panel.example.com", "allowedHosts": ["panel.example.com"], "trustedProxies": ["127.0.0.1", "::1"], "cookieSecure": true},
+  "paths": {"dataRoot": "/var/lib/zx-panel", "runtimeRoot": "/opt/zx-panel/runtimes", "stagingRoot": "/var/lib/zx-panel/staging", "artifactCacheRoot": "/var/lib/zx-panel/cache/artifacts", "exportRoot": "/var/lib/zx-panel/exports", "appRoots": ["/srv/zx-apps"], "secretKeyFile": "/etc/zx-panel/keys/app-secrets.key"},
+  "privileged": {"enabled": false, "socketPath": "/run/zx-panel-helper/control.sock", "panelUid": -1, "serviceAccounts": []},
+  "logLevel": "info"
+}

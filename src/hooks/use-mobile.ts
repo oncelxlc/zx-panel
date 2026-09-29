@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from "react";
 
 /** 与官方侧栏的 md 断点保持一致。 */
-const MOBILE_QUERY = "(max-width: 767px)";
+const MOBILE_QUERY = "(max-width: 1023px)";
 
 /** 订阅浏览器断点变化，组件卸载时移除监听。 */
 function subscribe(onChange: () => void) {

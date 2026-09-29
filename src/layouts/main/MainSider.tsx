@@ -1,11 +1,20 @@
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Item, ItemContent, ItemMedia, ItemTitle } from "@/components/ui/item";
+import { Link, NavLink, useLocation } from "react-router";
+import { useQuery } from "@tanstack/react-query";
+import { Server } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Item,
+  ItemContent,
+  ItemDescription,
+  ItemMedia,
+  ItemTitle,
+} from "@/components/ui/item";
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -13,52 +22,75 @@ import {
   SidebarSeparator,
 } from "@/components/ui/sidebar";
 import { useSidebar } from "@/hooks/use-sidebar";
-import { House } from "lucide-react";
-import { Link, NavLink, useLocation } from "react-router";
+import { bootstrapQuery } from "@/features/panel/queries";
+import { navigation } from "@/features/panel/navigation";
 
-/** 通过官方侧栏组合呈现真实首页入口，移动端完成导航后关闭抽屉。 */
+/** MainSider 只呈现六个本机入口，没有主机切换或范围外菜单。 */
 export function MainSider() {
-  const location = useLocation();
+  const { pathname } = useLocation();
   const { setOpenMobile } = useSidebar();
+  const bootstrap = useQuery(bootstrapQuery);
   return (
-    <Sidebar collapsible="offcanvas">
+    <Sidebar collapsible="icon">
       <SidebarHeader>
         <Item
           size="sm"
-          render={<Link to="/" onClick={() => setOpenMobile(false)} />}
+          render={<Link to="/overview" onClick={() => setOpenMobile(false)} />}
         >
           <ItemMedia>
-            <Avatar aria-hidden="true">
-              <AvatarFallback>Z</AvatarFallback>
+            <Avatar>
+              <AvatarImage src="/icons/android-chrome-192x192.png" alt="" />
+              <AvatarFallback>zx</AvatarFallback>
             </Avatar>
           </ItemMedia>
-          <ItemContent>
-            <ItemTitle>ZX PANEL</ItemTitle>
+          <ItemContent className="group-data-[collapsible=icon]:hidden">
+            <ItemTitle>zx-panel</ItemTitle>
+            <ItemDescription>本机管理控制台</ItemDescription>
           </ItemContent>
         </Item>
       </SidebarHeader>
       <SidebarSeparator />
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>工作空间</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu aria-label="主导航">
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  size="lg"
-                  isActive={location.pathname === "/"}
-                  render={
-                    <NavLink to="/" end onClick={() => setOpenMobile(false)} />
-                  }
-                >
-                  <House aria-hidden="true" />
-                  <span>首页</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+              {navigation.map(({ path, label, icon: Icon }) => (
+                <SidebarMenuItem key={path}>
+                  <SidebarMenuButton
+                    size="lg"
+                    isActive={
+                      pathname === path || pathname.startsWith(path + "/")
+                    }
+                    tooltip={label}
+                    render={
+                      <NavLink to={path} onClick={() => setOpenMobile(false)} />
+                    }
+                  >
+                    <Icon aria-hidden="true" />
+                    <span>{label}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter>
+        <Item variant="outline" size="sm">
+          <ItemMedia>
+            <Server aria-hidden="true" />
+          </ItemMedia>
+          <ItemContent className="group-data-[collapsible=icon]:hidden">
+            <ItemDescription>当前服务器</ItemDescription>
+            <ItemTitle>
+              {bootstrap.data?.system.hostname || "读取本机信息…"}
+            </ItemTitle>
+          </ItemContent>
+        </Item>
+        <p className="p-2 text-xs text-muted-foreground group-data-[collapsible=icon]:hidden">
+          zx-panel · 本机专属
+        </p>
+      </SidebarFooter>
     </Sidebar>
   );
 }

@@ -11,10 +11,10 @@ import {
 
 test("登录首屏跟随系统且默认暗色，后台继续读取历史偏好", () => {
   const html = readFileSync(new URL("../index.html", import.meta.url), "utf8");
-  const script = html.match(/<script>([\s\S]*?)<\/script>/)?.[1];
-  assert.ok(script);
+  assert.ok(html.includes('src="/theme-init.js"'));
+  const script = readFileSync(new URL("../public/theme-init.js", import.meta.url), "utf8");
 
-  for (const pathname of ["/login", "/login/", "/LOGIN//", "/"]) {
+  for (const pathname of ["/login", "/login/", "/LOGIN//", "/setup", "/SETUP//", "/"]) {
     for (const system of ["light", "dark", "unsupported"]) {
       for (const stored of ["light", "dark", "system", "blocked"]) {
         let storageReads = 0;

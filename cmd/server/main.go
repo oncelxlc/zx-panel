@@ -1,21 +1,16 @@
 package main
 
 import (
-	"log"
-
-	"zx-panel/internal/config"
+	"fmt"
+	"os"
 	"zx-panel/internal/server"
 )
 
-// main 是后端服务的标准命令行入口。
-// 配置加载失败或服务退出时统一记录错误并终止进程。
+// main 复用统一 CLI 入口，保持根目录和 cmd/server 行为一致。
+// 初始化、迁移与服务启动失败都以非零状态退出。
 func main() {
-	// 标准入口先加载 `.env` 与系统环境，再交给服务层启动。
-	cfg, err := config.LoadServerConfig()
-	if err != nil {
-		log.Fatalf("load server config: %v", err)
-	}
-	if err := server.Run(cfg); err != nil {
-		log.Fatalf("server exited with error: %v", err)
+	if err := server.Main(os.Args[1:], os.Stdout, os.Stderr); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
 	}
 }

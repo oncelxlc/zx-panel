@@ -1,0 +1,64 @@
+{
+  "environment": "Ubuntu 24.04 / x86_64 / 6.18.33.2-microsoft-standard-WSL2",
+  "checks": [
+    "Cookie HTTPS / HttpOnly / CSRF",
+    "shared real CPU / memory / filesystem metrics",
+    "official Node/Go SHA256 install and verification",
+    "default uninstall blocked",
+    "Node registered stopped",
+    "systemd start/restart and cgroup observation",
+    "saving config preserves running PID",
+    "literal args preserved",
+    "short and 18000-byte secret redaction in API/log/export",
+    "Unix SO_PEERCRED allowed/denied identities",
+    "helper strict JSON",
+    "helper SHA256 rejection",
+    "helper archive traversal rejection",
+    "binary registered stopped / start / stop / delete",
+    "running app deletion blocked",
+    "deletion preserves files and journal",
+    "configured runtime references",
+    "Nginx SSE delivers samples without buffering",
+    "logout closes SSE",
+    "restart changes stream epoch",
+    "old epoch explicitly resets",
+    "download cancellation cleanup",
+    "SIGKILL running-task interruption recovery",
+    "production pg_dump CLI produces private custom-format backup"
+  ],
+  "node": {
+    "version": "26.10.0",
+    "installationId": "bbb7c10c559e7dcbd3729007f92f7fda"
+  },
+  "go": {
+    "version": "1.27.1",
+    "installationId": "c25fa0bfb9499f9d4ec01890d046f78f"
+  },
+  "appId": "0b89fa3c42808da6566ea7283564632c",
+  "referenceComplete": false,
+  "recoveryTasks": [
+    {
+      "operation": "cancel",
+      "taskId": "f57044329c2412e75e546c99f3c457ee",
+      "status": "canceled"
+    },
+    {
+      "operation": "crash",
+      "taskId": "b29061e3ca148c5f458fc0a8dce6a63d",
+      "status": "interrupted"
+    }
+  ],
+  "longSecretBytes": 18000,
+  "browserChecks": [
+    "pause preserves visible tail",
+    "resume advances tail",
+    "actual Nginx outage reconnect",
+    "empty and matching text filters"
+  ],
+  "logHistoryChecks": [
+    "pagination without duplicate records",
+    "text/level/time filters",
+    "missing journal anchor rejected"
+  ],
+  "cleanup": "Demo app and four dedicated WSL services stopped; files and private backups retained."
+}

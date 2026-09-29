@@ -41,11 +41,11 @@ const SIDEBAR_COOKIE_NAME = "sidebar_state";
 /** 限制侧栏偏好 Cookie 的保存时间。 */
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
 /** 定义桌面侧栏的默认宽度。 */
-const SIDEBAR_WIDTH = "16rem";
+const SIDEBAR_WIDTH = "14rem";
 /** 定义移动抽屉的默认宽度。 */
 const SIDEBAR_WIDTH_MOBILE = "18rem";
 /** 定义仅图标折叠状态的宽度。 */
-const SIDEBAR_WIDTH_ICON = "3rem";
+const SIDEBAR_WIDTH_ICON = "4rem";
 /** 定义侧栏组合快捷键所使用的字母。 */
 const SIDEBAR_KEYBOARD_SHORTCUT = "b";
 

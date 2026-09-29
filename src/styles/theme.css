@@ -6,7 +6,7 @@
 
 /* 系统主题变化时整体淡入淡出，图片背景和表单保持同步。 */
 ::view-transition-group(root) {
-  animation-duration: 360ms;
+  animation-duration: 150ms;
   animation-timing-function: ease-in-out;
 }
 
@@ -75,74 +75,93 @@
 
 :root {
   color-scheme: light;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.65 0 0);
-  --ring: oklch(0.45 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --background: #f7f8fa;
+  --foreground: #17191d;
+  --card: #ffffff;
+  --card-foreground: #17191d;
+  --popover: #ffffff;
+  --popover-foreground: #17191d;
+  --primary: #17191d;
+  --primary-foreground: #ffffff;
+  --secondary: #f1f3f5;
+  --secondary-foreground: #17191d;
+  --muted: #f1f3f5;
+  --muted-foreground: #5d6572;
+  --accent: #edf1f6;
+  --accent-foreground: #17191d;
+  --border: #e2e5ea;
+  --input: #7a8390;
+  --signal: #1d4ed8;
+  --signal-soft: #eff6ff;
+  --ring: #1d4ed8;
+  --success: #166534;
+  --success-soft: #f0fdf4;
+  --warning: #854d0e;
+  --warning-soft: #fffbeb;
+  --danger: #b91c1c;
+  --danger-soft: #fef2f2;
+  --destructive: #b91c1c;
+  --destructive-foreground: #ffffff;
+  --chart-1: #1d4ed8;
+  --chart-2: #0e7490;
+  --chart-3: #6d28d9;
+  --chart-4: #4b5563;
+  --chart-5: #854d0e;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #17191d;
+  --sidebar-primary: #17191d;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #edf1f6;
+  --sidebar-accent-foreground: #17191d;
+  --sidebar-border: #e2e5ea;
+  --sidebar-ring: #1d4ed8;
+  --radius: 0.75rem;
 }
 
 .dark {
   color-scheme: dark;
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(0.55 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: var(--primary);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --background: #08090b;
+  --foreground: #f3f4f6;
+  --card: #101114;
+  --card-foreground: #f3f4f6;
+  --popover: #17191d;
+  --popover-foreground: #f3f4f6;
+  --primary: #f3f4f6;
+  --primary-foreground: #101114;
+  --secondary: #1a1c20;
+  --secondary-foreground: #f3f4f6;
+  --muted: #1a1c20;
+  --muted-foreground: #a1a7b0;
+  --accent: #22262c;
+  --accent-foreground: #f3f4f6;
+  --border: #292d33;
+  --input: #737d8a;
+  --signal: #67e8f9;
+  --signal-soft: #102c32;
+  --ring: #67e8f9;
+  --success: #86efac;
+  --success-soft: #11281b;
+  --warning: #fde047;
+  --warning-soft: #30270c;
+  --danger: #fca5a5;
+  --danger-soft: #32181c;
+  --destructive: #991b1b;
+  --destructive-foreground: #ffffff;
+  --chart-1: #67e8f9;
+  --chart-2: #93c5fd;
+  --chart-3: #c4b5fd;
+  --chart-4: #a1a7b0;
+  --chart-5: #fde047;
+  --sidebar: #0b0c0f;
+  --sidebar-foreground: #f3f4f6;
+  --sidebar-primary: #f3f4f6;
+  --sidebar-primary-foreground: #101114;
+  --sidebar-accent: #1a1c20;
+  --sidebar-accent-foreground: #f3f4f6;
+  --sidebar-border: #292d33;
+  --sidebar-ring: #67e8f9;
 }
+
 
 /* 登录页从背景提取冷蓝色，仅在此作用域内调整组件的语义颜色。 */
 .login-page {
@@ -192,4 +211,22 @@
   html {
     @apply font-sans;
   }
+}
+
+@theme inline {
+
+  /* 其余 shadcn 标准映射保留在初始化生成的文件中。 */
+  --color-signal: var(--signal);
+  --color-signal-soft: var(--signal-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
 }

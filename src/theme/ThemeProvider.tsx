@@ -85,6 +85,17 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   useEffect(() => syncDocumentTheme(resolvedMode), [resolvedMode]);
 
   useEffect(() => {
+    /** 同步其他标签页的偏好；移除或无效值恢复跟随系统。 */
+    function syncPreference(event: StorageEvent) {
+      if (event.key === THEME_STORAGE_KEY || event.key === null) {
+        setPreferenceState(getStoredPreference());
+      }
+    }
+    window.addEventListener("storage", syncPreference);
+    return () => window.removeEventListener("storage", syncPreference);
+  }, []);
+
+  useEffect(() => {
     if (typeof window.matchMedia !== "function") return;
     // 仅明确的亮色偏好启用亮色，与首屏脚本及无偏好时的暗色回退一致。
     const query = window.matchMedia("(prefers-color-scheme: light)");

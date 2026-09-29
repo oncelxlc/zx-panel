@@ -1,0 +1,35 @@
+[Unit]
+Description=zx-panel local server control panel
+After=network-online.target postgresql.service zx-panel-helper.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=zx-panel
+Group=zx-panel
+WorkingDirectory=/var/lib/zx-panel
+EnvironmentFile=/etc/zx-panel/database.env
+ExecStart=/opt/zx-panel/zx-panel serve --config /etc/zx-panel/config.json
+Restart=on-failure
+RestartSec=3
+TimeoutStopSec=150
+KillSignal=SIGTERM
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/zx-panel
+ReadOnlyPaths=/opt/zx-panel/runtimes /srv/zx-apps /etc/zx-panel
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+CapabilityBoundingSet=
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 AF_NETLINK
+LimitNOFILE=8192
+TasksMax=256
+
+[Install]
+WantedBy=multi-user.target

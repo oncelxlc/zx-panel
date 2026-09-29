@@ -141,3 +141,7 @@ export type SidebarMenuSubButtonProps = useRender.ComponentProps<"a"> &
     size?: "sm" | "md";
     isActive?: boolean;
   };
+/** ToastIconProps 按通知语义选用图标，不根据消息内容猜测严重程度。 */
+export interface ToastIconProps {
+  type: string | undefined;
+}

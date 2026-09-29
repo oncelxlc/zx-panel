@@ -1,0 +1,36 @@
+[Unit]
+Description=zx-panel restricted local systemd helper
+After=local-fs.target
+
+[Service]
+Type=simple
+# The system manager supplies root; helper also rejects a non-root effective UID.
+# Omitting redundant User=root preserves the explicitly bounded CAP_SETUID under NoNewPrivileges.
+Group=root
+ExecStart=/opt/zx-panel/zx-panel-helper --config /etc/zx-panel/config.json
+Restart=on-failure
+RestartSec=3
+TimeoutStopSec=120
+RuntimeDirectory=zx-panel-helper
+RuntimeDirectoryMode=0755
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/etc/systemd/system /etc/zx-panel/apps /opt/zx-panel/runtimes /run/zx-panel-helper
+ReadOnlyPaths=/var/lib/zx-panel/staging /srv/zx-apps
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+RestrictAddressFamilies=AF_UNIX
+# Cross-user executable references require CAP_SYS_PTRACE; direct tracing and memory access remain filtered.
+CapabilityBoundingSet=CAP_CHOWN CAP_DAC_OVERRIDE CAP_DAC_READ_SEARCH CAP_FOWNER CAP_SETGID CAP_SETUID CAP_KILL CAP_SYS_PTRACE
+SystemCallFilter=~ptrace process_vm_readv process_vm_writev kcmp
+LimitNOFILE=1024
+TasksMax=64
+
+[Install]
+WantedBy=multi-user.target

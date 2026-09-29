@@ -6,10 +6,12 @@ import tseslint from "typescript-eslint";
 
 export default tseslint.config(
   {
-    ignores: [".agents", ".codex", "dist", "node_modules"],
+    ignores: [".agents", ".codex", "dist", "internal/web/ui/dist", "node_modules", "public/mockServiceWorker.js", "playwright-report", "test-results", "test-results-api"],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,
+  { files: ["public/theme-init.js"], languageOptions: { globals: globals.browser } },
+  { files: ["scripts/**/*.mjs", "tests/**/*.mjs"], languageOptions: { globals: globals.node } },
   {
     files: ["**/*.{ts,tsx}"],
     languageOptions: {

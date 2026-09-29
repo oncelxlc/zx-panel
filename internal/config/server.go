@@ -26,6 +26,7 @@ type ServerConfig struct {
 	AdminUsername string
 	AdminPassword string
 	SessionTTL    time.Duration
+	Panel         PanelConfig
 }
 
 // LoadServerConfig 先加载当前工作目录的可选 `.env`，再构造服务配置。
@@ -35,13 +36,17 @@ func LoadServerConfig() (ServerConfig, error) {
 		return ServerConfig{}, err
 	}
 
-	return ServerConfig{
+	cfg := ServerConfig{
 		Port:          envOrDefault("PORT", defaultPort),
 		DatabaseURL:   loadDatabaseURL(),
 		AdminUsername: envOrDefault("ADMIN_USERNAME", "admin"),
 		AdminPassword: os.Getenv("ADMIN_PASSWORD"),
 		SessionTTL:    defaultSessionTTL,
-	}, nil
+		Panel:         DefaultPanelConfig(),
+	}
+	cfg.Panel.HTTP.Listen = "127.0.0.1:" + cfg.Port
+	cfg.Panel.DatabaseURL = cfg.DatabaseURL
+	return cfg, nil
 }
 
 // loadDatabaseURL 优先使用完整连接串，否则根据 PostgreSQL 环境变量生成本地开发连接串。

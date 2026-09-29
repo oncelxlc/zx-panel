@@ -29,16 +29,25 @@ export type ApiResponse<T> = {
   success: boolean;
   data: T;
   error: ApiErrorPayload | null;
+  meta: { requestId: string; serverTime: string };
 };
 
 /**
  * LoginResult 描述登录成功后返回的会话和用户信息。
- * token 只保存于当前浏览器会话。
+ * 认证 Cookie 不向脚本公开，CSRF 值只在当前页面内存中使用。
  */
 export type LoginResult = {
-  token: string;
   expiresAt: string;
   user: AuthUser;
+  csrfToken: string;
+};
+
+/** SessionResult 只公开会话状态和 CSRF 值，不向脚本返回认证 Cookie。 */
+export type SessionResult = {
+  authenticated: boolean;
+  user: AuthUser | null;
+  csrfToken: string;
+  expiresAt: string | null;
 };
 
 /**

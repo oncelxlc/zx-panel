@@ -1,0 +1,6 @@
+{
+  "samples": 30,
+  "p50Ms": 1.5,
+  "p95Ms": 1.7999999821186066,
+  "scope": "Windows loopback API fixture; no Linux/systemd or sustained-load claim"
+}

@@ -1,0 +1,59 @@
+name: Verify v1.1
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: panel_test
+          POSTGRES_PASSWORD: ci-isolated-only
+          POSTGRES_DB: panel_control
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U panel_test -d panel_control"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgres://panel_test:ci-isolated-only@127.0.0.1:5432/panel_control?sslmode=disable
+      ZX_PANEL_INTEGRATION: "1"
+      ZX_PANEL_CONTRACT_FIXTURES: "1"
+      CGO_ENABLED: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12.6.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - uses: actions/setup-go@v5
+        with:
+          go-version: 1.27.1
+          cache: true
+      - run: pnpm install --frozen-lockfile
+      - run: sudo apt-get update && sudo apt-get install -y postgresql-client
+      - run: pnpm typecheck && pnpm lint && pnpm test && pnpm test:login && pnpm test:theme
+      - run: go test -race -tags devassets ./... && go vet -tags devassets ./...
+      - run: pnpm contract --check-go
+      - run: git diff --exit-code -- docs/openapi.json docs/error-codes.json
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm test:e2e
+      - run: pnpm test:api
+      - run: pnpm audit && go run golang.org/x/vuln/cmd/govulncheck@v1.8.0 -tags devassets ./...
+      - run: node scripts/secret-scan.mjs
+      - run: pnpm release
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: verification-and-linux-builds
+          path: |
+            test-results/
+            test-results-api/
+            playwright-report/
+            release/
+          retention-days: 7
