@@ -32,6 +32,21 @@ pnpm dev
 
 后端默认 `127.0.0.1:25000`，Vite 固定 7200。开发时显式使用 `devassets`；正式 Go 构建先执行 `pnpm build:release`，缺失真实 API 前端资源会构建失败。
 
+Windows 可在仓库目录用一个命令同时启动本机 Vite 和 WSL 中的 Go 后端：
+
+```powershell
+pnpm dev:all
+```
+
+启动前检查 WSL 及默认发行版、登录 shell 的 Go 和 `setsid`（util-linux）、默认非 root 用户及仓库路径；检查失败返回非零状态，前后端均不启动。先在 WSL 中安装 Go（最低 1.25）并加入登录 shell 的 PATH，配置 WSL 可访问的独立开发 PostgreSQL，再从仓库目录执行以下准备命令（已有账号升级仍须按下文备份）：
+
+```powershell
+wsl --exec bash -lc 'go run -tags devassets ./cmd/server migrate up'
+wsl --exec bash -lc 'go run -tags devassets ./cmd/server setup-token'
+```
+
+命令使用仓库 `.env`，不自动启动数据库、迁移或创建管理员。Windows 到 WSL 的 localhost 转发需可用，Vite 仍通过 `/api` 代理访问 25000。任一服务退出都会停止另一侧，Ctrl+C 同时退出；Go 最多留出 40 秒排空。`pnpm dev` 和 `pnpm dev:mock` 保持原有行为。
+
 **已有账号的数据库升级必须先停服务并提供新备份路径：**
 
 ```sh
@@ -126,6 +141,7 @@ pnpm lint
 pnpm test
 pnpm test:login
 pnpm test:theme
+pnpm test:dev
 pnpm exec playwright install chromium
 pnpm test:e2e
 pnpm test:api

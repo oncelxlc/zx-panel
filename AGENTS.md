@@ -36,12 +36,14 @@
 - Frontend runtime target is modern Node (`package.json` engines: Node `^22.22.0 || >=24.0.0`).
 - Use pnpm for frontend package scripts:
   - `pnpm dev` starts Vite on `http://localhost:7200`.
+  - `pnpm dev:all` runs Windows Vite and the Go API in the default WSL distribution/user. It checks WSL, login-shell Go/setsid, a non-root user and the shared repository before starting either service; PostgreSQL preparation and explicit migration remain manual. Ctrl+C or either service exiting stops both.
   - `pnpm build` builds production assets into `dist/`.
   - `pnpm start` or `pnpm preview` previews the built frontend.
   - `pnpm lint` runs ESLint.
   - `pnpm exec tsc --noEmit` checks frontend types.
   - `pnpm test:login` runs Node built-in tests for login validation and safe return paths.
   - `pnpm test:theme` checks login theme policy, dark fallback, and theme transition cleanup.
+  - `pnpm test:dev` checks combined development startup guards and process cleanup.
   - `pnpm lint:fix` applies fixable ESLint changes.
 - Backend commands:
   - `go run -tags devassets ./cmd/server` starts the development API on loopback `PORT` or `25000` after explicit migration.

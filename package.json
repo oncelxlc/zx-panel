@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "vite",
+    "dev:all": "node scripts/dev.mjs",
     "build": "vite build",
     "start": "vite preview",
     "preview": "vite preview",
@@ -11,6 +12,7 @@
     "lint:fix": "eslint . --fix",
     "test:login": "node --experimental-strip-types --test tests/login.test.mjs",
     "test:theme": "node --experimental-strip-types --test tests/theme.test.mjs",
+    "test:dev": "node --test tests/dev.test.mjs",
     "prepare": "husky",
     "commitlint": "commitlint --edit",
     "build:release": "node scripts/build-release.mjs",
