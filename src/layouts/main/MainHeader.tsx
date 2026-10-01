@@ -32,7 +32,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Separator } from "@/components/ui/separator";
 import { toast } from "@/lib/toast";
 import { useThemeMode } from "@/theme/themeContext";
 import {
@@ -97,7 +96,6 @@ export function MainHeader() {
     <div className="header-layout">
       <div className="header-layout__left">
         <SidebarTrigger className="size-11" />
-        <Separator orientation="vertical" className="h-5" />
         <span className="text-sm font-medium">{page?.label ?? "zx-panel"}</span>
       </div>
       <div className="header-layout__right">

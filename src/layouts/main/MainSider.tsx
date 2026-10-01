@@ -19,7 +19,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarSeparator,
 } from "@/components/ui/sidebar";
 import { useSidebar } from "@/hooks/use-sidebar";
 import { bootstrapQuery } from "@/features/panel/queries";
@@ -49,7 +48,6 @@ export function MainSider() {
           </ItemContent>
         </Item>
       </SidebarHeader>
-      <SidebarSeparator />
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>
