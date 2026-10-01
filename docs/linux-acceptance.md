@@ -28,15 +28,15 @@
 
 ```powershell
 pnpm release
-wsl.exe -d Ubuntu-24.04 -u root -- bash /mnt/e/Github/zx-panel/scripts/wsl-lab.sh prepare
-wsl.exe -d Ubuntu-24.04 -u root -- bash /mnt/e/Github/zx-panel/scripts/wsl-lab.sh checks
-wsl.exe -d Ubuntu-24.04 -u root -- python3 /mnt/e/Github/zx-panel/scripts/wsl-lab.py acceptance
-wsl.exe -d Ubuntu-24.04 -u root -- python3 /mnt/e/Github/zx-panel/scripts/wsl-lab.py boundaries
-wsl.exe -d Ubuntu-24.04 -u root -- python3 /mnt/e/Github/zx-panel/scripts/wsl-lab.py recovery
-wsl.exe -d Ubuntu-24.04 -u root -- python3 /mnt/e/Github/zx-panel/scripts/wsl-lab.py load
-node scripts/wsl-stability.mjs 30
-wsl.exe -d Ubuntu-24.04 -u root -- python3 /mnt/e/Github/zx-panel/scripts/wsl-lab.py logs
-wsl.exe -d Ubuntu-24.04 -u root -- python3 /mnt/e/Github/zx-panel/scripts/wsl-lab.py stop
+wsl.exe -d Ubuntu-24.04 -u root -- bash /mnt/e/Github/zx-panel/scripts/acceptance/wsl-lab.sh prepare
+wsl.exe -d Ubuntu-24.04 -u root -- bash /mnt/e/Github/zx-panel/scripts/acceptance/wsl-lab.sh checks
+wsl.exe -d Ubuntu-24.04 -u root -- python3 /mnt/e/Github/zx-panel/scripts/acceptance/wsl-lab.py acceptance
+wsl.exe -d Ubuntu-24.04 -u root -- python3 /mnt/e/Github/zx-panel/scripts/acceptance/wsl-lab.py boundaries
+wsl.exe -d Ubuntu-24.04 -u root -- python3 /mnt/e/Github/zx-panel/scripts/acceptance/wsl-lab.py recovery
+wsl.exe -d Ubuntu-24.04 -u root -- python3 /mnt/e/Github/zx-panel/scripts/acceptance/wsl-lab.py load
+node scripts/acceptance/wsl-stability.mjs 30
+wsl.exe -d Ubuntu-24.04 -u root -- python3 /mnt/e/Github/zx-panel/scripts/acceptance/wsl-lab.py logs
+wsl.exe -d Ubuntu-24.04 -u root -- python3 /mnt/e/Github/zx-panel/scripts/acceptance/wsl-lab.py stop
 ```
 
 - 资源：`/opt/zx-panel-lab`、`/etc/zx-panel-lab`、`/var/lib/zx-panel-lab`；账号 `zx-lab-web` / `zx-lab-app` / `zx-lab-db`。
@@ -44,16 +44,16 @@ wsl.exe -d Ubuntu-24.04 -u root -- python3 /mnt/e/Github/zx-panel/scripts/wsl-la
 - 凭据和 TLS 私钥仅保留于 `/etc/zx-panel-lab` 的受控文件，不写进仓库或控制台。浏览器测试只对实验自签证书使用独立 context 例外；产品 HTTPS/Cookie 规则保持启用。
 - 原始报告和私有数据库备份位于 `/opt/zx-panel-lab/reports`；浏览器脱敏采样与截图位于被忽略的 `test-results/wsl-stability`。公开结果需单独归档到 docs，不复制数据库或密钥。
 
-`scripts/wsl-release-checks.py deployment` 复验已授权的正式 helper 模板，结束恢复原实验单元和能力并停止服务；报告绑定交付模板/二进制 SHA256。`scripts/wsl-release-checks.py export` 在原能力集下验证实际导出上限；`scripts/wsl-release-checks.py uninstall` 需要事先明确批准临时 `CAP_SYS_PTRACE` 和实验版本卸载，不应当作普通检查自动调用。脚本支持专用 x86_64/aarch64 实验，要求实验服务初始停止，完成后恢复能力并停止服务。安装成功后才授予临时权限，等待实际二进制、能力、seccomp 和 Socket 就绪；`uninstall --resume-installation` 只复用本脚本失败报告中的新装版本，不接受任意安装 ID。`scripts/wsl-resource-budget.mjs` 对运行中的专用代理测量冷缓存资源，不输出 Cookie。
+`scripts/acceptance/wsl-release-checks.py deployment` 复验已授权的正式 helper 模板，结束恢复原实验单元和能力并停止服务；报告绑定交付模板/二进制 SHA256。`scripts/acceptance/wsl-release-checks.py export` 在原能力集下验证实际导出上限；`scripts/acceptance/wsl-release-checks.py uninstall` 需要事先明确批准临时 `CAP_SYS_PTRACE` 和实验版本卸载，不应当作普通检查自动调用。脚本支持专用 x86_64/aarch64 实验，要求实验服务初始停止，完成后恢复能力并停止服务。安装成功后才授予临时权限，等待实际二进制、能力、seccomp 和 Socket 就绪；`uninstall --resume-installation` 只复用本脚本失败报告中的新装版本，不接受任意安装 ID。`scripts/acceptance/wsl-resource-budget.mjs` 对运行中的专用代理测量冷缓存资源，不输出 Cookie。
 
-ARM64 补充实验脚本 `scripts/wsl-arm64-lab.py` 在 WSL 内启动独立 QEMU 8.2.2 TCG 系统模拟，使用 [Ubuntu 官方固定版本镜像](https://cloud-images.ubuntu.com/releases/noble/release-20260911/)并核对 SHA256；使用 [QEMU virt 平台](https://www.qemu.org/docs/master/system/arm/virt.html)与 [cloud-init NoCloud](https://docs.cloud-init.io/en/latest/reference/datasources/nocloud.html)。来宾为 aarch64 / Ubuntu 24.04 / Linux 6.8.0-139-generic、2 vCPU / 2048 MiB。QEMU 宿主进程为独立非 root 账号，只读共享发布二进制、部署配置和验收脚本；SSH 私钥、磁盘、数据库都独立。
+ARM64 补充实验脚本 `scripts/acceptance/wsl-arm64-lab.py` 在 WSL 内启动独立 QEMU 8.2.2 TCG 系统模拟，使用 [Ubuntu 官方固定版本镜像](https://cloud-images.ubuntu.com/releases/noble/release-20260911/)并核对 SHA256；使用 [QEMU virt 平台](https://www.qemu.org/docs/master/system/arm/virt.html)与 [cloud-init NoCloud](https://docs.cloud-init.io/en/latest/reference/datasources/nocloud.html)。来宾为 aarch64 / Ubuntu 24.04 / Linux 6.8.0-139-generic、2 vCPU / 2048 MiB。QEMU 宿主进程为独立非 root 账号，只读共享发布二进制、部署配置和验收脚本；SSH 私钥、磁盘、数据库都独立。
 
 ARM64 已通过无系统 Node/Go CLI 启动、官方 Node/Go 安装、真实指标与认证、Node/二进制生命周期、保存不重启、cgroup、参数原值、18,000 字节秘密脱敏/导出、helper 拒绝边界、SSE/注销/重启 reset、下载取消、SIGKILL 中断恢复、生产备份 CLI、日志翻页/筛选/失效游标。[原始脱敏报告](acceptance-arm64.json)。另在临时授权下通过完整引用、预检后竞争拒绝、helper 最终检查和新版本成功卸载，权限已撤销；安装包由宿主从官方来源下载、核对 SHA256 后放入来宾缓存，再由产品重新校验，前期超时及就绪断言失败单独保留。[补充报告](acceptance-supplemental.json)。随后正式模板也已在双架构复验通过，见 [正式模板报告](acceptance-deployment.json)；额外主机限制导致引用检查不完整时仍禁止卸载。ARM64 没有重复 30 分钟负载或 race/恢复库集成，不据此推断原生 ARM 性能。
 
 ```powershell
-wsl.exe -d Ubuntu-24.04 -u root -- python3 /mnt/e/Github/zx-panel/scripts/wsl-arm64-lab.py prepare
-wsl.exe -d Ubuntu-24.04 -u root -- python3 /mnt/e/Github/zx-panel/scripts/wsl-arm64-lab.py verify
-wsl.exe -d Ubuntu-24.04 -u root -- python3 /mnt/e/Github/zx-panel/scripts/wsl-arm64-lab.py stop
+wsl.exe -d Ubuntu-24.04 -u root -- python3 /mnt/e/Github/zx-panel/scripts/acceptance/wsl-arm64-lab.py prepare
+wsl.exe -d Ubuntu-24.04 -u root -- python3 /mnt/e/Github/zx-panel/scripts/acceptance/wsl-arm64-lab.py verify
+wsl.exe -d Ubuntu-24.04 -u root -- python3 /mnt/e/Github/zx-panel/scripts/acceptance/wsl-arm64-lab.py stop
 ```
 
 ARM64 使用宿主 `/opt/zx-panel-arm64-lab`、私钥目录 `/etc/zx-panel-arm64-lab` 和独立来宾磁盘；只转发宿主回环 SSH `27222`。来宾中的同名实验目录与 PostgreSQL 属于其私有磁盘，与 x86_64 实验隔离。报告保留历史失败任务，不把重试前失败改写为成功。

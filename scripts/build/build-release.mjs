@@ -3,7 +3,7 @@ import { cp, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { resolve, relative, sep } from "node:path";
 
 /** root 将所有构建输出约束在当前仓库，不使用用户传入的删除路径。 */
-const root = resolve(import.meta.dirname, "..");
+const root = resolve(import.meta.dirname, "../..");
 /** run 使用参数数组启动固定工具，失败立即中断发布。 */
 function run(program, args, env = {}) {
   const result = spawnSync(program, args, { cwd: root, env: { ...process.env, ...env }, stdio: "inherit", shell: false });

@@ -36,20 +36,22 @@
 - Frontend runtime target is modern Node (`package.json` engines: Node `^22.22.0 || >=24.0.0`).
 - Use pnpm for frontend package scripts:
   - `pnpm dev` starts Vite on `http://localhost:7200`.
-  - `pnpm dev:all` runs Windows Vite and the Go API in the default WSL distribution/user. It checks WSL, login-shell Go/setsid, a non-root user and the shared repository before starting either service; PostgreSQL preparation and explicit migration remain manual. Ctrl+C or either service exiting stops both.
+  - `pnpm dev:all` runs Windows Vite and the Go API in the default WSL distribution/user. It uses interactive login Bash to load tool PATH (including Homebrew in `.bashrc`) and checks WSL, Go/setsid, a non-root user and the shared repository before starting either service. When present, ignored `configs/dev.json` is passed to the Go API; use the same explicit `--config` for CLI preparation, and keep Linux keys/data in the WSL filesystem. PostgreSQL preparation and explicit migration remain manual. Ctrl+C or either service exiting stops both.
+  - `pnpm dev:frontend:wsl` and `pnpm dev:backend:wsl` independently run the selected service in WSL, from Windows or directly inside WSL. Checks reject other platforms, root, missing tools, outdated Node/Go, non-Linux toolchains and incompatible frontend native dependencies. Use Linux pnpm to install separate WSL `node_modules`; no automatic installation or database preparation. Arguments are passed verbatim and Ctrl+C cleans only the selected service's process group.
   - `pnpm build` builds production assets into `dist/`.
   - `pnpm start` or `pnpm preview` previews the built frontend.
   - `pnpm lint` runs ESLint.
   - `pnpm exec tsc --noEmit` checks frontend types.
   - `pnpm test:login` runs Node built-in tests for login validation and safe return paths.
   - `pnpm test:theme` checks login theme policy, dark fallback, and theme transition cleanup.
-  - `pnpm test:dev` checks combined development startup guards and process cleanup.
+  - `pnpm test:dev` checks combined and independent WSL startup guards, argument forwarding and process cleanup.
   - `pnpm lint:fix` applies fixable ESLint changes.
 - Backend commands:
   - `go run -tags devassets ./cmd/server` starts the development API on loopback `PORT` or `25000` after explicit migration.
   - `go test -tags devassets ./...` and `go vet -tags devassets ./...` validate Go. `ZX_PANEL_INTEGRATION=1` creates random isolated test databases; it must verify current_database() before any test writes.
-  - `scripts/wsl-lab.sh` and `scripts/wsl-lab.py` reproduce the explicitly authorized isolated WSL experiment; they use dedicated paths, users, service units and PostgreSQL on 25433. Never repoint these tests at the existing development database.
-  - `scripts/wsl-release-checks.py export` tests actual 50 MiB export limits; its `uninstall` mode requires explicit authorization for temporary process-inspection capability and experimental runtime removal. Its `deployment` mode exercises the explicitly approved production template, binds template/binary SHA256 values to the report, then restores the original lab units. All modes wait for executable/capability/seccomp/socket readiness, restore capabilities and stop dedicated services. `uninstall --resume-installation` only reuses the installation recorded by its own failed check. `scripts/wsl-resource-budget.mjs` measures cold browser transfers with JS/CSS compression and confirms API/SSE remain uncompressed.
+  - `scripts/acceptance/wsl-lab.sh` and `scripts/acceptance/wsl-lab.py` reproduce the explicitly authorized isolated WSL experiment; they use dedicated paths, users, service units and PostgreSQL on 25433. Never repoint these tests at the existing development database.
+  - `scripts/acceptance/wsl-release-checks.py export` tests actual 50 MiB export limits; its `uninstall` mode requires explicit authorization for temporary process-inspection capability and experimental runtime removal. Its `deployment` mode exercises the explicitly approved production template, binds template/binary SHA256 values to the report, then restores the original lab units. All modes wait for executable/capability/seccomp/socket readiness, restore capabilities and stop dedicated services. `uninstall --resume-installation` only reuses the installation recorded by its own failed check. `scripts/acceptance/wsl-resource-budget.mjs` measures cold browser transfers with JS/CSS compression and confirms API/SSE remain uncompressed.
+- Scripts are grouped by purpose: `scripts/dev`, `build`, `contract`, `test`, `security`, and `acceptance`. Update package scripts, CI, documentation and lab/guest copy paths together when relocating them.
 - Commit messages are enforced by Husky + Commitlint:
   - Hook: `.husky/commit-msg`
   - Ruleset: `commitlint.config.js` with `@commitlint/config-conventional`
@@ -96,7 +98,7 @@
 
 ## v1.1 Delivery and Safety
 - `pnpm dev:mock` uses fixed MSW data; `pnpm dev` uses the real same-origin API. Do not silently fall back between modes.
-- `pnpm test`, `pnpm test:e2e`, `pnpm test:api`, `pnpm contract --check-go`, and `node scripts/secret-scan.mjs` cover added validation. The API browser fixture uses an isolated database and embedded production assets. Preserve the original Node login/theme tests.
+- `pnpm test`, `pnpm test:e2e`, `pnpm test:api`, `pnpm contract --check-go`, and `pnpm scan:secrets` cover added validation. The API browser fixture uses an isolated database and embedded production assets. Preserve the original Node login/theme tests.
 - Generate API fixtures with `ZX_PANEL_CONTRACT_FIXTURES=1` during the isolated integration test. They contain public responses only.
 - `pnpm build:release` validates API-only assets into `internal/web/ui/dist`; `pnpm release` builds Linux amd64/arm64 binaries. Formal Go builds require these ignored generated assets; `devassets` is explicitly development only. Rebuilding resets build-time acceptance to pending; completed acceptance applies only to the artifact hashes in `docs/acceptance-deployment.json`.
 - Responses retain `success/data/error` and add `meta.requestId/serverTime`; synchronize OpenAPI via `pnpm contract`.

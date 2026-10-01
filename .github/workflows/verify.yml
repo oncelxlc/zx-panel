@@ -37,7 +37,7 @@ jobs:
           cache: true
       - run: pnpm install --frozen-lockfile
       - run: sudo apt-get update && sudo apt-get install -y postgresql-client
-      - run: pnpm typecheck && pnpm lint && pnpm test && pnpm test:login && pnpm test:theme
+      - run: pnpm typecheck && pnpm lint && pnpm test && pnpm test:login && pnpm test:theme && pnpm test:dev
       - run: go test -race -tags devassets ./... && go vet -tags devassets ./...
       - run: pnpm contract --check-go
       - run: git diff --exit-code -- docs/openapi.json docs/error-codes.json
@@ -45,7 +45,7 @@ jobs:
       - run: pnpm test:e2e
       - run: pnpm test:api
       - run: pnpm audit && go run golang.org/x/vuln/cmd/govulncheck@v1.8.0 -tags devassets ./...
-      - run: node scripts/secret-scan.mjs
+      - run: pnpm scan:secrets
       - run: pnpm release
       - uses: actions/upload-artifact@v4
         if: always()

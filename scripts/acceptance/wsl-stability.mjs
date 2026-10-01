@@ -75,7 +75,7 @@ try {
       clients.push(client);
     }
     if (Date.now() >= nextSample) {
-      const server = JSON.parse(wsl(["python3", "/mnt/e/Github/zx-panel/scripts/wsl-lab.py", "sample"]));
+      const server = JSON.parse(wsl(["python3", "/mnt/e/Github/zx-panel/scripts/acceptance/wsl-lab.py", "sample"]));
       const latency = await page.evaluate(async () => {
         const times = [];
         for (let i = 0; i < 10; i++) {

@@ -55,5 +55,5 @@ task_plan.md
 /test-results-api/
 
 release/
-scripts/.schema-*.mjs
+scripts/contract/.schema-*.mjs
 __pycache__/

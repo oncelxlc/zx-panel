@@ -4,7 +4,7 @@ import { createHash } from "node:crypto";
 import { resolve } from "node:path";
 
 /** run 通过固定参数数组构建，不启动 shell 或修改 Git 历史。 */
-function run(command, args, env = {}) { const result = spawnSync(command, args, { cwd: resolve(import.meta.dirname, ".."), env: { ...process.env, ...env }, stdio: "inherit", shell: false }); if (result.error) throw result.error; if (result.status !== 0) throw new Error(`${command} failed`); }
+function run(command, args, env = {}) { const result = spawnSync(command, args, { cwd: resolve(import.meta.dirname, "../.."), env: { ...process.env, ...env }, stdio: "inherit", shell: false }); if (result.error) throw result.error; if (result.status !== 0) throw new Error(`${command} failed`); }
 run(process.execPath, [resolve(import.meta.dirname, "build-release.mjs")]);
 const git = spawnSync("git", ["rev-parse", "--short=12", "HEAD"], { encoding: "utf8", shell: false });
 const status = spawnSync("git",["status","--porcelain"],{encoding:"utf8",shell:false});

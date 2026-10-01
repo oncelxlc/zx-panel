@@ -70,14 +70,14 @@ def prepare():
         assert hashlib.file_digest(source, 'sha256').hexdigest() == digest
     print('Official Ubuntu ARM64 image SHA256 verified.', flush=True)
     inputs = ROOT / 'input'
-    for name in ['release/linux-arm64', 'deploy', 'scripts']:
+    for name in ['release/linux-arm64', 'deploy', 'scripts/acceptance']:
         (inputs / name).mkdir(parents=True, exist_ok=True)
     for name in ['zx-panel', 'zx-panel-helper']:
         shutil.copy2(REPO / 'release/linux-arm64' / name, inputs / 'release/linux-arm64' / name)
     for name in ['zx-panel.service', 'zx-panel-helper.service', 'nginx.conf']:
         shutil.copy2(REPO / 'deploy' / name, inputs / 'deploy' / name)
     for name in ['wsl-lab.sh', 'wsl-lab.py', 'wsl-release-checks.py']:
-        shutil.copy2(REPO / 'scripts' / name, inputs / 'scripts' / name)
+        shutil.copy2(REPO / 'scripts/acceptance' / name, inputs / 'scripts/acceptance' / name)
     state = ROOT / 'state'
     state.mkdir(mode=0o700, exist_ok=True)
     os.chown(state, owner.pw_uid, owner.pw_gid)
@@ -122,11 +122,11 @@ def verify():
     reports = ROOT / 'reports'
     reports.mkdir(mode=0o700, exist_ok=True)
     for phase, script in [
-        ('prepare', 'sudo bash /mnt/e/Github/zx-panel/scripts/wsl-lab.sh prepare'),
-        ('acceptance', 'sudo python3 /mnt/e/Github/zx-panel/scripts/wsl-lab.py acceptance'),
-        ('boundaries', 'sudo python3 /mnt/e/Github/zx-panel/scripts/wsl-lab.py boundaries'),
-        ('recovery', 'sudo python3 /mnt/e/Github/zx-panel/scripts/wsl-lab.py recovery'),
-        ('logs', 'sudo python3 /mnt/e/Github/zx-panel/scripts/wsl-lab.py logs'),
+        ('prepare', 'sudo bash /mnt/e/Github/zx-panel/scripts/acceptance/wsl-lab.sh prepare'),
+        ('acceptance', 'sudo python3 /mnt/e/Github/zx-panel/scripts/acceptance/wsl-lab.py acceptance'),
+        ('boundaries', 'sudo python3 /mnt/e/Github/zx-panel/scripts/acceptance/wsl-lab.py boundaries'),
+        ('recovery', 'sudo python3 /mnt/e/Github/zx-panel/scripts/acceptance/wsl-lab.py recovery'),
+        ('logs', 'sudo python3 /mnt/e/Github/zx-panel/scripts/acceptance/wsl-lab.py logs'),
     ]:
         print('ARM64 phase: ' + phase, flush=True)
         if phase == 'prepare' and ssh('systemctl is-active zx-panel-lab.service || true').strip() == 'active':
@@ -150,7 +150,7 @@ if __name__ == '__main__':
     elif sys.argv[1:] == ['verify']:
         verify()
     elif sys.argv[1:] == ['stop']:
-        ssh('sudo python3 /mnt/e/Github/zx-panel/scripts/wsl-lab.py stop')
+        ssh('sudo python3 /mnt/e/Github/zx-panel/scripts/acceptance/wsl-lab.py stop')
         ssh('sudo shutdown -h now')
     else:
         raise SystemExit('Usage: wsl-arm64-lab.py prepare|verify|stop')

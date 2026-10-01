@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "vite",
-    "dev:all": "node scripts/dev.mjs",
+    "dev:all": "node scripts/dev/dev.mjs all",
+    "dev:frontend:wsl": "node scripts/dev/dev.mjs frontend",
+    "dev:backend:wsl": "node scripts/dev/dev.mjs backend",
     "build": "vite build",
     "start": "vite preview",
     "preview": "vite preview",
@@ -15,15 +17,15 @@
     "test:dev": "node --test tests/dev.test.mjs",
     "prepare": "husky",
     "commitlint": "commitlint --edit",
-    "build:release": "node scripts/build-release.mjs",
+    "build:release": "node scripts/build/build-release.mjs",
     "typecheck": "tsc --noEmit",
     "dev:mock": "vite --mode mock",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "release": "node scripts/build-binaries.mjs",
-    "contract": "node scripts/openapi.mjs",
-    "test:api": "pnpm build:release && node scripts/test-api-browser.mjs",
-    "scan:secrets": "node scripts/secret-scan.mjs"
+    "release": "node scripts/build/build-binaries.mjs",
+    "contract": "node scripts/contract/openapi.mjs",
+    "test:api": "pnpm build:release && node scripts/test/test-api-browser.mjs",
+    "scan:secrets": "node scripts/security/secret-scan.mjs"
   },
   "engines": {
     "node": "^22.22.0 || >=24.0.0",

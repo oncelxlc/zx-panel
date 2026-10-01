@@ -16,7 +16,7 @@ import urllib.parse
 
 REPO = Path('/mnt/e/Github/zx-panel')
 LAB = Path('/opt/zx-panel-lab')
-MODULE = runpy.run_path(str(REPO / 'scripts/wsl-lab.py'), run_name='lab_library')
+MODULE = runpy.run_path(str(REPO / 'scripts/acceptance/wsl-lab.py'), run_name='lab_library')
 run = MODULE['run']
 UNITS = ['zx-panel-lab-postgres', 'zx-panel-lab-helper', 'zx-panel-lab', 'zx-panel-lab-nginx']
 OVERRIDE = Path('/run/systemd/system/zx-panel-lab-helper.service.d/90-reference-test.conf')

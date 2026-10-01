@@ -76,3 +76,15 @@
 第一次隔离集成测试错误地修改 pgx 配置后继续使用 `ConnString()`；该方法返回原始连接串，因此 **001 迁移误执行到了现有开发数据库**。随后立即停止并只读核查：原有 1 个账号和密码摘要保留；新增业务表和 1 个预登录记录；旧 Bearer 会话按迁移被撤销；任务、应用、安装均为 0。没有回退、删除新表或继续向业务库写测试数据。
 
 修复后使用重建 URL 的独立数据库，并在任何测试 DDL 前强制 `SELECT current_database()` 等于新生成的 `zx_panel_test_*` 名称且不等于源库；之后测试全部仅在隔离库执行并清理。001 文件已冻结；002 是追加索引迁移，**没有应用到现有开发库**。现有开发库下次启动新服务前，需要按 README 停服、安装 pg_dump、备份并显式执行剩余迁移。旧登录会话需要重新登录。
+
+## 2026-10-01 开发环境启动验证
+
+- 用户明确授权执行完整开发准备流程。已核对 Compose 数据库为 zx_panel / PostgreSQL 18.6，原 admin 账号保持启用；数据库从 001 升级到 002，两个迁移的 checksum 校验通过。上述事故记录中“002 未应用”是当时状态，当前开发库已完成迁移。
+- 迁移前使用容器同版 pg_dump 18 生成新备份，并在随机 zx_panel_dev_restore_e79906b9bb40 库核对 current_database 后恢复；账号、密码摘要、角色和启用状态与源库一致，临时恢复库已删除。CLI 迁移另生成一份新备份。备份和独立密钥均保存于 WSL 当前用户私有目录，权限 0600。
+- 联合命令加载交互式登录 Bash，识别 Homebrew Go 1.27.1 / Node 24.21.0。可选、被忽略的 configs/dev.json 将数据和密钥放在 ~/.local/share/zx-panel-dev 的 Linux 文件系统；数据目录 0700、密钥 0600，避开无 metadata 的 Windows 挂载盘。命令不自动迁移、初始化账号或启动数据库。
+- WSL 系统 pg_dump 16 不兼容当前 PG18；本机在 ~/.local/share/zx-panel-dev/tools/pg_dump 创建容器客户端适配器，仅供当前 Compose 开发库 CLI 备份使用。后续在 WSL 运行备份/已有账号迁移前使用 export PATH="$HOME/.local/share/zx-panel-dev/tools:$PATH"，CLI 显式传 --config configs/dev.json。其他数据库使用与其版本匹配的客户端。
+- 真实 Chromium 使用现有本地管理员凭据通过登录/注销、HttpOnly + SameSite=Strict Cookie、六页面、10 个读取 API 与 metrics.sample SSE；资源图表完成 SVG 渲染，没有观察到浏览器运行时错误或失败响应。截图和详细结果在被忽略的 test-results/dev-* 文件。
+- 后端实际退出联动停止 Vite，重新启动未发生实例锁冲突；Windows 原生 Ctrl+C 后联合命令返回 130，7200/25000 端口关闭且开发 Go/Bash 无残留。自动化 PTY 写入 ETX 未送达信号的尝试不计为通过。
+- 验证范围为 Windows Vite + Ubuntu 24.04 WSL2 Go 的 development 配置；privileged helper 按开发示例保持关闭。
+
+最终回归：pnpm test:dev、相关 ESLint、pnpm typecheck、Bash 语法和 git diff --check 通过；248 个可交付文本未命中既有秘密特征。服务重新启动后健康与同源 API 均为 200，并保留运行供开发。

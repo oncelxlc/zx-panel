@@ -334,7 +334,7 @@ def helper_request():
 
 def helper_as(account, request):
     """每次使用独立真实账号连接，不模拟 SO_PEERCRED。"""
-    return json.loads(run(['/usr/sbin/runuser', '-u', account, '--', '/usr/bin/python3', str(REPO / 'scripts/wsl-lab.py'), 'helper'], input=json.dumps(request), env={'PATH': '/usr/bin:/bin'}))
+    return json.loads(run(['/usr/sbin/runuser', '-u', account, '--', '/usr/bin/python3', str(REPO / 'scripts/acceptance/wsl-lab.py'), 'helper'], input=json.dumps(request), env={'PATH': '/usr/bin:/bin'}))
 
 
 def boundaries():

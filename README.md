@@ -38,14 +38,31 @@ Windows 可在仓库目录用一个命令同时启动本机 Vite 和 WSL 中的 
 pnpm dev:all
 ```
 
-启动前检查 WSL 及默认发行版、登录 shell 的 Go 和 `setsid`（util-linux）、默认非 root 用户及仓库路径；检查失败返回非零状态，前后端均不启动。先在 WSL 中安装 Go（最低 1.25）并加入登录 shell 的 PATH，配置 WSL 可访问的独立开发 PostgreSQL，再从仓库目录执行以下准备命令（已有账号升级仍须按下文备份）：
+前端和后端也可分别运行于 WSL，在两个终端执行以下命令。命令既支持 Windows 调用默认 WSL 发行版，也支持直接在 WSL 仓库目录执行：
 
-```powershell
-wsl --exec bash -lc 'go run -tags devassets ./cmd/server migrate up'
-wsl --exec bash -lc 'go run -tags devassets ./cmd/server setup-token'
+```sh
+pnpm dev:frontend:wsl
+pnpm dev:backend:wsl
+# 服务参数按原值转发，例如使用另一个前端端口：
+pnpm dev:frontend:wsl --port 7203
 ```
 
-命令使用仓库 `.env`，不自动启动数据库、迁移或创建管理员。Windows 到 WSL 的 localhost 转发需可用，Vite 仍通过 `/api` 代理访问 25000。任一服务退出都会停止另一侧，Ctrl+C 同时退出；Go 最多留出 40 秒排空。`pnpm dev` 和 `pnpm dev:mock` 保持原有行为。
+独立命令只检查和启动指定服务，前端不要求 Go；Windows 调用后端时不要求 WSL Node.js，直接在 WSL 中调用 pnpm 仍需 Linux Node.js/pnpm。检查 WSL、非 root 用户、`setsid`、仓库及对应工具：前端需要 Linux Node.js（符合 `package.json`）和可加载的 Vite/Rollup/esbuild 依赖；后端需要 Linux Go 1.25+ 且 `GOOS=linux`。普通 Linux/macOS、缺失工具、版本过低或原生依赖平台不匹配均明确报错并返回非零状态。前端固定使用真实 API 模式，仍需单独启动后端；Ctrl+C 清理该命令启动的服务进程组。
+
+Windows 与 WSL 应使用各自的 `node_modules`。运行 WSL 前端前，在 WSL 的独立仓库副本中用 **Linux Node.js 和 pnpm** 执行 `pnpm install --frozen-lockfile`；两端共用挂载目录时切换依赖平台会影响另一端开发。脚本只检查并报告问题，不自动安装或替换依赖。
+
+联合命令启动前检查 WSL 及默认发行版、交互式登录 Bash 的 Go 和 `setsid`（util-linux）、默认非 root 用户及仓库路径；检查失败返回非零状态，前后端均不启动。交互式登录 Bash 会加载用户登录与交互配置中的工具 PATH（例如 `.profile`、`.bashrc`），兼容 Homebrew 等安装方式。先在 WSL 中安装 Go（最低 1.25）并加入 Bash 的 PATH，配置 WSL 可访问的独立开发 PostgreSQL，再从仓库目录执行以下准备命令（已有账号升级仍须按下文备份）：
+
+```powershell
+# WSL 开发先复制 configs/dev.example.json 为 configs/dev.json，
+# 将 paths 改为 WSL 用户目录下的绝对 Linux 路径；密钥目录 0700、密钥 0600。
+wsl --exec bash -lic 'go run -tags devassets ./cmd/server migrate up --config configs/dev.json'
+wsl --exec bash -lic 'go run -tags devassets ./cmd/server setup-token --config configs/dev.json'
+```
+
+后端命令使用仓库 `.env`，存在已忽略的 `configs/dev.json` 时也会加载该后端配置；CLI 迁移、备份等命令应显式使用相同 `--config`。备份客户端 `pg_dump` 的版本不能低于数据库；当前 WSL/Compose 开发环境的客户端用法见 [启动验证记录](docs/verification.md#2026-10-01-开发环境启动验证)。不自动启动数据库、迁移或创建管理员。`dev:all` 需要 Windows 到 WSL 的 localhost 转发可用，任一服务退出都会停止另一侧，Ctrl+C 同时退出；Go 最多留出 40 秒排空。Vite 仍通过 `/api` 代理访问 25000，`pnpm dev` 和 `pnpm dev:mock` 保持原有行为。
+
+`scripts/` 按用途拆分：`dev/` 开发启动与环境检查，`build/` 前端发布资源及 Linux 二进制构建，`contract/` OpenAPI 生成与契约校验，`test/` 隔离 API 浏览器测试，`security/` 秘密扫描，`acceptance/` WSL/QEMU 验收和资源测量。验收脚本的实验范围与授权要求见 [Linux 验收清单](docs/linux-acceptance.md)。
 
 **已有账号的数据库升级必须先停服务并提供新备份路径：**
 
@@ -147,7 +164,7 @@ pnpm test:e2e
 pnpm test:api
 go test -tags devassets ./...
 go vet -tags devassets ./...
-node scripts/secret-scan.mjs
+pnpm scan:secrets
 pnpm audit
 go run golang.org/x/vuln/cmd/govulncheck@v1.8.0 -tags devassets ./...
 ```

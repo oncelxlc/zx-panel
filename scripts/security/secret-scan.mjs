@@ -22,7 +22,7 @@ for (const file of new Set(files.stdout.split("\0").filter(Boolean))) {
   if (
     file.startsWith(".agents/") ||
     file.startsWith(".codex/") ||
-    file === "scripts/secret-scan.mjs"
+    file === "scripts/security/secret-scan.mjs"
   )
     continue;
   if (
@@ -32,8 +32,12 @@ for (const file of new Set(files.stdout.split("\0").filter(Boolean))) {
     !file.endsWith(".env.mock")
   )
     continue;
-  const info = await stat(file);
-  if (info.size > 2 * 1024 * 1024) continue;
+  // Git 仍可能列出本轮目录整理中已移动的旧路径。
+  const info = await stat(file).catch((error) => {
+    if (error.code === "ENOENT") return null;
+    throw error;
+  });
+  if (!info || info.size > 2 * 1024 * 1024) continue;
   checked++;
   const lines = (await readFile(file, "utf8")).split(/\r?\n/);
   lines.forEach((line, index) => {

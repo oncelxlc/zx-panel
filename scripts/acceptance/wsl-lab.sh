@@ -56,7 +56,7 @@ prepare)
   install -d -m 0700 -o zx-lab-web -g zx-lab-web /etc/zx-panel-lab/keys /var/lib/zx-panel-lab
   install -d -m 0755 "$LAB/tools" "$LAB/runtimes" "$LAB/apps" "$LAB/bin"
   install -d -m 0750 -o zx-lab-web -g zx-lab-web "$LAB/build-cache" "$LAB/source" "$LAB/reports"
-  python3 "$REPO/scripts/wsl-lab.py" prepare
+  python3 "$REPO/scripts/acceptance/wsl-lab.py" prepare
   ;;
 checks)
   test -f "$LAB/.zx-panel-lab"
@@ -86,7 +86,7 @@ refresh)
   systemctl stop zx-panel-lab.service zx-panel-lab-helper.service
   install -m 0755 "$LAB/build-cache/server" "$LAB/bin/zx-panel"
   install -m 0755 "$LAB/build-cache/helper" "$LAB/bin/zx-panel-helper"
-  python3 "$REPO/scripts/wsl-lab.py" units
+  python3 "$REPO/scripts/acceptance/wsl-lab.py" units
   systemctl daemon-reload
   systemctl start zx-panel-lab-helper.service zx-panel-lab.service
   for attempt in $(seq 1 30); do
