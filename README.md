@@ -32,6 +32,8 @@ pnpm dev
 
 后端默认 `127.0.0.1:25000`，Vite 固定 7200。开发时显式使用 `devassets`；正式 Go 构建先执行 `pnpm build:release`，缺失真实 API 前端资源会构建失败。
 
+使用 `go build` 生成 WSL 开发二进制、手动运行以及在 GoLand 中设置断点，见 [WSL Go 构建与 GoLand 调试](docs/wsl-go-debug.md)。文档包含运行版与保留调试信息的构建命令、数据库准备步骤、GoLand 原生 WSL 调试及 Delve 连接方式。
+
 Windows 可在仓库目录用一个命令同时启动本机 Vite 和 WSL 中的 Go 后端：
 
 ```powershell
