@@ -329,6 +329,12 @@ func (s *Service) maintenanceLoop(ctx context.Context) {
 	ticker := time.NewTicker(time.Minute)
 	defer ticker.Stop()
 	for {
+		// 启动后立即探测，后续各浏览器共享每分钟的安装快照。
+		bounded, cancel := context.WithTimeout(ctx, 30*time.Second)
+		if err := s.DiscoverExternal(bounded); err != nil && !errors.Is(err, context.Canceled) {
+			slog.Warn("external runtime observation failed")
+		}
+		cancel()
 		select {
 		case <-ctx.Done():
 			return
@@ -336,11 +342,6 @@ func (s *Service) maintenanceLoop(ctx context.Context) {
 			if err := s.cleanup(ctx); err != nil && !errors.Is(err, context.Canceled) {
 				slog.Warn("panel retention cleanup failed")
 			}
-			bounded, cancel := context.WithTimeout(ctx, 15*time.Second)
-			if err := s.DiscoverExternal(bounded); err != nil && !errors.Is(err, context.Canceled) {
-				slog.Warn("external runtime observation failed")
-			}
-			cancel()
 			slog.Debug("panel resource sample", "goroutines", runtime.NumGoroutine())
 		}
 	}

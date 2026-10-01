@@ -65,6 +65,7 @@ describe("public API and bounded logs", () => {
     expect(large.droppedCount).toBeGreaterThan(0);
   });
   it("rejects cross-action fields and preserves argument and secret whitespace", () => {
+    expect(releaseSchema.safeParse({ ...demoReleases[0], kind: "rust" }).success).toBe(false);
     expect(
       operationSchema.safeParse({
         action: "runtime.install",

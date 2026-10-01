@@ -15,6 +15,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"sync"
 	"testing"
@@ -229,9 +230,22 @@ func TestPostgresCookieAndDurableTasks(t *testing.T) {
 	if got := call("GET", "/bootstrap", "", "", cookie); got.Code != 200 {
 		t.Errorf("bootstrap: %d %s", got.Code, got.Body.String())
 	}
+	for _, check := range []struct {
+		path   string
+		status int
+	}{
+		{"/runtimes/rust/installations", 200},
+		{"/runtimes/python/installations", 200},
+		{"/runtimes/unknown/installations", 404},
+		{"/runtimes/rust/releases", 404},
+	} {
+		if got := call("GET", check.path, "", "", cookie); got.Code != check.status {
+			t.Errorf("runtime read boundary %s: %d != %d", check.path, got.Code, check.status)
+		}
+	}
 	if os.Getenv("ZX_PANEL_CONTRACT_FIXTURES") == "1" {
 		fixtures := map[string]json.RawMessage{}
-		for schema, path := range map[string]string{"Bootstrap": "/bootstrap", "SystemInfo": "/system/info", "Capabilities": "/system/capabilities", "MetricSnapshot": "/metrics/latest", "Settings": "/settings", "InstallationPage": "/runtimes/node/installations", "ApplicationPage": "/apps", "TaskPage": "/tasks"} {
+		for schema, path := range map[string]string{"Bootstrap": "/bootstrap", "SystemInfo": "/system/info", "Capabilities": "/system/capabilities", "MetricSnapshot": "/metrics/latest", "Settings": "/settings", "RuntimeSummaries": "/runtimes", "InstallationPage": "/runtimes/node/installations", "ApplicationPage": "/apps", "TaskPage": "/tasks"} {
 			response := call("GET", path, "", "", cookie)
 			if response.Code != 200 {
 				t.Fatalf("fixture %s status %d", schema, response.Code)
@@ -475,5 +489,60 @@ func TestRetentionAndExternalObservation(t *testing.T) {
 	var state string
 	if err = database.Pool().QueryRow(ctx, "SELECT payload->>'state' FROM app.runtime_installations WHERE id=$1", missingID).Scan(&state); err != nil || state != "unknown" {
 		t.Fatalf("missing external runtime still ready: %s %v", state, err)
+	}
+	if runtime.GOOS != "linux" {
+		return
+	}
+	// 在随机隔离数据库与临时 PATH 中核实新增类别，绝不修改主机安装。
+	directory := t.TempDir()
+	rustPath := filepath.Join(directory, "rustc")
+	if err = os.WriteFile(rustPath, []byte("#!/bin/sh\nprintf 'rustc 1.90.0 (test)\\n'\n"), 0700); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("PATH", directory+string(os.PathListSeparator)+os.Getenv("PATH"))
+	if err = service.DiscoverExternal(ctx); err != nil {
+		t.Fatal(err)
+	}
+	items, err := service.Repo.Installations(ctx, "rust")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var detected *control.Installation
+	for i := range items {
+		if items[i].Path == rustPath {
+			detected = &items[i]
+		}
+	}
+	if detected == nil || detected.Version != "1.90.0" || detected.State != "ready" || detected.Ownership != "external" {
+		t.Fatal("Rust installation was not persisted", detected)
+	}
+	summaries, err := service.RuntimeSummaries(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	found := false
+	for _, summary := range summaries {
+		if summary.Kind == "rust" {
+			found = summary.ExternalCount > 0 && len(summary.ExternalVersions) > 0 && summary.PanelCount == 0 && summary.DefaultVersion == nil && summary.CacheState == "unavailable"
+		}
+	}
+	if !found {
+		t.Fatal("read-only Rust summary missing", summaries)
+	}
+	if err = service.DiscoverExternal(ctx); err != nil {
+		t.Fatal(err)
+	}
+	var revision string
+	if err = database.Pool().QueryRow(ctx, "SELECT revision::text FROM app.runtime_installations WHERE id=$1", detected.ID).Scan(&revision); err != nil || revision != detected.Revision {
+		t.Fatal("unchanged installation revision changed", revision, err)
+	}
+	if err = os.Remove(rustPath); err != nil {
+		t.Fatal(err)
+	}
+	if err = service.DiscoverExternal(ctx); err != nil {
+		t.Fatal(err)
+	}
+	if err = database.Pool().QueryRow(ctx, "SELECT payload->>'state' FROM app.runtime_installations WHERE id=$1", detected.ID).Scan(&state); err != nil || state != "unknown" {
+		t.Fatal("removed Rust installation still ready", state, err)
 	}
 }

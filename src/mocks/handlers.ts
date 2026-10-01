@@ -562,7 +562,9 @@ export const handlers = [
     if (path === "/metrics/history") return ok(history(url));
     if (path === "/runtimes")
       return ok(
-        (["node", "go"] as const).map((kind) => ({
+        [
+          ...new Set(["node", "go", ...state.installations.map((item) => item.kind)]),
+        ].map((kind) => ({
           kind,
           defaultVersion:
             state.installations.find(
@@ -574,12 +576,19 @@ export const handlers = [
           externalCount: state.installations.filter(
             (item) => item.kind === kind && item.ownership === "external",
           ).length,
-          checkedAt: DEMO_TIME,
-          cacheState: scenario === "offline" ? "stale" : "fresh",
+          externalVersions: [
+            ...new Set(state.installations.filter(
+              (item) => item.kind === kind && item.ownership === "external" && item.state === "ready",
+            ).map((item) => item.version)),
+          ],
+          checkedAt: kind === "node" || kind === "go" ? DEMO_TIME : null,
+          cacheState: kind !== "node" && kind !== "go"
+            ? "unavailable"
+            : scenario === "offline" ? "stale" : "fresh",
           updateAvailable: false,
         })),
       );
-    if (/^\/runtimes\/(node|go)\/installations$/.test(path))
+    if (/^\/runtimes\/(node|go|rust|python|java|php|ruby|dotnet|bun|deno)\/installations$/.test(path))
       return ok({
         items: state.installations
           .filter((item) => item.kind === path.split("/")[2])

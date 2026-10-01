@@ -29,6 +29,7 @@
   - `internal/server/run.go` creates the HTTP server.
   - `internal/api/panel.go` and `resources.go` are the active Cookie API. `router.go` is the retained legacy scaffold used by existing regression tests.
   - `internal/auth/*` retains credential types and the legacy service. `internal/control/*` implements collection, SSE, plans, durable tasks, runtime adapters, apps and encrypted logs. `internal/host/*` implements the restricted helper; `cmd/helper` is its executable.
+  - Runtime discovery reads the Linux service PATH, common system locations and accessible current-account toolchain directories at startup and every minute. Node.js/Go retain panel management; Rust, Python, Java, PHP, Ruby, .NET, Bun and Deno are external read-only installations. Migration 003 extends installation kinds without widening helper/default capabilities.
   - `internal/storage` owns PostgreSQL, versioned migrations, Cookie sessions and password changes. Production startup checks schema only.
 - Domain packages are expected to live under `internal/*`. Add new backend code there rather than coupling it to frontend files.
 

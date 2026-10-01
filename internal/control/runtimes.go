@@ -2,15 +2,9 @@ package control
 
 import (
 	"context"
-	"crypto/sha256"
-	"encoding/hex"
 	"encoding/json"
 	"errors"
-	"io"
-	"os"
-	"os/exec"
-	"path/filepath"
-	"runtime"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -20,34 +14,46 @@ import (
 // RuntimeSummary 分开呈现安装事实与目录缓存状态。
 // updateAvailable 只在确有较新目录版本时为真。
 type RuntimeSummary struct {
-	Kind            string     `json:"kind"`
-	DefaultVersion  *string    `json:"defaultVersion"`
-	PanelCount      int        `json:"panelCount"`
-	ExternalCount   int        `json:"externalCount"`
-	CheckedAt       *time.Time `json:"checkedAt"`
-	CacheState      string     `json:"cacheState"`
-	UpdateAvailable bool       `json:"updateAvailable"`
+	Kind             string     `json:"kind"`
+	DefaultVersion   *string    `json:"defaultVersion"`
+	PanelCount       int        `json:"panelCount"`
+	ExternalCount    int        `json:"externalCount"`
+	ExternalVersions []string   `json:"externalVersions"`
+	CheckedAt        *time.Time `json:"checkedAt"`
+	CacheState       string     `json:"cacheState"`
+	UpdateAvailable  bool       `json:"updateAvailable"`
 }
 
-// RuntimeSummaries 汇总两个首发运行时，不推断 Python 等未支持资源。
+// RuntimeSummaries 汇总可管理类别与已发现的系统运行时。
 // 安装数量与应用运行状态没有等价关系。
 func (s *Service) RuntimeSummaries(ctx context.Context) ([]RuntimeSummary, error) {
 	result := []RuntimeSummary{}
-	for _, kind := range []string{"node", "go"} {
+	for _, probe := range externalRuntimes {
+		kind := probe.kind
 		items, err := s.Repo.Installations(ctx, kind)
 		if err != nil {
 			return nil, err
 		}
-		catalog, err := s.Catalog(ctx, kind, 1, 0)
-		if err != nil {
-			return nil, err
+		managed := kind == "node" || kind == "go"
+		if !managed && len(items) == 0 {
+			continue
 		}
-		summary := RuntimeSummary{Kind: kind, CheckedAt: catalog.CheckedAt, CacheState: catalog.CacheState}
+		catalog := CatalogPage{CacheState: "unavailable"}
+		if managed {
+			catalog, err = s.Catalog(ctx, kind, 1, 0)
+			if err != nil {
+				return nil, err
+			}
+		}
+		summary := RuntimeSummary{Kind: kind, CheckedAt: catalog.CheckedAt, CacheState: catalog.CacheState, ExternalVersions: []string{}}
 		for _, item := range items {
 			if item.Ownership == "panel" {
 				summary.PanelCount++
 			} else {
 				summary.ExternalCount++
+				if item.State == "ready" && !slices.Contains(summary.ExternalVersions, item.Version) {
+					summary.ExternalVersions = append(summary.ExternalVersions, item.Version)
+				}
 			}
 			if item.IsPanelDefault {
 				version := item.Version
@@ -126,74 +132,37 @@ func (s *Service) References(ctx context.Context, id string) (References, error)
 	return result, nil
 }
 
-// DiscoverExternal 只发现约定系统位置，不安装、不修改全局 PATH 或外部文件。
+// DiscoverExternal 保存系统位置与服务账号可访问工具链的只读安装事实。
 // 可执行版本读取在非 root 主服务身份下运行；未再次发现的记录降为未知。
 func (s *Service) DiscoverExternal(ctx context.Context) error {
-	candidates := []struct{ kind, path string }{{"node", "/usr/bin/node"}, {"node", "/usr/local/bin/node"}, {"go", "/usr/local/go/bin/go"}, {"go", "/usr/bin/go"}}
-	if runtime.GOOS != "linux" {
-		candidates = nil
+	items, err := scanExternalRuntimes(ctx, s.Config.Paths.RuntimeRoot, externalRuntimePaths())
+	if err != nil {
+		return err
 	}
+	tx, err := s.Repo.DB.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
 	observed := []string{}
 	changed := false
-	for _, candidate := range candidates {
-		path, err := filepath.EvalSymlinks(candidate.path)
-		if err != nil {
-			continue
-		}
-		if pathWithin(s.Config.Paths.RuntimeRoot, path) {
-			continue
-		}
-		info, err := os.Stat(path)
-		if err != nil || !info.Mode().IsRegular() {
-			continue
-		}
-		bounded, cancel := context.WithTimeout(ctx, 2*time.Second)
-		args := []string{"--version"}
-		if candidate.kind == "go" {
-			args = []string{"version"}
-		}
-		command := exec.CommandContext(bounded, path, args...)
-		command.Env = []string{"PATH=/usr/bin:/bin", "HOME=/nonexistent", "GOTOOLCHAIN=local", "LANG=C"}
-		output := &versionOutput{}
-		command.Stdout = output
-		command.Stderr = io.Discard
-		command.WaitDelay = time.Second
-		err = command.Run()
-		out := []byte(output.String())
-		cancel()
-		version := ""
-		state := "unknown"
-		if err == nil && len(out) < 4096 {
-			if candidate.kind == "node" {
-				version = strings.TrimPrefix(strings.TrimSpace(string(out)), "v")
-			} else {
-				fields := strings.Fields(string(out))
-				if len(fields) >= 3 {
-					version = strings.TrimPrefix(fields[2], "go")
-				}
-			}
-			if releaseVersion.MatchString(version) {
-				state = "ready"
-			} else {
-				version = "未知"
-			}
-		}
-		sum := sha256.Sum256([]byte(candidate.kind + ":" + path))
-		id := hex.EncodeToString(sum[:16])
-		item := Installation{ID: id, Kind: candidate.kind, Version: version, Architecture: runtime.GOARCH, Path: path, Ownership: "external", State: state, Revision: "1"}
+	for _, item := range items {
 		body, err := json.Marshal(item)
 		if err != nil {
 			return err
 		}
-		result, err := s.Repo.DB.Exec(ctx, "INSERT INTO app.runtime_installations(id,kind,path,payload) VALUES($1,$2,$3,$4) ON CONFLICT(id) DO UPDATE SET payload=EXCLUDED.payload,revision=app.runtime_installations.revision+1 WHERE app.runtime_installations.payload->>'ownership'='external' AND app.runtime_installations.payload IS DISTINCT FROM EXCLUDED.payload", id, item.Kind, item.Path, body)
+		result, err := tx.Exec(ctx, "INSERT INTO app.runtime_installations(id,kind,path,payload) VALUES($1,$2,$3,$4) ON CONFLICT(id) DO UPDATE SET payload=EXCLUDED.payload,revision=app.runtime_installations.revision+1 WHERE app.runtime_installations.payload->>'ownership'='external' AND app.runtime_installations.payload IS DISTINCT FROM EXCLUDED.payload", item.ID, item.Kind, item.Path, body)
 		if err != nil {
 			return err
 		}
-		observed = append(observed, id)
+		observed = append(observed, item.ID)
 		changed = changed || result.RowsAffected() > 0
 	}
-	result, err := s.Repo.DB.Exec(ctx, `UPDATE app.runtime_installations SET payload=jsonb_set(payload,'{state}','"unknown"'),revision=revision+1 WHERE payload->>'ownership'='external' AND payload->>'state'<>'unknown' AND NOT (id=ANY($1::text[]))`, observed)
+	result, err := tx.Exec(ctx, `UPDATE app.runtime_installations SET payload=jsonb_set(payload,'{state}','"unknown"'),revision=revision+1 WHERE payload->>'ownership'='external' AND payload->>'state'<>'unknown' AND NOT (id=ANY($1::text[]))`, observed)
 	if err != nil {
+		return err
+	}
+	if err = tx.Commit(ctx); err != nil {
 		return err
 	}
 	if changed || result.RowsAffected() > 0 {

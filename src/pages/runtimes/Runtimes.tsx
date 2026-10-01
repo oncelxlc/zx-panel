@@ -41,7 +41,12 @@ import {
   runtimesQuery,
 } from "@/features/panel/queries";
 import { request } from "@/lib/api/client";
-import { appSchema, processSchema, taskSchema } from "@/lib/api/schemas";
+import {
+  appSchema,
+  processSchema,
+  runtimeKindSchema,
+  taskSchema,
+} from "@/lib/api/schemas";
 import { formatBytes, formatTime } from "@/lib/format";
 import type { OperationSpec } from "@/types/panel.type";
 /** referencesSchema 区分引用事实与扫描完整性，空数组不能自动视为可卸载。 */
@@ -51,6 +56,19 @@ const referencesSchema = z.object({
   complete: z.boolean(),
   reason: z.string().nullable(),
 });
+/** runtimeDescriptions 为已探测的语言环境提供名称与用途，安装能力仍按类别判断。 */
+const runtimeDescriptions = {
+  node: { name: "Node.js", description: "JavaScript 执行环境" },
+  go: { name: "Go", description: "Go 编译工具链 · 安装不产生后台服务" },
+  rust: { name: "Rust", description: "Rust 编译工具链" },
+  python: { name: "Python", description: "Python 解释器" },
+  java: { name: "Java", description: "Java 虚拟机与执行环境" },
+  php: { name: "PHP", description: "PHP 命令行执行环境" },
+  ruby: { name: "Ruby", description: "Ruby 解释器" },
+  dotnet: { name: ".NET", description: ".NET 执行环境" },
+  bun: { name: "Bun", description: "JavaScript / TypeScript 执行环境" },
+  deno: { name: "Deno", description: "JavaScript / TypeScript 执行环境" },
+};
 /** RuntimesPage 区分可安装目录、面板管理和外部发现。 */
 export function RuntimesPage() {
   const timeZone = useDisplayTimezone();
@@ -76,7 +94,7 @@ export function RuntimesPage() {
     <div className="page-stack">
       <PageHeading
         title="运行时"
-        description="管理当前服务器的执行环境与工具链"
+        description="自动识别当前服务器的执行环境与工具链，系统安装每分钟刷新"
         action={
           <Button
             variant="outline"
@@ -99,22 +117,31 @@ export function RuntimesPage() {
             <Card key={runtime.kind}>
               <CardHeader>
                 <CardTitle role="heading" aria-level={2}>
-                  {runtime.kind === "node" ? "Node.js" : "Go"}
+                  {runtimeDescriptions[runtime.kind].name}
                 </CardTitle>
                 <CardDescription>
-                  {runtime.kind === "node"
-                    ? "JavaScript 执行环境"
-                    : "Go 编译工具链 · 安装不产生后台服务"}
+                  {runtimeDescriptions[runtime.kind].description}
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex flex-col gap-4">
-                <p className="font-mono text-2xl font-semibold">
-                  {runtime.defaultVersion ?? "未设置默认版本"}
+                <p className="break-words font-mono text-2xl font-semibold">
+                  {runtime.defaultVersion ??
+                    (runtime.externalVersions.join(" · ") ||
+                      (runtime.kind === "node" || runtime.kind === "go"
+                        ? "未设置默认版本"
+                        : "版本待核实"))}
                 </p>
+                {runtime.defaultVersion && runtime.externalVersions.length > 0 && (
+                  <p className="text-sm text-muted-foreground">
+                    系统已安装：{runtime.externalVersions.join(" · ")}
+                  </p>
+                )}
                 <div className="flex flex-wrap gap-2">
-                  <Badge variant="secondary">
-                    面板管理 {runtime.panelCount}
-                  </Badge>
+                  {(runtime.kind === "node" || runtime.kind === "go") && (
+                    <Badge variant="secondary">
+                      面板管理 {runtime.panelCount}
+                    </Badge>
+                  )}
                   <Badge variant="outline">
                     外部发现 {runtime.externalCount}
                   </Badge>
@@ -122,27 +149,35 @@ export function RuntimesPage() {
                     <Badge variant="success">可更新</Badge>
                   )}
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  目录：{formatTime(runtime.checkedAt, timeZone)} ·{" "}
-                  {runtime.cacheState === "unavailable"
-                    ? "尚无可用目录"
-                    : runtime.cacheState === "stale"
-                      ? "缓存数据"
-                      : "已检查"}
-                </p>
+                {runtime.kind === "node" || runtime.kind === "go" ? (
+                  <p className="text-xs text-muted-foreground">
+                    目录：{formatTime(runtime.checkedAt, timeZone)} ·{" "}
+                    {runtime.cacheState === "unavailable"
+                      ? "尚无可用目录"
+                      : runtime.cacheState === "stale"
+                        ? "缓存数据"
+                        : "已检查"}
+                  </p>
+                ) : (
+                  <p className="text-xs text-muted-foreground">
+                    系统安装只读 · 查看版本与安装路径
+                  </p>
+                )}
               </CardContent>
               <CardFooter>
                 <Button
                   nativeButton={false}
                   render={
                     <Link
-                      to={`/runtimes/${runtime.kind}${runtime.panelCount + runtime.externalCount === 0 ? "?action=install" : ""}`}
+                      to={`/runtimes/${runtime.kind}${(runtime.kind === "node" || runtime.kind === "go") && runtime.panelCount + runtime.externalCount === 0 ? "?action=install" : ""}`}
                     />
                   }
                 >
-                  {runtime.panelCount + runtime.externalCount === 0
-                    ? "安装版本"
-                    : "管理版本"}
+                  {runtime.kind !== "node" && runtime.kind !== "go"
+                    ? "查看安装"
+                    : runtime.panelCount + runtime.externalCount === 0
+                      ? "安装版本"
+                      : "管理版本"}
                   <ArrowRight data-icon="inline-end" />
                 </Button>
               </CardFooter>
@@ -157,13 +192,20 @@ export function RuntimesPage() {
 export function RuntimeDetailPage() {
   const timeZone = useDisplayTimezone();
   const { kind = "node" } = useParams();
+  const parsedKind = runtimeKindSchema.safeParse(kind);
+  const description = parsedKind.success
+    ? runtimeDescriptions[parsedKind.data]
+    : null;
+  const managed = kind === "node" || kind === "go";
   const [params, setParams] = useSearchParams();
-  const installs = useQuery(
-    installationsQuery(kind, params.get("installedCursor") ?? ""),
-  );
-  const releases = useQuery(
-    releasesQuery(kind, params.get("catalogCursor") ?? ""),
-  );
+  const installs = useQuery({
+    ...installationsQuery(kind, params.get("installedCursor") ?? ""),
+    enabled: parsedKind.success,
+  });
+  const releases = useQuery({
+    ...releasesQuery(kind, params.get("catalogCursor") ?? ""),
+    enabled: managed,
+  });
   const referenceID = params.get("references") ?? "";
   const references = useQuery({
     queryKey: ["runtime-references", referenceID],
@@ -180,9 +222,11 @@ export function RuntimeDetailPage() {
   const [defaultChoice, setMakeDefault] = useState<boolean | null>(null);
   const makeDefault = defaultChoice ?? installs.data?.items.length === 0;
   const tab =
-    params.get("action") === "install"
-      ? "available"
-      : (params.get("tab") ?? "installed");
+    !managed
+      ? "installed"
+      : params.get("action") === "install"
+        ? "available"
+        : (params.get("tab") ?? "installed");
   /** 筛选留在 URL，不把安装路径或秘密配置写入 URL。 */
   function changeTab(value: string) {
     setParams((previous) => {
@@ -199,11 +243,11 @@ export function RuntimeDetailPage() {
       return previous;
     });
   }
-  if (!["node", "go"].includes(kind))
+  if (!description)
     return (
       <Alert variant="destructive">
         <AlertTitle>不支持的运行时</AlertTitle>
-        <AlertDescription>首发支持 Node.js 与 Go。</AlertDescription>
+        <AlertDescription>该类别尚不支持自动识别。</AlertDescription>
       </Alert>
     );
   const capabilities = bootstrap.data?.capabilities;
@@ -211,25 +255,31 @@ export function RuntimeDetailPage() {
   return (
     <div className="page-stack">
       <PageHeading
-        title={kind === "node" ? "Node.js" : "Go 工具链"}
+        title={kind === "go" ? "Go 工具链" : description.name}
         description={
-          kind === "node"
-            ? "多版本隔离安装，应用绑定具体安装实例"
-            : "工具链升级不会重编译或更新已有 Go 应用"
+          !managed
+            ? "自动展示系统已安装版本与路径；外部安装只读"
+            : kind === "node"
+              ? "多版本隔离安装，应用绑定具体安装实例"
+              : "工具链升级不会重编译或更新已有 Go 应用"
         }
         action={
-          <Button onClick={() => changeTab("available")}>
-            <Download data-icon="inline-start" />
-            安装版本
-          </Button>
+          managed ? (
+            <Button onClick={() => changeTab("available")}>
+              <Download data-icon="inline-start" />
+              安装版本
+            </Button>
+          ) : undefined
         }
       />
-      <Tabs value={tab} onValueChange={(value) => changeTab(String(value))}>
-        <TabsList variant="line">
-          <TabsTrigger value="installed">已安装</TabsTrigger>
-          <TabsTrigger value="available">可安装</TabsTrigger>
-        </TabsList>
-      </Tabs>
+      {managed && (
+        <Tabs value={tab} onValueChange={(value) => changeTab(String(value))}>
+          <TabsList variant="line">
+            <TabsTrigger value="installed">已安装</TabsTrigger>
+            <TabsTrigger value="available">可安装</TabsTrigger>
+          </TabsList>
+        </Tabs>
+      )}
       {tab === "available" ? (
         <Card>
           <CardHeader>
@@ -363,44 +413,44 @@ export function RuntimeDetailPage() {
                       {item.configuredAppRefs} 个应用 · 查看引用
                     </Button>,
                     <Status status={item.state} />,
-                    <div className="flex gap-2">
-                      {item.ownership === "panel" && (
-                        <>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            disabled={
-                              item.isPanelDefault ||
-                              item.state !== "ready" ||
-                              !capabilities?.changeRuntimeDefault.enabled
-                            }
-                            onClick={() =>
-                              setOperation({
-                                action: "runtime.set-default",
-                                installationId: item.id,
-                                expectedRevision: item.revision,
-                              })
-                            }
-                          >
-                            设为默认
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            disabled={!capabilities?.uninstallRuntime.enabled}
-                            onClick={() =>
-                              setOperation({
-                                action: "runtime.uninstall",
-                                installationId: item.id,
-                                expectedRevision: item.revision,
-                              })
-                            }
-                          >
-                            卸载预检
-                          </Button>
-                        </>
-                      )}
-                    </div>,
+                    item.ownership === "external" ? (
+                      <Badge variant="outline">只读</Badge>
+                    ) : (
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          disabled={
+                            item.isPanelDefault ||
+                            item.state !== "ready" ||
+                            !capabilities?.changeRuntimeDefault.enabled
+                          }
+                          onClick={() =>
+                            setOperation({
+                              action: "runtime.set-default",
+                              installationId: item.id,
+                              expectedRevision: item.revision,
+                            })
+                          }
+                        >
+                          设为默认
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          disabled={!capabilities?.uninstallRuntime.enabled}
+                          onClick={() =>
+                            setOperation({
+                              action: "runtime.uninstall",
+                              installationId: item.id,
+                              expectedRevision: item.revision,
+                            })
+                          }
+                        >
+                          卸载预检
+                        </Button>
+                      </div>
+                    ),
                   ],
                 }))}
                 empty="尚未发现已安装版本"
@@ -431,7 +481,7 @@ export function RuntimeDetailPage() {
           </CardContent>
         </Card>
       )}
-      {capabilities && !capabilities.installRuntime.enabled && (
+      {managed && capabilities && !capabilities.installRuntime.enabled && (
         <Alert>
           <AlertTitle>当前环境仅支持可用的只读能力</AlertTitle>
           <AlertDescription>

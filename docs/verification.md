@@ -88,3 +88,10 @@
 - 验证范围为 Windows Vite + Ubuntu 24.04 WSL2 Go 的 development 配置；privileged helper 按开发示例保持关闭。
 
 最终回归：pnpm test:dev、相关 ESLint、pnpm typecheck、Bash 语法和 git diff --check 通过；248 个可交付文本未命中既有秘密特征。服务重新启动后健康与同源 API 均为 200，并保留运行供开发。
+
+## 2026-10-01 运行时自动发现开发库迁移与启动验证
+
+- 按用户授权核对显式 `configs/dev.json` 指向本机 Compose 的 `zx_panel` / PostgreSQL 18.6，确认 7200/25000 无运行中的开发服务后，将开发库从 002 升级到 003；三个历史迁移的 checksum 校验通过，已应用 SQL 未改写。
+- CLI 复用当前用户私有目录中的 PostgreSQL 18 容器客户端适配器，先生成新备份 `~/.local/share/zx-panel-dev/backups/before-external-runtimes-20261001225243.dump`（717,517 字节、0600），再执行迁移。`pg_restore --list` 可读取归档目录并记录 SHA-256；本轮未执行完整备份恢复。迁移前后的只读摘要确认全部账号字段（含密码摘要、角色和启用状态）、独立密钥、应用与任务保持一致。
+- `pnpm dev:all` 实际启动 Windows Vite + 默认 WSL 非 root Go，后端 `/healthz`、前端登录页与同源代理均返回 200。真实 Chromium 使用原管理员凭据通过六页面、10 个读取 API、Cookie/CSRF、`metrics.sample` SSE 和注销；没有浏览器运行时错误或失败响应。
+- 运行时页与真实安装 API 发现 Node.js 24.21.0、Go 1.27.1、Python 3.14.7 / 3.12.3，Homebrew 与系统路径均通过前端 Schema 校验；Node.js/Go 详情显示真实路径并保持外部安装只读。开发 helper 保持关闭，联合服务保留运行。记录和截图见被忽略的 `test-results/dev-runtime-migration-report.json`、`test-results/dev-runtime-browser-report.json`、`test-results/dev-runtimes-003.png`。

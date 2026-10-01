@@ -106,10 +106,14 @@ export const snapshotSchema = z.object({
     }),
   ),
 });
+/** runtimeKindSchema 允许查询常见语言环境；写操作与官方目录单独限制类别。 */
+export const runtimeKindSchema = z.enum([
+  "node", "go", "rust", "python", "java", "php", "ruby", "dotnet", "bun", "deno",
+]);
 /** installationSchema 区分归属、默认与安装状态。 */
 export const installationSchema = z.object({
   id: z.string(),
-  kind: z.enum(["node", "go"]),
+  kind: runtimeKindSchema,
   version: z.string(),
   architecture: z.string(),
   path: z.string(),
@@ -299,10 +303,11 @@ export const historySchema = z.object({
 });
 /** summarySchema 区分目录缓存状态与已安装版本摘要。 */
 export const summarySchema = z.object({
-  kind: z.enum(["node", "go"]),
+  kind: runtimeKindSchema,
   defaultVersion: z.string().nullable(),
   panelCount: z.number().int(),
   externalCount: z.number().int(),
+  externalVersions: z.array(z.string()),
   checkedAt: dateSchema.nullable(),
   cacheState: z.enum(["fresh", "stale", "unavailable"]),
   updateAvailable: z.boolean(),

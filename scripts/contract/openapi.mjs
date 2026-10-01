@@ -20,7 +20,7 @@ const o = await loadSchemas(resolve("src/lib/api/operations.ts"));
 const models = {
   SystemInfo: s.systemSchema, Capabilities: s.capabilitiesSchema, MetricSnapshot: s.snapshotSchema, History: s.historySchema,
   Installation: s.installationSchema, Release: s.releaseSchema, Application: s.appSchema, Task: s.taskSchema, OperationPlan: s.planSchema,
-  Operation: o.operationSchema, LogRecord: s.logSchema, Bootstrap: s.bootstrapSchema, RuntimeSummary: s.summarySchema, Settings: s.settingsSchema,
+  Operation: o.operationSchema, LogRecord: s.logSchema, Bootstrap: s.bootstrapSchema, RuntimeSummary: s.summarySchema, RuntimeSummaries: z.array(s.summarySchema), Settings: s.settingsSchema,
   LogSource: s.logSourceSchema, LogPage: s.logPageSchema, InstallationPage: s.pageSchema(s.installationSchema), ReleasePage: s.releasePageSchema,
   ApplicationPage: s.pageSchema(s.appSchema), ProcessPage: s.pageSchema(s.processSchema), TaskPage: s.pageSchema(s.taskSchema),
   User: z.object({ id: z.number().int(), username: z.string(), displayName: z.string(), role: z.string(), enabled: z.boolean(), createdAt: s.dateSchema, updatedAt: s.dateSchema }),
@@ -77,7 +77,7 @@ route("post", "/auth/logout", { type: "object", properties: { loggedOut: { const
 route("post", "/auth/password", { type: "object", properties: { changed: { const: true } } }, { input: "PasswordRequest" });
 for (const [path, name] of [["/bootstrap", "Bootstrap"], ["/system/info", "SystemInfo"], ["/system/capabilities", "Capabilities"], ["/metrics/latest", "MetricSnapshot"], ["/settings", "Settings"]]) route("get", path, ref(name));
 route("get", "/metrics/history", ref("History"), { parameters: [parameter("metric", { type: "string" }, true), parameter("deviceId"), parameter("from", { type: "string", format: "date-time" }, true), parameter("to", { type: "string", format: "date-time" }, true), parameter("stepSeconds", { type: "integer", minimum: 2, maximum: 3600 }, true)] });
-route("get", "/runtimes", { type: "array", items: ref("RuntimeSummary") });
+route("get", "/runtimes", ref("RuntimeSummaries"));
 route("get", "/runtimes/{kind}/installations", ref("InstallationPage"), { parameters: paging });
 route("get", "/runtimes/{kind}/releases", ref("ReleasePage"), { parameters: paging });
 route("get", "/runtime-installations/{id}/references", ref("References"));

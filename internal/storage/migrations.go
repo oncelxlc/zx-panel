@@ -18,7 +18,7 @@ var migrationFiles embed.FS
 
 // migrationNames 明确保持发布迁移顺序，已经执行的 SQL 永不改写。
 // 后续修改只能追加文件，校验每一个历史版本。
-var migrationNames = []string{"001_panel.sql", "002_query_indexes.sql"}
+var migrationNames = []string{"001_panel.sql", "002_query_indexes.sql", "003_external_runtimes.sql"}
 
 // InstanceLockKey 隔离同一数据库中同一面板 schema 的主进程。
 // 迁移与服务运行共用该锁，拒绝相互竞争。

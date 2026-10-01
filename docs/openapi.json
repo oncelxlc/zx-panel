@@ -991,10 +991,7 @@
                       "const": true
                     },
                     "data": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/components/schemas/RuntimeSummary"
-                      }
+                      "$ref": "#/components/schemas/RuntimeSummaries"
                     },
                     "error": {
                       "type": "null"
@@ -3569,7 +3566,15 @@
             "type": "string",
             "enum": [
               "node",
-              "go"
+              "go",
+              "rust",
+              "python",
+              "java",
+              "php",
+              "ruby",
+              "dotnet",
+              "bun",
+              "deno"
             ]
           },
           "version": {
@@ -5913,7 +5918,15 @@
             "type": "string",
             "enum": [
               "node",
-              "go"
+              "go",
+              "rust",
+              "python",
+              "java",
+              "php",
+              "ruby",
+              "dotnet",
+              "bun",
+              "deno"
             ]
           },
           "defaultVersion": {
@@ -5931,6 +5944,12 @@
             "type": "integer",
             "minimum": -9007199254740991,
             "maximum": 9007199254740991
+          },
+          "externalVersions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
           "checkedAt": {
             "anyOf": [
@@ -5961,10 +5980,89 @@
           "defaultVersion",
           "panelCount",
           "externalCount",
+          "externalVersions",
           "checkedAt",
           "cacheState",
           "updateAvailable"
         ]
+      },
+      "RuntimeSummaries": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "node",
+                "go",
+                "rust",
+                "python",
+                "java",
+                "php",
+                "ruby",
+                "dotnet",
+                "bun",
+                "deno"
+              ]
+            },
+            "defaultVersion": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "panelCount": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            "externalCount": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            "externalVersions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "checkedAt": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "cacheState": {
+              "type": "string",
+              "enum": [
+                "fresh",
+                "stale",
+                "unavailable"
+              ]
+            },
+            "updateAvailable": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "kind",
+            "defaultVersion",
+            "panelCount",
+            "externalCount",
+            "externalVersions",
+            "checkedAt",
+            "cacheState",
+            "updateAvailable"
+          ]
+        }
       },
       "Settings": {
         "type": "object",
@@ -6123,7 +6221,15 @@
                   "type": "string",
                   "enum": [
                     "node",
-                    "go"
+                    "go",
+                    "rust",
+                    "python",
+                    "java",
+                    "php",
+                    "ruby",
+                    "dotnet",
+                    "bun",
+                    "deno"
                   ]
                 },
                 "version": {

@@ -88,6 +88,7 @@ go run -tags devassets ./cmd/server migrate up --backup ./before-v1.1.dump
 - Node.js 25+ 官方包需要系统 `libatomic`；安装会以受限账号核对版本，未通过不提交。平台下限及来源见 [Node 官方构建说明](https://github.com/nodejs/node/blob/main/BUILDING.md)。
 - 单 worker 串行执行变更。先预检、确认、持久受理，再执行与核验；断开浏览器不取消任务。恢复时只认 root 提交标记和数据库证据，不盲目重放。
 - 新运行时保留旧版本与已有绑定；默认值只影响新建应用的预选。外部安装只读；默认、配置或进程引用、扫描不完整均阻止卸载。
+- 运行时页自动识别 Node.js、Go、Rust、Python、Java、PHP、Ruby、.NET、Bun、Deno，展示版本、路径与状态；启动后立即扫描，之后每分钟刷新。扫描范围为 Linux 主服务 PATH、常见系统位置和当前账号的常见工具链目录（包括 Homebrew、nvm、rustup）；不加载其他账号的 shell 配置，服务沙箱不可访问的安装不会被发现。新增类别只读，面板安装仍限于 Node.js/Go；使用前按上述备份流程执行追加的 003 迁移。
 - 正式 helper 使用已批准的 `CAP_SYS_PTRACE` 检查跨账号可执行文件引用，并过滤 ptrace、process_vm_readv/writev、kcmp。引用未知或不完整时仍禁止卸载；权限及验证边界见 [权限决定](docs/helper-permission-decision.md)。
 - 新应用只登记并保持停止，保存配置不隐式重启。删除只移除登记/unit，保留项目文件和已有 journal。环境值 AES-GCM 加密，主密钥必须独立备份。
 - 原始指标 2 秒共享采集、15 分钟环形缓冲；文件系统 15 秒采集；历史按 10 秒聚合保留最多 24 小时 / 128 MiB。未知和预热值为 null，历史缺口不插值。

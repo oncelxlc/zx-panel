@@ -51,7 +51,7 @@ func (p *panelAPI) registerResources(router *gin.RouterGroup) {
 	})
 	router.GET("/runtimes/:kind/installations", func(c *gin.Context) {
 		kind := c.Param("kind")
-		if kind != "node" && kind != "go" {
+		if !control.IsRuntimeKind(kind) {
 			p.failure(c, control.Fail(404, "RESOURCE_NOT_FOUND", "运行时类别不存在"))
 			return
 		}

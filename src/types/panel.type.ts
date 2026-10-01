@@ -1,7 +1,18 @@
 /** ISODateTime 定义服务端与页面之间的业务契约；可空字段不得替换为伪造零值。 */
 export type ISODateTime = string;
-/** RuntimeKind 定义服务端与页面之间的业务契约；可空字段不得替换为伪造零值。 */
-export type RuntimeKind = "node" | "go";
+/** ManagedRuntimeKind 限定已有官方安装、默认版本与卸载能力的类别。 */
+export type ManagedRuntimeKind = "node" | "go";
+/** RuntimeKind 同时包含面板管理类别与只读系统工具链。 */
+export type RuntimeKind =
+  | ManagedRuntimeKind
+  | "rust"
+  | "python"
+  | "java"
+  | "php"
+  | "ruby"
+  | "dotnet"
+  | "bun"
+  | "deno";
 /** ThemePreference 定义服务端与页面之间的业务契约；可空字段不得替换为伪造零值。 */
 export type ThemePreference = "light" | "dark" | "system";
 /** DataQuality 定义服务端与页面之间的业务契约；可空字段不得替换为伪造零值。 */
@@ -141,7 +152,7 @@ export interface RuntimeInstallation {
 /** RuntimeRelease 定义服务端与页面之间的业务契约；可空字段不得替换为伪造零值。 */
 export interface RuntimeRelease {
   id: string;
-  kind: RuntimeKind;
+  kind: ManagedRuntimeKind;
   version: string;
   channel: "lts" | "current" | "stable" | "prerelease" | "unknown";
   maintenance: "supported" | "eol" | "unknown";
@@ -306,6 +317,7 @@ export interface RuntimeSummary {
   defaultVersion: string | null;
   panelCount: number;
   externalCount: number;
+  externalVersions: string[];
   checkedAt: string | null;
   cacheState: "fresh" | "stale" | "unavailable";
   updateAvailable: boolean;
