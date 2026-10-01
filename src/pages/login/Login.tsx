@@ -1,5 +1,9 @@
 import { ApiError, login } from "@/auth/api";
-import { queryClient, setupStatusQuery } from "@/features/panel/queries";
+import {
+  queryClient,
+  sessionQuery,
+  setupStatusQuery,
+} from "@/features/panel/queries";
 import { useQuery } from "@tanstack/react-query";
 import { getLoginTarget, validateLoginForm } from "@/auth/loginForm";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -116,7 +120,8 @@ export function LoginPage() {
     setSubmitting(true);
     try {
       await login(submittedValues.username, submittedValues.password);
-      await queryClient.invalidateQueries({ queryKey: ["session"] });
+      // 登录页的会话查询已不活跃，跳转前必须完成刷新，避免守卫沿用匿名缓存。
+      await queryClient.fetchQuery({ ...sessionQuery, staleTime: 0 });
       const state: unknown = location.state;
       const from =
         state && typeof state === "object" && "from" in state
