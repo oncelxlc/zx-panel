@@ -20,6 +20,7 @@ import { planSchema, taskSchema } from "@/lib/api/schemas";
 import { formatTime } from "@/lib/format";
 import { queryClient } from "./queries";
 import { QueryState } from "./Shared";
+import { ToastNotice } from "./ToastNotice";
 import { useDisplayTimezone } from "./display";
 import type { OperationSheetProps } from "@/types/panel-ui.type";
 /** OperationSheet 将预检、影响确认和任务受理分成可观察的步骤。 */
@@ -171,14 +172,19 @@ export function OperationSheet({ operation, onClose }: OperationSheetProps) {
             )}
           </QueryState>
           {submit.error && (
-            <Alert variant="destructive">
-              <AlertTitle>{submit.error.message}</AlertTitle>
-              <AlertDescription>
-                {needsPreview
+            <ToastNotice
+              id="operation-submit-error"
+              type="error"
+              title={submit.error.message}
+              description={[
+                needsPreview
                   ? "资源或计划已经变化，请重新预检。"
-                  : "网络结果不确定时重试会沿用原幂等键，不会重复创建任务。"}
-              </AlertDescription>
-            </Alert>
+                  : "网络结果不确定时重试会沿用原幂等键，不会重复创建任务。",
+                submit.error instanceof ApiError && submit.error.requestId
+                  ? `请求编号：${submit.error.requestId}`
+                  : "",
+              ].filter(Boolean).join(" ")}
+            />
           )}
         </div>
         <SheetFooter>

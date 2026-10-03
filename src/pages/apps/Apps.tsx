@@ -49,6 +49,7 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { ToastNotice } from "@/features/panel/ToastNotice";
 import {
   appQuery,
   appsQuery,
@@ -692,12 +693,11 @@ export function AppDetailPage() {
         {item && (
           <>
             {item.pendingRestart && (
-              <Alert>
-                <AlertTitle>已保存，等待下次启动生效</AlertTitle>
-                <AlertDescription>
-                  要立即应用配置，请单独核对并确认重启。
-                </AlertDescription>
-              </Alert>
+              <ToastNotice
+                id={`app-pending-restart:${appId}`}
+                title="已保存，等待下次启动生效"
+                description="要立即应用配置，请单独核对并确认重启。"
+              />
             )}
             <Tabs
               value={tab}

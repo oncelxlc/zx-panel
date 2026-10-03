@@ -12,6 +12,8 @@ import {
 } from "@/features/panel/queries";
 import { demoUser } from "@/mocks/fixtures";
 import { LoginPage } from "@/pages/login/Login";
+import * as authApi from "@/auth/api";
+import { Toaster } from "@/components/ui/toast";
 
 it("refreshes an inactive anonymous session before returning to the protected page", async () => {
   const anonymous = {
@@ -81,5 +83,39 @@ it("refreshes an inactive anonymous session before returning to the protected pa
     queryClient.clear();
     setCSRFToken("");
     vi.unstubAllGlobals();
+  }
+});
+
+it("keeps field validation inline and reports failed login through Toast", async () => {
+  queryClient.clear();
+  queryClient.setQueryData(setupStatusQuery.queryKey, { setupRequired: false });
+  const login = vi.spyOn(authApi, "login").mockRejectedValue(
+    new authApi.ApiError(401, "INVALID_CREDENTIALS", "账号或密码错误", "login-failed"),
+  );
+  const router = createMemoryRouter([{ path: "/login", Component: LoginPage }], {
+    initialEntries: ["/login"],
+  });
+  try {
+    const view = render(
+      <QueryClientProvider client={queryClient}>
+        <Toaster timeout={0}><RouterProvider router={router} /></Toaster>
+      </QueryClientProvider>,
+    );
+    const user = userEvent.setup();
+    await user.click(screen.getByRole("button", { name: "登录控制台" }));
+    expect(view.container.querySelectorAll('[data-slot="field-error"]')).toHaveLength(2);
+    expect(login).not.toHaveBeenCalled();
+    await user.type(screen.getByLabelText("账号", { exact: true }), "admin");
+    await user.type(screen.getByLabelText("密码", { exact: true }), "secret123");
+    await user.click(screen.getByRole("button", { name: "登录控制台" }));
+    expect(await screen.findByText("账号或密码错误")).toBeVisible();
+    expect(screen.getByText("请求编号：login-failed")).toBeVisible();
+    expect(document.querySelectorAll('[data-slot="toast"]')).toHaveLength(1);
+    expect(view.container.querySelector('[data-slot="alert"]')).toBeNull();
+    expect(screen.getByLabelText("密码", { exact: true })).toHaveValue("secret123");
+  } finally {
+    login.mockRestore();
+    router.dispose();
+    queryClient.clear();
   }
 });

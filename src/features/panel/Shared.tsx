@@ -49,6 +49,7 @@ import { toast } from "@/lib/toast";
 import { ApiError } from "@/lib/api/client";
 import { formatTime } from "@/lib/format";
 import { statusLabels } from "./navigation";
+import { ToastNotice } from "./ToastNotice";
 import type {
   ChoiceProps,
   CopyTextProps,
@@ -114,7 +115,7 @@ export function Status({ status, children }: StatusProps) {
     </Badge>
   );
 }
-/** QueryState 首次加载保留布局，失败提供局部重试和请求编号。 */
+/** QueryState 统一错误 Toast；读取区域按约定保留局部重试和请求编号。 */
 export function QueryState({
   pending,
   error,
@@ -130,21 +131,37 @@ export function QueryState({
     );
   if (error)
     return (
-      <Alert variant="destructive">
-        <TriangleAlert aria-hidden="true" />
-        <AlertTitle>读取失败</AlertTitle>
-        <AlertDescription>
-          <p>{error.message}</p>
-          {error instanceof ApiError && error.requestId && (
-            <code>请求编号：{error.requestId}</code>
-          )}
-          {retry && (
-            <Button variant="outline" onClick={retry}>
-              重试
-            </Button>
-          )}
-        </AlertDescription>
-      </Alert>
+      <>
+        <ToastNotice
+          id={`request-error:${error instanceof ApiError && error.requestId ? error.requestId : error.message}`}
+          title={error.message}
+          description={
+            error instanceof ApiError && error.requestId
+              ? `请求编号：${error.requestId}`
+              : undefined
+          }
+          type="error"
+          actionLabel={retry ? "重试" : undefined}
+          onAction={retry}
+        />
+        {(retry || children) && (
+          <Alert variant="destructive">
+            <TriangleAlert aria-hidden="true" />
+            <AlertTitle>读取失败</AlertTitle>
+            <AlertDescription>
+              <p>{error.message}</p>
+              {error instanceof ApiError && error.requestId && (
+                <code>请求编号：{error.requestId}</code>
+              )}
+              {retry && (
+                <Button variant="outline" onClick={retry}>
+                  重试
+                </Button>
+              )}
+            </AlertDescription>
+          </Alert>
+        )}
+      </>
     );
   return children;
 }

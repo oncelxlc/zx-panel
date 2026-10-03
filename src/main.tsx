@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/toast";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "@/features/panel/queries";
+import { ToastNotice } from "@/features/panel/ToastNotice";
 import "./styles/theme.css";
 import "./styles.scss";
 
@@ -22,6 +23,18 @@ async function startApp() {
 
 void startApp().catch((error: unknown) => {
   const root = document.getElementById("root");
-  if (root) root.textContent = "面板初始化失败，请刷新或检查开发模式配置。";
+  if (root) {
+    ReactDOM.createRoot(root).render(
+      <Toaster timeout={0}>
+        <ToastNotice
+          title="面板初始化失败"
+          description="请刷新或检查开发模式配置。"
+          type="error"
+          actionLabel="刷新"
+          onAction={() => window.location.reload()}
+        />
+      </Toaster>,
+    );
+  }
   console.error(error instanceof Error ? error.message : "Application initialization failed");
 });

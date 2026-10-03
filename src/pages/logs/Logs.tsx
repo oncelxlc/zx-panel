@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Choice, PageHeading, QueryState } from "@/features/panel/Shared";
+import { ToastNotice } from "@/features/panel/ToastNotice";
 import { logsQuery, queryClient, sourcesQuery } from "@/features/panel/queries";
 import { logSchema, taskSchema } from "@/lib/api/schemas";
 import { request } from "@/lib/api/client";
@@ -291,10 +292,12 @@ export function LogsPage({
       <QueryState error={sources.error} retry={() => void sources.refetch()} />
       <QueryState error={exportLogs.error} />
       {streamError && (
-        <Alert>
-          <AlertTitle>实时状态</AlertTitle>
-          <AlertDescription>{streamError}</AlertDescription>
-        </Alert>
+        <ToastNotice
+          id={`log-stream:${sourceId}`}
+          title="实时状态"
+          description={streamError}
+          type="warning"
+        />
       )}
       {dropped > 0 && (
         <Alert>

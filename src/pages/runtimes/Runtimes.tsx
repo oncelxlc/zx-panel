@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/sheet";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { ToastNotice } from "@/features/panel/ToastNotice";
 import {
   CopyText,
   DataTable,
@@ -245,10 +246,16 @@ export function RuntimeDetailPage() {
   }
   if (!description)
     return (
-      <Alert variant="destructive">
-        <AlertTitle>不支持的运行时</AlertTitle>
-        <AlertDescription>该类别尚不支持自动识别。</AlertDescription>
-      </Alert>
+      <>
+        <ToastNotice
+          title="不支持的运行时"
+          description="该类别尚不支持自动识别。"
+          type="error"
+        />
+        <Button nativeButton={false} render={<Link to="/runtimes" />}>
+          返回运行时列表
+        </Button>
+      </>
     );
   const capabilities = bootstrap.data?.capabilities;
   const items = installs.data?.items ?? [];

@@ -4,8 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { AuthUserContext } from "@/auth/authContext";
 import { AUTH_STATE_EVENT } from "@/auth/session";
 import { queryClient, sessionQuery } from "@/features/panel/queries";
-import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { QueryState } from "@/features/panel/Shared";
 import { Spinner } from "@/components/ui/spinner";
 
 /** AuthGuard 以服务器 Cookie 会话为事实，失效时释放敏感查询。 */
@@ -50,15 +49,7 @@ export function AuthGuard() {
   if (session.isError)
     return (
       <div className="m-auto max-w-lg p-6">
-        <Alert variant="destructive">
-          <AlertTitle>暂时无法验证会话</AlertTitle>
-          <AlertDescription>
-            {session.error.message}
-            <Button variant="outline" onClick={() => void session.refetch()}>
-              重试
-            </Button>
-          </AlertDescription>
-        </Alert>
+        <QueryState error={session.error} retry={() => void session.refetch()} />
       </div>
     );
   if (!session.data.authenticated || !session.data.user)

@@ -4,7 +4,6 @@ import { lazy, Suspense } from "react";
 import { Link, useSearchParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
-  Activity,
   ArrowRight,
   Cpu,
   HardDrive,
@@ -12,7 +11,6 @@ import {
   Network,
   Server,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -28,7 +26,7 @@ import {
   ItemTitle,
 } from "@/components/ui/item";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { ToastNotice } from "@/features/panel/ToastNotice";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   bootstrapQuery,
@@ -130,16 +128,13 @@ export function OverviewPage() {
         }
       />
       {failed.length > 0 && (
-        <Alert>
-          <Activity aria-hidden="true" />
-          <AlertTitle>{failed.length} 个任务需要处理</AlertTitle>
-          <AlertDescription>
-            <Button variant="link" onClick={() => filter("task", failed[0].id)}>
-              查看失败原因
-              <ArrowRight data-icon="inline-end" />
-            </Button>
-          </AlertDescription>
-        </Alert>
+        <ToastNotice
+          id="failed-tasks"
+          type="warning"
+          title={`${failed.length} 个任务需要处理`}
+          actionLabel="查看失败原因"
+          onAction={() => filter("task", failed[0].id)}
+        />
       )}
       <QueryState
         pending={metrics.isPending}

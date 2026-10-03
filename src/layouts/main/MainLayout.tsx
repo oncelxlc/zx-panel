@@ -8,6 +8,7 @@ import { MainHeader } from "./MainHeader";
 import { MainSider } from "./MainSider";
 import { TaskSheet } from "@/features/panel/TaskSheet";
 import { useRealtime } from "@/features/panel/realtime";
+import { ToastNotice } from "@/features/panel/ToastNotice";
 
 /** MainLayout 共享一条主实时流并按断点安排侧栏和内容焦点。 */
 export default function MainLayout() {
@@ -69,16 +70,16 @@ export default function MainLayout() {
               </Alert>
             )}
           {["reconnecting", "polling"].includes(realtime.streamState) && (
-            <Alert className="mb-4">
-              <AlertTitle>
-                {realtime.streamState === "polling"
+            <ToastNotice
+              id="realtime-connection"
+              type="warning"
+              title={
+                realtime.streamState === "polling"
                   ? "实时连接中断，已切换轮询"
-                  : "正在恢复实时连接"}
-              </AlertTitle>
-              <AlertDescription>
-                保留最后一次读数，采样时间决定数据是否过期。
-              </AlertDescription>
-            </Alert>
+                  : "正在恢复实时连接"
+              }
+              description="保留最后一次读数，采样时间决定数据是否过期。"
+            />
           )}
           <Outlet />
           <TaskSheet />

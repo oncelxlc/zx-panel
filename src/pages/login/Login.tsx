@@ -6,7 +6,7 @@ import {
 } from "@/features/panel/queries";
 import { useQuery } from "@tanstack/react-query";
 import { getLoginTarget, validateLoginForm } from "@/auth/loginForm";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { toast } from "@/lib/toast";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -36,7 +36,6 @@ import { Spinner } from "@/components/ui/spinner";
 import type { LoginFormErrors, LoginFormValues } from "@/types/auth.type";
 import {
   ArrowRight,
-  CircleAlert,
   Eye,
   EyeOff,
   LockKeyhole,
@@ -59,7 +58,6 @@ export function LoginPage() {
   });
   const [errors, setErrors] = useState<LoginFormErrors>({});
   const [submitting, setSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const usernameRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
@@ -72,7 +70,6 @@ export function LoginPage() {
     if (name !== "username" && name !== "password") return;
     const nextValues = { ...values, [name]: value };
     setValues(nextValues);
-    setErrorMessage("");
     if (errors[name]) {
       setErrors({ ...errors, [name]: validateLoginForm(nextValues)[name] });
     }
@@ -92,7 +89,6 @@ export function LoginPage() {
   function clearUsername() {
     setValues({ ...values, username: "" });
     setErrors({ ...errors, username: undefined });
-    setErrorMessage("");
     usernameRef.current?.focus();
   }
 
@@ -110,7 +106,6 @@ export function LoginPage() {
     const nextErrors = validateLoginForm(submittedValues);
     setValues(submittedValues);
     setErrors(nextErrors);
-    setErrorMessage("");
     if (nextErrors.username || nextErrors.password) {
       (nextErrors.username ? usernameRef : passwordRef).current?.focus();
       return;
@@ -129,9 +124,15 @@ export function LoginPage() {
           : undefined;
       navigate(getLoginTarget(from, window.location.origin), { replace: true });
     } catch (error) {
-      setErrorMessage(
-        error instanceof ApiError ? error.message : "登录失败，请稍后重试",
-      );
+      toast.add({
+        id: "login-error",
+        title: error instanceof ApiError ? error.message : "登录失败，请稍后重试",
+        description:
+          error instanceof ApiError && error.requestId
+            ? `请求编号：${error.requestId}`
+            : undefined,
+        type: "error",
+      });
     } finally {
       submittingRef.current = false;
       setSubmitting(false);
@@ -163,12 +164,6 @@ export function LoginPage() {
             <CardContent>
               <form onSubmit={handleSubmit} noValidate aria-busy={submitting}>
                 <FieldGroup className="gap-5">
-                  {errorMessage && (
-                    <Alert variant="destructive">
-                      <CircleAlert aria-hidden="true" />
-                      <AlertDescription>{errorMessage}</AlertDescription>
-                    </Alert>
-                  )}
                   <Field
                     data-invalid={Boolean(errors.username)}
                     data-disabled={submitting}

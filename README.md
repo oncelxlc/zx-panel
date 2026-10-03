@@ -2,6 +2,8 @@
 
 单机 Linux 服务器管理面板。Vite + React + TypeScript / shadcn Base UI + Nova，Go + Gin / PostgreSQL。管理目标始终是面板所在机器。
 
+前端普通反馈统一使用右上角 shadcn Toast：默认折叠，悬停或键盘聚焦时展开，最多显示 8 条。字段校验、操作确认及必须持续可见的状态信息保留在原位置，具体边界见[操作反馈规范](docs/implementation.md#63-操作反馈)。
+
 已实现六个主页面、Cookie/CSRF 认证、共享监控采集、持久任务、Node.js / Go 安装、systemd 托管应用和有界日志。Ubuntu 24.04 WSL2 x86_64 及 WSL 内 QEMU ARM64 系统模拟已实测官方安装、应用生命周期、权限边界、SSE 恢复，以及正式 helper 模板下的完整引用检查和卸载；x86_64 另通过 Linux race、PostgreSQL 恢复、30 分钟稳定性和实际导出上限。**M0–M5 已完成本次约定的本地与 WSL/QEMU 验收。** 正式 helper 模板已按明确授权完成双架构复验，实验配置已恢复、服务及虚拟机已停止，旧版本和应用保留。最新实测、模拟环境边界和限制见 [验证记录](docs/verification.md) 与 [Linux 验收清单](docs/linux-acceptance.md)。
 
 ## 开发

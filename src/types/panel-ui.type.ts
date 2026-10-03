@@ -37,6 +37,15 @@ export interface QueryStateProps {
   retry?: () => void;
   children?: ReactNode;
 }
+/** ToastNoticeProps 只接收稳定的通知文本，业务详情与确认仍由原页面负责。 */
+export interface ToastNoticeProps {
+  id?: string;
+  title: string;
+  description?: string;
+  type?: "info" | "success" | "warning" | "error";
+  actionLabel?: string;
+  onAction?: () => void;
+}
 /** MetricCardProps 让指标读数的时间、质量和导航一同可见。 */
 export interface MetricCardProps {
   title: string;
