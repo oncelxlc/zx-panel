@@ -1,11 +1,15 @@
 import { spawn } from "node:child_process";
+import { resolve } from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 
+/** root 将 Go 夹具和浏览器分别定位到各自项目根目录。 */
+const root = resolve(import.meta.dirname, "../..");
 /** fixture 只启动显式隔离 Go 测试，随机库由测试本身验证并清理。 */
 const fixture = spawn(
   "go",
   ["test", "./internal/api", "-run", "^TestBrowserFixture$", "-count=1", "-v"],
   {
+    cwd: resolve(root, "backend"),
     env: {
       ...process.env,
       ZX_PANEL_INTEGRATION: "1",
@@ -45,7 +49,7 @@ try {
       "--config",
       "playwright.api.config.ts",
     ],
-    { stdio: "inherit", shell: false },
+    { cwd: resolve(root, "frontend"), stdio: "inherit", shell: false },
   );
   const status = await new Promise((resolve, reject) => {
     tests.on("error", reject);

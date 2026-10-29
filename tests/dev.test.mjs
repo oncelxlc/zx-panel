@@ -3,7 +3,7 @@ import childProcess from "node:child_process";
 import { EventEmitter } from "node:events";
 import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { release } from "node:os";
-import { delimiter } from "node:path";
+import { delimiter, resolve } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { checkWSL, startDevelopment } from "../scripts/dev/dev.mjs";
@@ -44,7 +44,9 @@ test("联合开发命令先校验 WSL，并在失败或中断时清理本轮前�
         return backend;
       }
       assert.equal(command, process.execPath);
-      assert.ok(args[0].endsWith("vite.js"));
+      const frontendRoot = fileURLToPath(new URL("../frontend", import.meta.url));
+      assert.equal(options.cwd, frontendRoot);
+      assert.equal(args[0], resolve(frontendRoot, "node_modules/vite/bin/vite.js"));
       assert.equal(options.env.VITE_DATA_MODE, "api");
       return frontend;
     });
@@ -141,6 +143,7 @@ test("Bash 检查拒绝 root、非 WSL、错误工具平台及旧版本，检查
       node: [
         '#!/usr/bin/env bash',
         '{',
+        '  printf "%s\\n" \'if (process.cwd() !== process.env.ZX_DEV_TEST_FRONTEND_ROOT) throw new Error("前端工作目录错误");\'',
         '  printf "%s\\n" \'Object.defineProperty(process, "platform", { value: process.env.ZX_DEV_TEST_NODE_PLATFORM ?? process.platform }); Object.defineProperty(process.versions, "node", { value: process.env.ZX_DEV_TEST_NODE_VERSION ?? process.versions.node });\'',
         '  cat',
         '} | "$ZX_DEV_TEST_NODE_PATH" "$@"',
@@ -148,6 +151,7 @@ test("Bash 检查拒绝 root、非 WSL、错误工具平台及旧版本，检查
       ].join("\n"),
       go: [
         '#!/usr/bin/env bash',
+        '[[ "$PWD" == "$ZX_DEV_TEST_BACKEND_ROOT" ]] || { echo "后端工作目录错误" >&2; exit 90; }',
         'if [[ "$1" != env ]]; then echo "检查模式错误地启动了 Go" >&2; exit 91; fi',
         'case "$2" in',
         '  GOOS) printf "%s\\n%s\\n" "${ZX_DEV_TEST_GOOS:-linux}" "${ZX_DEV_TEST_GOHOSTOS:-linux}" ;;',
@@ -162,7 +166,7 @@ test("Bash 检查拒绝 root、非 WSL、错误工具平台及旧版本，检查
     /** check 用临时工具模拟环境边界，不启动服务或执行数据库命令。 */
     function check(env = {}, service = "backend") {
       return childProcess.spawnSync("bash", [fileURLToPath(new URL("../scripts/dev/wsl-service.sh", import.meta.url)), service, "--check"], {
-        encoding: "utf8", shell: false, env: { ...process.env, PATH: directory + delimiter + process.env.PATH, ZX_DEV_TEST_NODE_PATH: process.execPath, ...env },
+        encoding: "utf8", shell: false, env: { ...process.env, PATH: directory + delimiter + process.env.PATH, ZX_DEV_TEST_NODE_PATH: process.execPath, ZX_DEV_TEST_FRONTEND_ROOT: fileURLToPath(new URL("../frontend", import.meta.url)), ZX_DEV_TEST_BACKEND_ROOT: fileURLToPath(new URL("../backend", import.meta.url)), ...env },
       });
     }
     for (const version of ["go1.25.0", "go1.27.1", "go2.0.0"]) {

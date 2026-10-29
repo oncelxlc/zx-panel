@@ -15,7 +15,7 @@ import (
 // assertAPIContract 对比真实 Gin 路由和发布的 OpenAPI 方法集合。
 // 任意新增、删除或路径拼写偏差都需要同步契约。
 func assertAPIContract(router *gin.Engine) error {
-	body, err := os.ReadFile("../../docs/openapi.json")
+	body, err := os.ReadFile("../../../docs/openapi.json")
 	if err != nil {
 		return err
 	}

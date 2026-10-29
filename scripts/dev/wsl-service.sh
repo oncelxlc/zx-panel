@@ -13,7 +13,8 @@ cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." || fail '无法进入共享仓�
 [[ -r /proc/sys/kernel/osrelease ]] && grep -qi microsoft /proc/sys/kernel/osrelease || fail '该命令必须在 WSL 中运行，普通 Linux 环境不受支持。'
 [[ "$(id -u)" -ne 0 ]] || fail 'WSL 开发服务不能以 root 运行，请使用非 root 用户。'
 command -v setsid >/dev/null || fail 'WSL 中找不到 setsid，请安装 util-linux。'
-[[ -f package.json && -f go.mod ]] || fail 'WSL 无法访问完整仓库，请检查共享仓库路径。'
+[[ -f frontend/package.json && -f backend/go.mod ]] || fail 'WSL 无法访问完整仓库，请检查共享仓库路径。'
+cd -- "$service"
 
 if [[ "$service" == frontend ]]; then
   command -v node >/dev/null || fail 'WSL 中找不到 Node.js，请安装 Linux Node.js 并加入 Bash 的 PATH。'

@@ -60,15 +60,15 @@ prepare)
   ;;
 checks)
   test -f "$LAB/.zx-panel-lab"
-  install -d -m 0750 -o zx-lab-web -g zx-lab-web "$LAB/source/docs"
-  cp "$REPO/go.mod" "$REPO/go.sum" "$REPO/main.go" "$LAB/source/"
-  cp -a "$REPO/cmd" "$REPO/internal" "$LAB/source/"
+  install -d -m 0750 -o zx-lab-web -g zx-lab-web "$LAB/source/docs" "$LAB/source/backend"
+  cp "$REPO/backend/go.mod" "$REPO/backend/go.sum" "$REPO/backend/main.go" "$LAB/source/backend/"
+  cp -a "$REPO/backend/cmd" "$REPO/backend/internal" "$LAB/source/backend/"
   cp "$REPO/docs/openapi.json" "$LAB/source/docs/"
   chown -R zx-lab-web:zx-lab-web "$LAB/source"
   set -a
   . /etc/zx-panel-lab/database.env
   set +a
-  cd "$LAB/source"
+  cd "$LAB/source/backend"
   runuser -u zx-lab-web -- env PATH="$LAB/tools/go/bin:$PATH" GOCACHE="$LAB/build-cache/go" GOPATH="$LAB/build-cache/modules" CGO_ENABLED=1 ZX_PANEL_INTEGRATION=1 go test -race -count=1 -tags devassets ./... 2>&1 | tee "$LAB/reports/go-race.log"
   runuser -u zx-lab-web -- env PATH="$LAB/tools/go/bin:$PATH" GOCACHE="$LAB/build-cache/go" GOPATH="$LAB/build-cache/modules" go vet -tags devassets ./...
   ;;
@@ -77,9 +77,11 @@ status)
   ;;
 refresh)
   test -f "$LAB/.zx-panel-lab"
-  cp -a "$REPO/cmd" "$REPO/internal" "$LAB/source/"
+  install -d -m 0750 -o zx-lab-web -g zx-lab-web "$LAB/source/backend"
+  cp "$REPO/backend/go.mod" "$REPO/backend/go.sum" "$REPO/backend/main.go" "$LAB/source/backend/"
+  cp -a "$REPO/backend/cmd" "$REPO/backend/internal" "$LAB/source/backend/"
   chown -R zx-lab-web:zx-lab-web "$LAB/source"
-  cd "$LAB/source"
+  cd "$LAB/source/backend"
   for binary in server helper; do
     runuser -u zx-lab-web -- env PATH="$LAB/tools/go/bin:$PATH" GOCACHE="$LAB/build-cache/go" GOPATH="$LAB/build-cache/modules" CGO_ENABLED=0 go build -trimpath -ldflags '-X zx-panel/internal/server.Version=1.1.0-wsl-test' -o "$LAB/build-cache/$binary" "./cmd/$binary"
   done

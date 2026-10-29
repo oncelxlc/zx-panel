@@ -49,8 +49,8 @@ export async function startDevelopment(target = "all", args = []) {
     cwd: root, stdio: ["pipe", "inherit", "inherit"], shell: false, windowsHide: true,
   })];
   if (target === "all") {
-    children.push(childProcess.spawn(process.execPath, [resolve(root, "node_modules/vite/bin/vite.js"), ...args], {
-      cwd: root, env: { ...process.env, VITE_DATA_MODE: "api" }, stdio: "inherit", shell: false, windowsHide: true,
+    children.push(childProcess.spawn(process.execPath, [resolve(root, "frontend/node_modules/vite/bin/vite.js"), ...args], {
+      cwd: resolve(root, "frontend"), env: { ...process.env, VITE_DATA_MODE: "api" }, stdio: "inherit", shell: false, windowsHide: true,
     }));
   }
   return new Promise((resolveExit) => {

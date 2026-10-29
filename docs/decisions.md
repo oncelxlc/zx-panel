@@ -6,7 +6,7 @@
 | --- | --- |
 | 持久化 | PostgreSQL/pgx；保留 app.users 及密码摘要，升级时撤销旧会话 |
 | UI 原语 | 官方 shadcn Base UI + Nova，不迁移到 Radix |
-| 工程 | 保留根目录 Vite、src、cmd/server、internal 与现有 Go module |
+| 工程 | 前端根目录为 frontend，Go/Gin 根目录为 backend；保留 Go module zx-panel，根目录 pnpm workspace 提供统一命令与共享脚本 |
 | API | success/data/error + meta；不使用 ok 字段 |
 | 主题 | zx-panel-theme；登录及 setup 跟随系统、无明确亮色时暗色 |
 | 开发入口 | Vite 7200，API 127.0.0.1:25000 |

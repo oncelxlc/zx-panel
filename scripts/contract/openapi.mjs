@@ -15,8 +15,8 @@ async function loadSchemas(source) {
 }
 /** schema 不重复维护 DTO 定义，OpenAPI 3.1 使用相同 JSON Schema 约束。 */
 function schema(value) { const result = z.toJSONSchema(value, { target: "draft-2020-12", io: "input" }); delete result.$schema; return result; }
-const s = await loadSchemas(resolve("src/lib/api/schemas.ts"));
-const o = await loadSchemas(resolve("src/lib/api/operations.ts"));
+const s = await loadSchemas(resolve("frontend/src/lib/api/schemas.ts"));
+const o = await loadSchemas(resolve("frontend/src/lib/api/operations.ts"));
 const models = {
   SystemInfo: s.systemSchema, Capabilities: s.capabilitiesSchema, MetricSnapshot: s.snapshotSchema, History: s.historySchema,
   Installation: s.installationSchema, Release: s.releaseSchema, Application: s.appSchema, Task: s.taskSchema, OperationPlan: s.planSchema,
@@ -101,6 +101,6 @@ route("patch", "/settings", ref("Settings"), { input: "SettingsChange" });
 const document = { openapi: "3.1.0", info: { title: "zx-panel", version: "1.1.0", description: "Single-server Linux panel. Every JSON write rejects duplicate/unknown/case-alias keys and trailing values (1 MiB maximum). Cookies: HttpOnly, Path=/, SameSite=Strict, Secure in production; preauth 10 min, idle 30 min, absolute 12 h. Bearer tokens are not accepted. Unavailable metrics are null. Full production acceptance requires Linux/systemd evidence." }, servers: [{ url: "/api/v1" }], paths, components: { securitySchemes: { sessionCookie: { type: "apiKey", in: "cookie", name: "__Host-zx-panel-session", description: "Development HTTP uses zx-panel-session; anonymous auth uses an independent preauth cookie and CSRF handshake." } }, schemas: components } };
 await writeFile(resolve("docs/openapi.json"), JSON.stringify(document, null, 2) + "\n");
 const codes = new Set(["INTERNAL_ERROR", "MALFORMED_JSON", "BODY_TOO_LARGE", "UNSUPPORTED_MEDIA_TYPE", "INVALID_INPUT"]);
-for (const dir of ["internal/api", "internal/control", "internal/security"]) for (const entry of await readdir(dir)) { if (!entry.endsWith(".go") || entry.endsWith("_test.go")) continue; const text = await readFile(resolve(dir, entry), "utf8"); for (const match of text.matchAll(/Fail\(\d+,\s*"([A-Z_]+)"/g)) codes.add(match[1]); }
+for (const dir of ["backend/internal/api", "backend/internal/control", "backend/internal/security"]) for (const entry of await readdir(dir)) { if (!entry.endsWith(".go") || entry.endsWith("_test.go")) continue; const text = await readFile(resolve(dir, entry), "utf8"); for (const match of text.matchAll(/Fail\(\d+,\s*"([A-Z_]+)"/g)) codes.add(match[1]); }
 await writeFile(resolve("docs/error-codes.json"), JSON.stringify([...codes].sort(), null, 2) + "\n");
 console.log(`Generated ${Object.keys(paths).length} API paths and ${Object.keys(components).length} schemas from production validators.`);

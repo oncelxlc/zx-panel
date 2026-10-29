@@ -256,10 +256,10 @@ func TestPostgresCookieAndDurableTasks(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if err = os.MkdirAll("../../test-results", 0700); err != nil {
+		if err = os.MkdirAll("../../../test-results", 0700); err != nil {
 			t.Fatal(err)
 		}
-		if err = os.WriteFile("../../test-results/go-api.json", body, 0600); err != nil {
+		if err = os.WriteFile("../../../test-results/go-api.json", body, 0600); err != nil {
 			t.Fatal(err)
 		}
 	}

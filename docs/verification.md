@@ -95,3 +95,13 @@
 - CLI 复用当前用户私有目录中的 PostgreSQL 18 容器客户端适配器，先生成新备份 `~/.local/share/zx-panel-dev/backups/before-external-runtimes-20261001225243.dump`（717,517 字节、0600），再执行迁移。`pg_restore --list` 可读取归档目录并记录 SHA-256；本轮未执行完整备份恢复。迁移前后的只读摘要确认全部账号字段（含密码摘要、角色和启用状态）、独立密钥、应用与任务保持一致。
 - `pnpm dev:all` 实际启动 Windows Vite + 默认 WSL 非 root Go，后端 `/healthz`、前端登录页与同源代理均返回 200。真实 Chromium 使用原管理员凭据通过六页面、10 个读取 API、Cookie/CSRF、`metrics.sample` SSE 和注销；没有浏览器运行时错误或失败响应。
 - 运行时页与真实安装 API 发现 Node.js 24.21.0、Go 1.27.1、Python 3.14.7 / 3.12.3，Homebrew 与系统路径均通过前端 Schema 校验；Node.js/Go 详情显示真实路径并保持外部安装只读。开发 helper 保持关闭，联合服务保留运行。记录和截图见被忽略的 `test-results/dev-runtime-migration-report.json`、`test-results/dev-runtime-browser-report.json`、`test-results/dev-runtimes-003.png`。
+
+## 2026-10-30 前后端目录迁移验证
+
+- 前端源码、资源、Vite/TypeScript/shadcn 配置与页面测试迁入 `frontend/`；现有 Go/Gin module `zx-panel`、配置、Compose 和本地开发数据路径迁入 `backend/`。根目录 pnpm workspace 保留统一脚本、锁文件和共享工具。
+- 231 个已跟踪迁移文件均已核对目标存在；业务源码和静态资源保持原内容。仅调整后端示例环境、Compose 注释及两个 API 测试的仓库相对路径。全部 SQL 迁移逐字节一致；锁文件仅拆分项目 importer，依赖版本与 package snapshots 未改变。
+- 固定锁文件安装、TypeScript、ESLint、11 项 Vitest、3 项登录和 2 项主题测试通过；ESLint 保留原有虚拟列表兼容性警告。Chromium Mock E2E 10 项通过，覆盖路由、双主题、断点、日志、操作反馈和移动端导航。
+- Windows 开发脚本测试 8 项通过、2 项平台跳过；WSL 9 项通过、1 项普通 Linux 专属检查跳过。新增前后端工作目录断言通过；Bash 语法和真实 WSL 后端 `--check` 通过。
+- Windows 与 WSL 均通过 `go -C backend test -tags devassets ./...` 和 `go -C backend vet -tags devassets ./...`；WSL 正式嵌入资源与 API 包测试也通过。首次 Windows 沙箱的 Go 文件重命名和 Vitest 临时缓存读取失败，正常用户环境复核全部通过，未修改测试规则。
+- `pnpm contract` 成功且 OpenAPI/错误码无漂移；shadcn 正确识别 `frontend/` 下的 Vite、Base UI/Nova 和组件路径。API 资源构建、Linux amd64/arm64 主程序与 helper 发布构建成功，秘密特征扫描及差异空白检查通过。
+- 本轮未连接数据库执行集成测试、未迁移数据库、未部署或重跑 systemd/QEMU/race/稳定性验收，未触发远端 CI。新发布产物的 `linuxAcceptance` 为 `pending`，历史验收仅适用于原报告摘要。GoLand 新目录下的断点调试尚未实测。

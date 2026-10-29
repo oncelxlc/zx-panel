@@ -6,7 +6,7 @@ import { resolve, relative, sep } from "node:path";
 const root = resolve(import.meta.dirname, "../..");
 /** run 使用参数数组启动固定工具，失败立即中断发布。 */
 function run(program, args, env = {}) {
-  const result = spawnSync(program, args, { cwd: root, env: { ...process.env, ...env }, stdio: "inherit", shell: false });
+  const result = spawnSync(program, args, { cwd: resolve(root, "frontend"), env: { ...process.env, ...env }, stdio: "inherit", shell: false });
   if (result.error) throw result.error;
   if (result.status !== 0) throw new Error(`${program} failed (${result.status})`);
 }
@@ -25,12 +25,12 @@ async function inspect(directory) {
     }
   }
 }
-run(process.execPath, [resolve(root, "node_modules/vite/bin/vite.js"), "build"], { VITE_DATA_MODE: "api" });
-const output = resolve(root, "internal/web/ui/dist");
+run(process.execPath, [resolve(root, "frontend/node_modules/vite/bin/vite.js"), "build"], { VITE_DATA_MODE: "api" });
+const output = resolve(root, "backend/internal/web/ui/dist");
 assertWithin(output);
 await rm(output, { recursive: true, force: true });
 await mkdir(output, { recursive: true });
-await cp(resolve(root, "dist"), output, { recursive: true });
+await cp(resolve(root, "frontend/dist"), output, { recursive: true });
 await writeFile(resolve(output, "release.json"), JSON.stringify({ dataMode: "api", version: "1.1.0" }) + "\n");
 await inspect(output);
 console.log("API frontend verified and embedded assets prepared.");

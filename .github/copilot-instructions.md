@@ -1,7 +1,7 @@
 # Copilot Instructions
 
 This repository contains a fullstack application built with **Go
-(backend)** and **Next.js (frontend)**.
+(backend, under `backend/`)** and **Vite + React + TypeScript (frontend, under `frontend/`)**.
 
 The purpose of these instructions is to guide AI-generated code so that
 it aligns with the architectural and coding practices of this
@@ -35,7 +35,7 @@ replaceable and modular**.
 The repository generally follows a structure similar to:
 
     /backend      Go services and APIs
-    /frontend     Next.js application
+    /frontend     Vite + React + TypeScript application
     /shared       Shared types or utilities (optional)
 
 Generated code should respect the separation of concerns between
@@ -64,7 +64,7 @@ Avoid ignoring errors unless explicitly documented.
 
 ## API Design
 
-Backend services typically expose **HTTP APIs** consumed by the Next.js
+Backend services expose **HTTP APIs** consumed by the React
 frontend.
 
 General expectations:
@@ -119,24 +119,19 @@ Avoid introducing new logging frameworks unless already used.
 
 ------------------------------------------------------------------------
 
-# Frontend (Next.js) Guidelines
+# Frontend (Vite + React) Guidelines
 
 ## Framework Assumptions
 
-Frontend uses **Next.js**.
+Frontend uses **Vite + React + TypeScript** with React Router.
 
 Generated code should:
 
--   Work with modern Next.js features
+-   Extend the existing React Router configuration in `frontend/src/routes/router.tsx`
 -   Avoid deprecated APIs
 -   Prefer server-safe patterns when applicable
 
-Do not assume whether the project uses:
-
--   App Router
--   Pages Router
-
-Follow whichever pattern already exists.
+Keep route and UI code under `frontend/src/`; API handlers belong in `backend/internal/`.
 
 ------------------------------------------------------------------------
 
@@ -163,8 +158,6 @@ Prefer patterns already used in the repository, such as:
 -   `fetch`
 -   `SWR`
 -   `React Query`
--   Server Actions
--   API routes
 
 Do not introduce a new data fetching library unless requested.
 
