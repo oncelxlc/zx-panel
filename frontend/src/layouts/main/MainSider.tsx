@@ -34,6 +34,7 @@ export function MainSider() {
       <SidebarHeader>
         <Item
           size="sm"
+          className="group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0"
           render={<Link to="/overview" onClick={() => setOpenMobile(false)} />}
         >
           <ItemMedia>
@@ -42,7 +43,7 @@ export function MainSider() {
               <AvatarFallback>zx</AvatarFallback>
             </Avatar>
           </ItemMedia>
-          <ItemContent className="group-data-[collapsible=icon]:hidden">
+          <ItemContent className="group-data-[collapsible=icon]:sr-only">
             <ItemTitle>zx-panel</ItemTitle>
             <ItemDescription>本机管理控制台</ItemDescription>
           </ItemContent>
@@ -56,6 +57,7 @@ export function MainSider() {
                 <SidebarMenuItem key={path}>
                   <SidebarMenuButton
                     size="lg"
+                    className="group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:justify-center"
                     isActive={
                       pathname === path || pathname.startsWith(path + "/")
                     }
@@ -65,7 +67,9 @@ export function MainSider() {
                     }
                   >
                     <Icon aria-hidden="true" />
-                    <span>{label}</span>
+                    <span className="group-data-[collapsible=icon]:sr-only">
+                      {label}
+                    </span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -74,11 +78,15 @@ export function MainSider() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-        <Item variant="outline" size="sm">
+        <Item
+          variant="outline"
+          size="sm"
+          className="group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0"
+        >
           <ItemMedia>
             <Server aria-hidden="true" />
           </ItemMedia>
-          <ItemContent className="group-data-[collapsible=icon]:hidden">
+          <ItemContent className="group-data-[collapsible=icon]:sr-only">
             <ItemDescription>当前服务器</ItemDescription>
             <ItemTitle>
               {bootstrap.data?.system.hostname || "读取本机信息…"}
