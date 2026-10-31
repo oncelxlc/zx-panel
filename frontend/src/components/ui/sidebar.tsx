@@ -61,6 +61,8 @@ function SidebarProvider({
 }: SidebarProviderProps) {
   const isMobile = useIsMobile();
   const [openMobile, setOpenMobile] = React.useState(false);
+  // 离开窄屏后清除抽屉临时状态，避免再次缩窄时自动重开。
+  if (!isMobile && openMobile) setOpenMobile(false);
 
   // 外部传入受控状态时优先使用该状态，否则维护内部状态。
   const [_open, _setOpen] = React.useState(defaultOpen);
@@ -198,7 +200,7 @@ function Sidebar({
 
   return (
     <div
-      className="group peer hidden text-sidebar-foreground md:block"
+      className="group peer hidden text-sidebar-foreground lg:block"
       data-state={state}
       data-collapsible={state === "collapsed" ? collapsible : ""}
       data-variant={variant}
@@ -221,7 +223,7 @@ function Sidebar({
         data-slot="sidebar-container"
         data-side={side}
         className={cn(
-          "sidebar-frame fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) overflow-clip data-[side=left]:left-0 data-[side=left]:group-data-[collapsible=offcanvas]:-translate-x-full data-[side=right]:right-0 data-[side=right]:group-data-[collapsible=offcanvas]:translate-x-full md:flex",
+          "sidebar-frame fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) overflow-clip data-[side=left]:left-0 data-[side=left]:group-data-[collapsible=offcanvas]:-translate-x-full data-[side=right]:right-0 data-[side=right]:group-data-[collapsible=offcanvas]:translate-x-full lg:flex",
           // 浮动和内嵌变体使用各自的留白。
           variant === "floating" || variant === "inset"
             ? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]"

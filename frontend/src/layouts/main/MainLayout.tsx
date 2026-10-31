@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Outlet, useLocation } from "react-router";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
@@ -14,60 +14,39 @@ import { ToastNotice } from "@/features/panel/ToastNotice";
 export default function MainLayout() {
   const { pathname } = useLocation();
   const realtime = useRealtime();
-  const contentRef = useRef<HTMLElement>(null);
-  const previousLeft = useRef<number | null>(null);
   const [open, setOpen] = useState(
     () =>
       typeof window !== "undefined" &&
       window.matchMedia("(min-width: 1280px)").matches,
   );
-  /** 切换前只读取一次视觉位置，快速反向时从当前帧继续，不逐帧测量布局。 */
-  function changeSidebar(nextOpen: boolean) {
+  /** 更新展开状态，侧栏占位与外壳由同一组 CSS 过渡保持同步。 */
+  const changeSidebar = useCallback((nextOpen: boolean) => {
     if (nextOpen === open) return;
-    previousLeft.current = contentRef.current?.getBoundingClientRect().left ?? null;
     setOpen(nextOpen);
-  }
-  useLayoutEffect(() => {
-    const element = contentRef.current;
-    const left = previousLeft.current;
-    previousLeft.current = null;
-    if (
-      !element || left === null || typeof element.animate !== "function" ||
-      typeof window.matchMedia !== "function"
-    ) return;
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
-    if (reduced.matches) return;
-    const delta = left - element.getBoundingClientRect().left;
-    if (!delta) return;
-    const style = getComputedStyle(element);
-    const animation = element.animate(
-      [{ transform: `translateX(${delta}px)` }, { transform: "translateX(0)" }],
-      {
-        duration: parseFloat(style.getPropertyValue("--motion-panel")),
-        delay: open ? 0 : parseFloat(style.getPropertyValue("--motion-fast")),
-        easing: style.getPropertyValue("--motion-ease").trim(),
-        fill: "backwards",
-      },
-    );
-    /** 系统要求减少动态效果时立即落到最终布局。 */
-    function stopMotion() {
-      if (reduced.matches) animation.cancel();
-    }
-    reduced.addEventListener("change", stopMotion);
-    return () => {
-      animation.cancel();
-      reduced.removeEventListener("change", stopMotion);
-    };
   }, [open]);
   useEffect(() => {
     const query = window.matchMedia("(min-width: 1280px)");
-    /** 跨越桌面密度断点时同步展开状态，不在采样刷新时重置。 */
+    let timeout: number | undefined;
+    /** 跨断点后等待拖动停稳，避免临界宽度附近反复展开和收起。 */
     function change() {
-      setOpen(query.matches);
+      window.clearTimeout(timeout);
+      timeout = window.setTimeout(() => {
+        timeout = undefined;
+        changeSidebar(query.matches);
+      }, 160);
+    }
+    /** 仅延后已发生的断点变更，普通缩放不覆盖用户手动选择。 */
+    function resize() {
+      if (timeout !== undefined) change();
     }
     query.addEventListener("change", change);
-    return () => query.removeEventListener("change", change);
-  }, []);
+    window.addEventListener("resize", resize);
+    return () => {
+      window.clearTimeout(timeout);
+      query.removeEventListener("change", change);
+      window.removeEventListener("resize", resize);
+    };
+  }, [changeSidebar]);
   useEffect(() => {
     document.getElementById("main-content")?.focus({ preventScroll: true });
   }, [pathname]);
@@ -82,7 +61,7 @@ export default function MainLayout() {
         跳转到主要内容
       </Button>
       <MainSider />
-      <SidebarInset className="min-w-0" ref={contentRef}>
+      <SidebarInset className="min-w-0">
         <header className="sticky top-0 z-10 border-b bg-background">
           <MainHeader />
         </header>

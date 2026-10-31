@@ -69,14 +69,21 @@ body {
 .detail-grid dd { margin: 0; overflow-wrap: anywhere; }
 .log-lines { position: relative; overflow: auto; height: min(60vh, 620px); min-height: 280px; contain: strict; }
 
-/* 主内容宽度只结算一次；侧栏外壳局部收放，文字在空间就绪后显示。 */
+/* 占位与外壳使用相同过渡，让正文宽度和位置同步变化，避免先重排再平移。 */
+.sidebar-gap,
 .sidebar-frame {
   transition: width var(--motion-panel) var(--motion-ease), translate var(--motion-panel) var(--motion-ease);
 }
-[data-slot="sidebar"][data-state="collapsed"] {
+[data-slot="sidebar"][data-collapsible="icon"] {
+  .sidebar-gap,
   .sidebar-frame { transition-delay: var(--motion-fast); }
 }
-.sidebar-brand { width: calc(var(--sidebar-width) - 1rem); }
+.sidebar-brand {
+  min-width: 0;
+  overflow: hidden;
+
+  > [data-slot="item-media"] { align-self: center; translate: none; }
+}
 .sidebar-label {
   white-space: nowrap;
   opacity: 1;

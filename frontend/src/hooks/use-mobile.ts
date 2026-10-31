@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from "react";
 
-/** 与官方侧栏的 md 断点保持一致。 */
+/** 与侧栏的 lg 断点保持一致，窄屏使用移动抽屉。 */
 const MOBILE_QUERY = "(max-width: 1023px)";
 
 /** 订阅浏览器断点变化，组件卸载时移除监听。 */

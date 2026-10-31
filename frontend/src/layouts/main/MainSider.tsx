@@ -34,7 +34,7 @@ export function MainSider() {
       <SidebarHeader>
         <Item
           size="sm"
-          className="sidebar-brand flex-nowrap"
+          className="sidebar-brand flex-nowrap px-2"
           render={<Link to="/overview" onClick={() => setOpenMobile(false)} />}
         >
           <ItemMedia>
@@ -52,12 +52,12 @@ export function MainSider() {
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu aria-label="主导航">
+            <SidebarMenu aria-label="主导航" className="gap-2">
               {navigation.map(({ path, label, icon: Icon }) => (
                 <SidebarMenuItem key={path}>
                   <SidebarMenuButton
                     size="lg"
-                    className="px-4"
+                    className="h-10 px-4 max-lg:h-11 pointer-coarse:h-11"
                     isActive={
                       pathname === path || pathname.startsWith(path + "/")
                     }
@@ -88,7 +88,7 @@ export function MainSider() {
           </ItemMedia>
           <ItemContent className="sidebar-label min-w-0">
             <ItemDescription>当前服务器</ItemDescription>
-            <ItemTitle>
+            <ItemTitle className="block w-full truncate" title={bootstrap.data?.system.hostname}>
               {bootstrap.data?.system.hostname || "读取本机信息…"}
             </ItemTitle>
           </ItemContent>
