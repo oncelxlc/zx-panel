@@ -4,6 +4,49 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* 按交互距离共享节奏；减少动态效果时同时移除延迟，内容不会等待不可见的动画。 */
+:root {
+  --motion-fast: 100ms;
+  --motion-content: 160ms;
+  --motion-panel: 200ms;
+  --motion-exit: 140ms;
+  --motion-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Base UI 管理挂载和焦点，CSS 过渡可从当前帧反向关闭，不重播入场关键帧。 */
+.motion-popup {
+  transition: opacity var(--motion-content) var(--motion-ease), scale var(--motion-content) var(--motion-ease);
+  &[data-starting-style], &[data-ending-style] { opacity: 0; scale: 0.98; }
+  &[data-ending-style] { transition-duration: var(--motion-fast); }
+  &[data-align-trigger="true"] { transition: none; opacity: 1; scale: 1; }
+}
+.motion-overlay {
+  transition: opacity var(--motion-content) ease-out;
+  &[data-starting-style], &[data-ending-style] { opacity: 0; }
+  &[data-ending-style] { transition-duration: var(--motion-exit); }
+}
+.motion-sheet {
+  transition: translate var(--motion-panel) var(--motion-ease), opacity var(--motion-panel) var(--motion-ease);
+  &[data-ending-style] { transition-duration: var(--motion-exit); }
+}
+
+/* 堆叠通知先移动再显示后排正文，收起先隐藏正文；高度只在状态边界结算。 */
+.toast-motion {
+  transition: transform var(--motion-panel) var(--motion-ease), opacity var(--motion-exit) ease-out;
+  &:not([data-expanded]) { transition-delay: var(--motion-fast); }
+  &[data-starting-style], &[data-ending-style] { transition-delay: 0ms; }
+}
+.toast-content-motion {
+  transition: opacity var(--motion-fast) ease-out;
+  &[data-expanded] { transition-delay: var(--motion-panel); }
+}
+
+/* 淡入只影响合成，不缩放正文；加载占位先占空间，短请求无需闪现骨架。 */
+@keyframes content-reveal { from { opacity: 0; } to { opacity: 1; } }
+@keyframes loading-reveal { from { opacity: 0; } to { opacity: 1; } }
+.query-content { animation: content-reveal var(--motion-content) ease-out both; }
+.query-placeholder { animation: loading-reveal var(--motion-fast) ease-out var(--motion-fast) both; }
+
 /* 系统主题变化时整体淡入淡出，图片背景和表单保持同步。 */
 ::view-transition-group(root) {
   animation-duration: 150ms;
@@ -22,8 +65,10 @@
   ::view-transition-old(root),
   ::view-transition-new(root) {
     animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
     scroll-behavior: auto !important;
   }
 }

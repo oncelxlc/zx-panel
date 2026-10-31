@@ -165,6 +165,8 @@ sudo systemctl enable --now zx-panel-helper zx-panel
 
 ## 验证
 
+`pnpm test:e2e` 包含开启动画的 `motion.spec.ts`，检查侧栏中间帧、抽屉退场内容、通知展开、快速反向切换、减少动态效果和慢图片加载。其他功能用例继续默认减少动态效果。动效时长统一在 `frontend/src/styles/theme.css`；侧栏切换时主内容宽度只结算一次，视觉位移不缩放正文。
+
 ```sh
 pnpm typecheck
 pnpm lint

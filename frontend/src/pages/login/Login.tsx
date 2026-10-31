@@ -47,6 +47,7 @@ import { useRef, useState } from "react";
 import type { ChangeEvent, FocusEvent, FormEvent } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router";
 import "./Login.scss";
+import { LoginBackground } from "./LoginBackground";
 
 /** 渲染公开登录表单；认证与令牌存储交给 API 客户端，页面负责反馈和安全回跳。 */
 export function LoginPage() {
@@ -142,6 +143,7 @@ export function LoginPage() {
   if (setupStatus.data?.setupRequired) return <Navigate to="/setup" replace />;
   return (
     <main className="login-page">
+      <LoginBackground />
       <div className="login-page__body">
         <section className="login-page__panel" aria-labelledby="login-title">
           <Card size="lg" variant="glass">

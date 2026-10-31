@@ -14,6 +14,7 @@ import { demoUser } from "@/mocks/fixtures";
 import { LoginPage } from "@/pages/login/Login";
 import * as authApi from "@/auth/api";
 import { Toaster } from "@/components/ui/toast";
+import { ThemeProvider } from "@/theme/ThemeProvider";
 
 it("refreshes an inactive anonymous session before returning to the protected page", async () => {
   const anonymous = {
@@ -55,7 +56,7 @@ it("refreshes an inactive anonymous session before returning to the protected pa
   );
   const router = createMemoryRouter(
     [
-      { path: "/login", Component: LoginPage },
+      { path: "/login", element: <ThemeProvider><LoginPage /></ThemeProvider> },
       {
         Component: AuthGuard,
         children: [{ path: "/overview", element: <h1>已登录概览</h1> }],
@@ -92,7 +93,7 @@ it("keeps field validation inline and reports failed login through Toast", async
   const login = vi.spyOn(authApi, "login").mockRejectedValue(
     new authApi.ApiError(401, "INVALID_CREDENTIALS", "账号或密码错误", "login-failed"),
   );
-  const router = createMemoryRouter([{ path: "/login", Component: LoginPage }], {
+  const router = createMemoryRouter([{ path: "/login", element: <ThemeProvider><LoginPage /></ThemeProvider> }], {
     initialEntries: ["/login"],
   });
   try {

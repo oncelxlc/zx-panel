@@ -33,6 +33,7 @@ export interface StatusProps {
 /** QueryStateProps 区分首次加载、局部读取失败与空资源。 */
 export interface QueryStateProps {
   pending?: boolean;
+  placeholder?: ReactNode;
   error?: Error | null;
   retry?: () => void;
   children?: ReactNode;

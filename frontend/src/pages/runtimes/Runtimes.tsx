@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { z } from "zod";
 import { useDisplayTimezone } from "@/features/panel/display";
+import { useLastOpenValue } from "@/hooks/use-last-open-value";
 import { Link, useParams, useSearchParams } from "react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { ArrowRight, Download, RefreshCw } from "lucide-react";
@@ -207,10 +208,11 @@ export function RuntimeDetailPage() {
     ...releasesQuery(kind, params.get("catalogCursor") ?? ""),
     enabled: managed,
   });
-  const referenceID = params.get("references") ?? "";
+  const referencesOpen = !!params.get("references");
+  const referenceID = useLastOpenValue(params.get("references") ?? "", referencesOpen);
   const references = useQuery({
     queryKey: ["runtime-references", referenceID],
-    enabled: !!referenceID,
+    enabled: referencesOpen,
     queryFn: ({ signal }) =>
       request(
         `/runtime-installations/${encodeURIComponent(referenceID)}/references`,
@@ -501,7 +503,7 @@ export function RuntimeDetailPage() {
         onClose={() => setOperation(null)}
       />
       <Sheet
-        open={!!referenceID}
+        open={referencesOpen}
         onOpenChange={(open) => {
           if (!open) changeParam("references", "");
         }}

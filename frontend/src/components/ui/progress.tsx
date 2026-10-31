@@ -1,5 +1,6 @@
 import { Progress as ProgressPrimitive } from "@base-ui/react/progress"
 import { cn } from "@/lib/utils"
+import type { ComponentProps } from "react"
 
 /** Progress 组合官方组件的焦点、键盘与语义样式，页面通过属性扩展。 */
 function Progress({
@@ -37,15 +38,27 @@ function ProgressTrack({ className, ...props }: ProgressPrimitive.Track.Props) {
   )
 }
 
-/** ProgressIndicator 组合官方组件的焦点、键盘与语义样式，页面通过属性扩展。 */
+/** 复用 Base UI 已归一化的百分比，用位移显示进度，避免每帧修改布局宽度。 */
+function renderProgressIndicator(props: ComponentProps<"div">) {
+  const width = props.style?.width ?? "0%"
+  return <div {...props} style={{
+    ...props.style,
+    width: "100%",
+    transform: `translateX(calc(${typeof width === "number" ? `${width}px` : width} - 100%))`,
+  }} />
+}
+
+/** ProgressIndicator 保留官方数值语义和自定义 render，默认只过渡进度填充的位移。 */
 function ProgressIndicator({
   className,
+  render = renderProgressIndicator,
   ...props
 }: ProgressPrimitive.Indicator.Props) {
   return (
     <ProgressPrimitive.Indicator
       data-slot="progress-indicator"
-      className={cn("h-full bg-primary transition-all", className)}
+      render={render}
+      className={cn("h-full bg-primary transition-transform duration-(--motion-content) motion-reduce:transition-none", className)}
       {...props}
     />
   )

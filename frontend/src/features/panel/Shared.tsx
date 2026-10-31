@@ -118,15 +118,17 @@ export function Status({ status, children }: StatusProps) {
 /** QueryState 统一错误 Toast；读取区域按约定保留局部重试和请求编号。 */
 export function QueryState({
   pending,
+  placeholder,
   error,
   retry,
   children,
 }: QueryStateProps) {
   if (pending)
     return (
-      <div className="grid gap-4" role="status" aria-label="正在加载">
-        <Skeleton className="h-28 w-full" />
-        <Skeleton className="h-48 w-full" />
+      <div className="query-placeholder grid gap-4" role="status" aria-label="正在加载">
+        {placeholder ?? (
+          <><Skeleton className="h-28 w-full" /><Skeleton className="h-48 w-full" /></>
+        )}
       </div>
     );
   if (error)
@@ -163,7 +165,17 @@ export function QueryState({
         )}
       </>
     );
-  return children;
+  return children == null ? children : <div className="query-content">{children}</div>;
+}
+
+/** 预留趋势图及底部工具栏的空间，让网络加载与图表分包使用同一占位。 */
+export function ChartSkeleton() {
+  return (
+    <div className="flex flex-col gap-3">
+      <Skeleton className="h-60 w-full" />
+      <Skeleton className="h-11 w-full md:h-7" />
+    </div>
+  );
 }
 /** DataTable 让表格只在自身区域横向滚动，并共享可访问空态。 */
 export function DataTable({

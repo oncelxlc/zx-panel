@@ -34,7 +34,7 @@ export function MainSider() {
       <SidebarHeader>
         <Item
           size="sm"
-          className="group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0"
+          className="sidebar-brand flex-nowrap"
           render={<Link to="/overview" onClick={() => setOpenMobile(false)} />}
         >
           <ItemMedia>
@@ -43,7 +43,7 @@ export function MainSider() {
               <AvatarFallback>zx</AvatarFallback>
             </Avatar>
           </ItemMedia>
-          <ItemContent className="group-data-[collapsible=icon]:sr-only">
+          <ItemContent className="sidebar-label min-w-0">
             <ItemTitle>zx-panel</ItemTitle>
             <ItemDescription>本机管理控制台</ItemDescription>
           </ItemContent>
@@ -57,7 +57,7 @@ export function MainSider() {
                 <SidebarMenuItem key={path}>
                   <SidebarMenuButton
                     size="lg"
-                    className="group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:justify-center"
+                    className="px-4"
                     isActive={
                       pathname === path || pathname.startsWith(path + "/")
                     }
@@ -67,7 +67,7 @@ export function MainSider() {
                     }
                   >
                     <Icon aria-hidden="true" />
-                    <span className="group-data-[collapsible=icon]:sr-only">
+                    <span className="sidebar-label shrink-0">
                       {label}
                     </span>
                   </SidebarMenuButton>
@@ -81,19 +81,19 @@ export function MainSider() {
         <Item
           variant="outline"
           size="sm"
-          className="group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0"
+          className="sidebar-brand flex-nowrap"
         >
           <ItemMedia>
             <Server aria-hidden="true" />
           </ItemMedia>
-          <ItemContent className="group-data-[collapsible=icon]:sr-only">
+          <ItemContent className="sidebar-label min-w-0">
             <ItemDescription>当前服务器</ItemDescription>
             <ItemTitle>
               {bootstrap.data?.system.hostname || "读取本机信息…"}
             </ItemTitle>
           </ItemContent>
         </Item>
-        <p className="p-2 text-xs text-muted-foreground group-data-[collapsible=icon]:hidden">
+        <p className="sidebar-label whitespace-nowrap p-2 text-xs text-muted-foreground">
           zx-panel · 本机专属
         </p>
       </SidebarFooter>

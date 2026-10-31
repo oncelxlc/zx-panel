@@ -27,7 +27,6 @@ import {
 } from "@/components/ui/item";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ToastNotice } from "@/features/panel/ToastNotice";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   bootstrapQuery,
   historyQuery,
@@ -40,6 +39,7 @@ import {
   MetricCard,
   PageHeading,
   QueryState,
+  ChartSkeleton,
   Status,
 } from "@/features/panel/Shared";
 import {
@@ -217,12 +217,13 @@ export function OverviewPage() {
               />
             </div>
             <QueryState
+              placeholder={<ChartSkeleton />}
               pending={history.isPending}
               error={history.error}
               retry={() => void history.refetch()}
             >
               {history.data && (
-                <Suspense fallback={<Skeleton className="h-60" />}>
+                <Suspense fallback={<ChartSkeleton />}>
                   <ResourceChart
                     history={history.data}
                     label={metricNames[tab]}

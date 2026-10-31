@@ -25,6 +25,7 @@ import type { Task } from "@/types/panel.type";
 import { formatBytes, formatTime } from "@/lib/format";
 import { queryClient, taskQuery, tasksQuery } from "./queries";
 import { QueryState, Status } from "./Shared";
+import { useLastOpenValue } from "@/hooks/use-last-open-value";
 /** taskOrder 保持活动任务在前、失败其次，实时事件不会打乱展示优先级。 */
 function taskOrder(a: Task, b: Task) {
   const rank = (task: Task) =>
@@ -39,9 +40,9 @@ function taskOrder(a: Task, b: Task) {
 export function TaskSheet() {
   const timeZone = useDisplayTimezone();
   const [params, setParams] = useSearchParams();
-  const selected = params.get("task") ?? "";
   const open = params.has("task");
-  const cursor = params.get("taskCursor") ?? "";
+  const selected = useLastOpenValue(params.get("task") ?? "", open);
+  const cursor = useLastOpenValue(params.get("taskCursor") ?? "", open);
   const tasks = useQuery({
     ...tasksQuery,
     queryKey: cursor ? ["tasks", "page", cursor] : tasksQuery.queryKey,
@@ -53,7 +54,10 @@ export function TaskSheet() {
       ),
     enabled: open,
   });
-  const detail = useQuery(taskQuery(selected === "all" ? "" : selected));
+  const detail = useQuery({
+    ...taskQuery(selected === "all" ? "" : selected),
+    enabled: open && !!selected && selected !== "all",
+  });
   const logs = useQuery({
     queryKey: ["task", selected, "logs"],
     queryFn: ({ signal }) =>

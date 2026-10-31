@@ -12,7 +12,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { historyQuery } from "@/features/panel/queries";
 import { useLatestMetrics, useNow } from "@/features/panel/realtime";
@@ -21,6 +20,7 @@ import {
   DataTable,
   PageHeading,
   QueryState,
+  ChartSkeleton,
   Status,
 } from "@/features/panel/Shared";
 import {
@@ -197,12 +197,13 @@ export function MonitoringPage() {
               </CardHeader>
               <CardContent>
                 <QueryState
+                  placeholder={<ChartSkeleton />}
                   pending={history.isPending}
                   error={history.error}
                   retry={() => void history.refetch()}
                 >
                   {history.data && (
-                    <Suspense fallback={<Skeleton className="h-60" />}>
+                    <Suspense fallback={<ChartSkeleton />}>
                       <ResourceChart
                         history={history.data}
                         label={tab === "network" ? "下行" : "使用率"}
@@ -347,12 +348,13 @@ export function MonitoringPage() {
                         </CardHeader>
                         <CardContent>
                           <QueryState
+                            placeholder={<ChartSkeleton />}
                             pending={query.isPending}
                             error={query.error}
                           >
                             {query.data && (
                               <Suspense
-                                fallback={<Skeleton className="h-60" />}
+                                fallback={<ChartSkeleton />}
                               >
                                 <ResourceChart
                                   history={query.data}
@@ -377,9 +379,13 @@ export function MonitoringPage() {
                     <CardDescription>与下行保持相同速率单位</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <QueryState pending={upload.isPending} error={upload.error}>
+                    <QueryState
+                      placeholder={<ChartSkeleton />}
+                      pending={upload.isPending}
+                      error={upload.error}
+                    >
                       {upload.data && (
-                        <Suspense fallback={<Skeleton className="h-60" />}>
+                        <Suspense fallback={<ChartSkeleton />}>
                           <ResourceChart history={upload.data} label="上行" />
                         </Suspense>
                       )}
