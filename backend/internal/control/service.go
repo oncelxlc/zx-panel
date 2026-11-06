@@ -25,6 +25,7 @@ type Service struct {
 	Host          host.Client
 	Version       string
 	mu            sync.Mutex
+	runtimeMu     sync.Mutex
 	capabilities  Capabilities
 	capabilityAt  time.Time
 	runningID     string
@@ -109,7 +110,7 @@ func (s *Service) Capabilities(ctx context.Context) Capabilities {
 	}
 	s.mu.Unlock()
 	on := Capability{Enabled: true}
-	reason, message := "HELPER_UNAVAILABLE", "尚未启用可用的本机 helper"
+	reason, message := "HELPER_DISABLED", "尚未启用特权 helper。请由管理员完成 helper 配置，以 sudo 启动 helper 后重新启动 Go 后端。"
 	enabled := false
 	info := s.Metrics.Info()
 	if runtime.GOOS != "linux" {
@@ -119,10 +120,14 @@ func (s *Service) Capabilities(ctx context.Context) Capabilities {
 		reason = "UNSUPPORTED_ENVIRONMENT"
 		message = "当前环境不是原生 systemd 主机"
 	} else if s.Config.Helper.Enabled {
+		reason, message = "HELPER_UNAVAILABLE", "特权 helper 未连接或权限检查失败。请由管理员更新部署单元，以 sudo 重启 helper，并核对 Socket、面板账号及服务沙箱写权限。"
 		check, cancel := context.WithTimeout(ctx, 2*time.Second)
-		_, err := s.Host.Call(check, host.Request{Action: "probe"})
+		result, err := s.Host.Call(check, host.Request{Action: "probe"})
 		cancel()
-		enabled = err == nil
+		enabled = err == nil && result.ProtocolVersion == host.ProtocolVersion
+		if err == nil && !enabled {
+			reason, message = "HELPER_OUTDATED", "特权 helper 版本与后端不一致。请更新 helper 二进制并以 sudo 重启 helper，再重新检查管理权限。"
+		}
 	}
 	off := Capability{ReasonCode: &reason, Message: &message}
 	write := off

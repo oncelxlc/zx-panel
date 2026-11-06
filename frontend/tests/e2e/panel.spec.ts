@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test("system runtimes show versions and read-only installation details", async ({ page }, testInfo) => {
+test("system runtimes show versions and management actions", async ({ page }, testInfo) => {
   for (const theme of ["light", "dark"]) {
     await page.addInitScript((value) => localStorage.setItem("zx-panel-theme", value), theme);
     for (const width of [1440, 375]) {
@@ -9,17 +9,19 @@ test("system runtimes show versions and read-only installation details", async (
       await expect(page.getByRole("heading", { name: "Rust", exact: true })).toBeVisible();
       await expect(page.getByText("1.90.0", { exact: true })).toBeVisible();
       await expect(page.getByRole("heading", { name: "Python", exact: true })).toBeVisible();
-      const buttonColors = await page.getByRole("button", { name: "查看安装", exact: true }).first().evaluate((element) => {
+      const buttonColors = await page.getByRole("button", { name: "管理安装", exact: true }).first().evaluate((element) => {
         const style = getComputedStyle(element);
         return { text: style.color, background: style.backgroundColor };
       });
       expect(buttonColors.text).not.toBe(buttonColors.background);
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
       await page.screenshot({ path: testInfo.outputPath(`runtimes-${theme}-${width}.png`), fullPage: true });
-      await page.getByRole("button", { name: "查看安装", exact: true }).first().click();
+      await page.getByRole("button", { name: "管理安装", exact: true }).first().click();
       await expect(page).toHaveURL(/\/runtimes\/rust$/);
       await expect(page.getByText("/usr/local/bin/rustc", { exact: true })).toBeVisible();
-      await expect(page.getByText("只读", { exact: true })).toBeVisible();
+      await expect(page.getByText("只读", { exact: true })).toHaveCount(0);
+      await expect(page.getByRole("button", { name: "设为系统默认", exact: true })).toBeEnabled();
+      await expect(page.getByRole("button", { name: "卸载预检", exact: true })).toBeEnabled();
       await expect(page.getByRole("button", { name: "安装版本", exact: true })).toHaveCount(0);
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
       await page.screenshot({ path: testInfo.outputPath(`rust-${theme}-${width}.png`), fullPage: true });
@@ -28,6 +30,27 @@ test("system runtimes show versions and read-only installation details", async (
   await page.goto("/runtimes/rust?action=install");
   await expect(page.getByText("/usr/local/bin/rustc", { exact: true })).toBeVisible();
   await expect(page.getByRole("tab", { name: "可安装", exact: true })).toHaveCount(0);
+});
+
+test("helper permission guidance appears on entry and can be reopened", async ({ page }, testInfo) => {
+  for (const theme of ["light", "dark"]) {
+    await page.addInitScript((value) => localStorage.setItem("zx-panel-theme", value), theme);
+    for (const width of [1440, 375]) {
+      await page.setViewportSize({ width, height: 1000 });
+      await page.goto("/runtimes?scenario=helper-unavailable");
+      const dialog = page.getByRole("alertdialog", { name: "需要启用管理权限" });
+      await expect(dialog).toBeVisible();
+      await expect(dialog.getByText(/sudo systemctl restart zx-panel-helper/)).toBeVisible();
+      await page.keyboard.press("Tab");
+      await expect(dialog.locator(":focus")).toHaveCount(1);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      await page.screenshot({ path: testInfo.outputPath(`helper-${theme}-${width}.png`), fullPage: true });
+      await dialog.getByRole("button", { name: "暂时浏览" }).click();
+      await expect(dialog).toHaveCount(0);
+      await page.getByRole("button", { name: "查看启动与重启步骤" }).click();
+      await expect(dialog).toBeVisible();
+    }
+  }
 });
 
 test("all primary routes, navigation, confirmation and task deep links", async ({

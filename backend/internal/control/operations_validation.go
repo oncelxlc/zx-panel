@@ -35,6 +35,7 @@ func DecodeOperation(data []byte) (Operation, error) {
 		return op, err
 	}
 	allowed := map[string][]string{"runtime.install": {"action", "releaseId", "makeDefault"}, "runtime.set-default": {"action", "installationId", "expectedRevision"}, "runtime.uninstall": {"action", "installationId", "expectedRevision"}, "app.create": {"action", "app", "environmentChanges"}, "app.update": {"action", "appId", "expectedRevision", "app", "environmentChanges"}, "app.start": {"action", "appId", "expectedRevision"}, "app.stop": {"action", "appId", "expectedRevision"}, "app.restart": {"action", "appId", "expectedRevision"}, "app.delete": {"action", "appId", "expectedRevision"}}
+	allowed["runtime.set-system-default"] = []string{"action", "installationId", "expectedRevision"}
 	keys, ok := allowed[op.Action]
 	if !ok {
 		return op, Fail(422, "INVALID_INPUT", "操作类型无效")
@@ -189,6 +190,7 @@ func validateDraft(app AppDraft) error {
 // 未知内部动作只使用稳定名称。
 func operationLabel(action string) string {
 	labels := map[string]string{"runtime.install": "安装运行时版本", "runtime.set-default": "设置面板默认版本", "runtime.uninstall": "卸载运行时版本", "app.create": "登记本机应用", "app.update": "保存应用配置", "app.start": "启动应用", "app.stop": "停止应用", "app.restart": "重启应用", "app.delete": "移除应用登记", "catalog.refresh": "检查官方版本目录", "logs.export": "导出所选日志"}
+	labels["runtime.set-system-default"] = "切换系统默认运行时"
 	if value, ok := labels[action]; ok {
 		return value
 	}

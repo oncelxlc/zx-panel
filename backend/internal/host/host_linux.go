@@ -240,7 +240,28 @@ func execute(ctx context.Context, cfg config.PanelConfig, request Request) (Resu
 		if _, err := os.Stat("/run/systemd/system"); err != nil {
 			return Result{}, err
 		}
-		return Result{OK: true}, nil
+		if err := unix.Access("/usr/local/bin", unix.W_OK); err != nil {
+			return Result{}, errors.New("helper sandbox must permit /usr/local/bin writes")
+		}
+		if info, err := os.Stat("/usr/bin/systemd-run"); err != nil || !info.Mode().IsRegular() || info.Mode().Perm()&0111 == 0 {
+			return Result{}, errors.New("systemd-run unavailable")
+		}
+		return Result{OK: true, ProtocolVersion: ProtocolVersion}, nil
+	}
+	if request.Action == "runtime.target" || request.Action == "runtime.target-references" {
+		target, err := inspectRuntimeTarget(ctx, cfg, request)
+		if err != nil {
+			return Result{}, err
+		}
+		result := Result{OK: true, Runtime: target}
+		if request.Action == "runtime.target-references" {
+			refs, complete, pids := runtimeTargetReferences(ctx, target)
+			result.References, result.Complete, result.ProcessIDs = &refs, complete, pids
+			if err := runtimeRemovalCheck(ctx, target); err != nil {
+				target.RemovalBlocked = "包管理器依赖检查未通过；不会强制移除依赖或自动删除其他软件包"
+			}
+		}
+		return result, nil
 	}
 	if request.Action == "runtime.references" {
 		path, err := runtimePath(cfg, request.Kind, request.ID)
@@ -275,6 +296,23 @@ func execute(ctx context.Context, cfg config.PanelConfig, request Request) (Resu
 	helperMutex.Lock()
 	defer helperMutex.Unlock()
 	switch request.Action {
+	case "runtime.system-default", "runtime.external-remove":
+		target, err := inspectRuntimeTarget(ctx, cfg, request)
+		if err != nil || request.Fingerprint == "" || target.Fingerprint != request.Fingerprint {
+			return Result{}, errors.New("runtime target changed; preview again")
+		}
+		if request.Action == "runtime.system-default" {
+			err = setSystemRuntimeDefault(target)
+		} else {
+			refs, complete, _ := runtimeTargetReferences(ctx, target)
+			if !complete || refs > 0 || target.SystemDefault {
+				return Result{}, errors.New("runtime is default, referenced or reference check is incomplete")
+			}
+			if err = runtimeRemovalCheck(ctx, target); err == nil {
+				err = removeExternalRuntime(ctx, request.ID, target)
+			}
+		}
+		return Result{OK: err == nil}, err
 	case "runtime.commit":
 		path, err := commitRuntime(ctx, cfg, request)
 		return Result{OK: err == nil, Path: path}, err
@@ -282,6 +320,9 @@ func execute(ctx context.Context, cfg config.PanelConfig, request Request) (Resu
 		path, err := runtimePath(cfg, request.Kind, request.ID)
 		if err != nil {
 			return Result{}, err
+		}
+		if IsSystemRuntimeDefault(request.Kind, filepath.Join(path, "bin", RuntimeCommand(request.Kind))) {
+			return Result{}, errors.New("runtime is the system default")
 		}
 		refs, complete, _ := references(path)
 		if !complete || refs > 0 {
@@ -400,7 +441,17 @@ func writeUnit(ctx context.Context, cfg config.PanelConfig, def Definition) erro
 	if info, err := os.Stat(directory); err != nil || !info.IsDir() {
 		return errors.New("working directory unavailable")
 	}
+	homeProtection := "ProtectHome=true\n"
 	executable, err := permitted(def.Executable, append(append([]string{}, cfg.Paths.AppRoots...), cfg.Paths.RuntimeRoot))
+	if err != nil && def.RuntimeID != "" && def.RuntimeKind == "node" {
+		target, checkErr := inspectRuntimeTarget(ctx, cfg, Request{ID: def.RuntimeID, Kind: def.RuntimeKind, Executable: def.Executable})
+		if checkErr == nil {
+			executable, err = target.Executable, nil
+			if target.Manager == "homebrew" {
+				homeProtection, err = homebrewAppProtection(target)
+			}
+		}
+	}
 	if err != nil {
 		return err
 	}
@@ -470,7 +521,7 @@ func writeUnit(ctx context.Context, cfg config.PanelConfig, def Definition) erro
 	if err = atomicWrite(envPath, []byte(env.String()), 0600); err != nil {
 		return err
 	}
-	body := fmt.Sprintf("# Managed by zx-panel\n# id=%s\n[Unit]\nDescription=zx-panel managed application %s\nAfter=network.target\nStartLimitIntervalSec=60\nStartLimitBurst=5\n[Service]\nType=exec\nUser=%s\nWorkingDirectory=%s\nExecStart=%s\nEnvironmentFile=%s\nRestart=%s\nRestartSec=3\nTimeoutStopSec=30\nKillMode=control-group\nNoNewPrivileges=true\nPrivateTmp=true\nProtectSystem=strict\nReadWritePaths=%s\nProtectHome=true\nRestrictSUIDSGID=true\nCapabilityBoundingSet=\nUMask=0077\nCPUAccounting=true\nMemoryAccounting=true\nStandardOutput=journal\nStandardError=journal\n[Install]\nWantedBy=multi-user.target\n", def.ID, def.ID, username, working, strings.Join(arguments, " "), envPath, def.Restart, writable)
+	body := fmt.Sprintf("# Managed by zx-panel\n# id=%s\n[Unit]\nDescription=zx-panel managed application %s\nAfter=network.target\nStartLimitIntervalSec=60\nStartLimitBurst=5\n[Service]\nType=exec\nUser=%s\nWorkingDirectory=%s\nExecStart=%s\nEnvironmentFile=%s\nRestart=%s\nRestartSec=3\nTimeoutStopSec=30\nKillMode=control-group\nNoNewPrivileges=true\nPrivateTmp=true\nProtectSystem=strict\nReadWritePaths=%s\n%sRestrictSUIDSGID=true\nCapabilityBoundingSet=\nUMask=0077\nCPUAccounting=true\nMemoryAccounting=true\nStandardOutput=journal\nStandardError=journal\n[Install]\nWantedBy=multi-user.target\n", def.ID, def.ID, username, working, strings.Join(arguments, " "), envPath, def.Restart, writable, homeProtection)
 	if err = atomicWrite(path, []byte(body), 0644); err != nil {
 		return err
 	}
@@ -528,6 +579,12 @@ func runtimePath(cfg config.PanelConfig, kind, id string) (string, error) {
 // references 从 procfs 和面板 unit 检查运行及配置引用。
 // 权限不足或扫描失败时返回不完整，调用方必须阻止删除。
 func references(root string) (int, bool, []int) {
+	return referencesIn(root, false)
+}
+
+// referencesIn 对指定路径检查进程与 unit，外部安装包含系统和临时 unit。
+// 文件路径使用精确入口文本，目录路径同时覆盖其内部工具。
+func referencesIn(root string, systemUnits bool) (int, bool, []int) {
 	entries, err := os.ReadDir("/proc")
 	if err != nil {
 		return 0, false, nil
@@ -552,23 +609,43 @@ func references(root string) (int, bool, []int) {
 			pids = append(pids, pid)
 		}
 	}
-	units, err := os.ReadDir("/etc/systemd/system")
-	if err != nil {
-		return count, false, pids
+	match := root
+	if info, err := os.Stat(root); err == nil && info.IsDir() {
+		match += string(filepath.Separator)
 	}
-	quoted, _ := quoteUnit(root + string(filepath.Separator))
+	quoted, _ := quoteUnit(match)
 	needle := strings.ReplaceAll(strings.Trim(quoted, "\""), "$", "$$")
-	for _, unit := range units {
-		if !strings.HasPrefix(unit.Name(), "zx-panel-app-") || !strings.HasSuffix(unit.Name(), ".service") {
-			continue
-		}
-		body, err := os.ReadFile(filepath.Join("/etc/systemd/system", unit.Name()))
-		if err != nil {
+	directories := []string{"/etc/systemd/system"}
+	if systemUnits {
+		directories = append(directories, "/run/systemd/system", "/usr/lib/systemd/system")
+	}
+	for _, directory := range directories {
+		walkErr := filepath.WalkDir(directory, func(path string, entry os.DirEntry, err error) error {
+			if err != nil {
+				if !os.IsNotExist(err) {
+					complete = false
+				}
+				return nil
+			}
+			if entry.IsDir() || (!strings.HasSuffix(entry.Name(), ".service") && !strings.HasSuffix(entry.Name(), ".conf")) || !systemUnits && !strings.HasPrefix(entry.Name(), "zx-panel-app-") {
+				return nil
+			}
+			file, err := os.Open(path)
+			if err != nil {
+				complete = false
+				return nil
+			}
+			body, err := io.ReadAll(io.LimitReader(file, 1<<20+1))
+			file.Close()
+			if err != nil || len(body) > 1<<20 {
+				complete = false
+			} else if strings.Contains(string(body), needle) {
+				count++
+			}
+			return nil
+		})
+		if walkErr != nil {
 			complete = false
-			continue
-		}
-		if strings.Contains(string(body), needle) {
-			count++
 		}
 	}
 	return count, complete, pids

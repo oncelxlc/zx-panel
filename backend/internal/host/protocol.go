@@ -12,6 +12,10 @@ import (
 	"time"
 )
 
+// ProtocolVersion 标识包含外部运行时管理的 helper 协议版本。
+// 主服务遇到旧 helper 时要求更新并重启，而不是误报可管理。
+const ProtocolVersion = 2
+
 // Definition 保存生成 systemd unit 所必需的已验证字段。
 // 环境值只在受认证本机 Socket 内传输，禁止写入响应或日志。
 type Definition struct {
@@ -22,6 +26,8 @@ type Definition struct {
 	Args        []string          `json:"args"`
 	Restart     string            `json:"restart"`
 	Environment map[string]string `json:"environment"`
+	RuntimeID   string            `json:"runtimeId,omitempty"`
+	RuntimeKind string            `json:"runtimeKind,omitempty"`
 }
 
 // Request 是枚举动作协议，不能携带命令名、shell 或任意 unit 名称。
@@ -40,6 +46,25 @@ type Request struct {
 	From        string      `json:"from,omitempty"`
 	To          string      `json:"to,omitempty"`
 	Limit       int         `json:"limit,omitempty"`
+	Executable  string      `json:"executable,omitempty"`
+	Fingerprint string      `json:"fingerprint,omitempty"`
+}
+
+// RuntimeTarget 保存 helper 独立核实的安装来源与操作目标。
+// 指纹绑定可执行文件、包版本和系统入口，不能由浏览器指定包名或卸载目录。
+type RuntimeTarget struct {
+	Manager        string `json:"manager"`
+	Package        string `json:"package"`
+	PackageVersion string `json:"packageVersion"`
+	Executable     string `json:"executable"`
+	Root           string `json:"root"`
+	Command        string `json:"command"`
+	OwnerUID       int    `json:"ownerUid"`
+	OwnerGID       int    `json:"ownerGid"`
+	Home           string `json:"home"`
+	Fingerprint    string `json:"fingerprint"`
+	SystemDefault  bool   `json:"systemDefault"`
+	RemovalBlocked string `json:"removalBlocked"`
 }
 
 // State 是 systemd 已核实的快照，未知字段使用空值。
@@ -76,16 +101,18 @@ type InstallationEvidence struct {
 // Result 返回公开状态和固定错误代码，不回传子进程 stderr。
 // 内部命令失败的诊断由 helper 的本机 journal 保留。
 type Result struct {
-	OK           bool                  `json:"ok"`
-	Code         string                `json:"code,omitempty"`
-	State        *State                `json:"state,omitempty"`
-	Lines        []JournalLine         `json:"lines,omitempty"`
-	Path         string                `json:"path,omitempty"`
-	References   *int                  `json:"references,omitempty"`
-	Complete     bool                  `json:"complete,omitempty"`
-	More         bool                  `json:"more,omitempty"`
-	Installation *InstallationEvidence `json:"installation,omitempty"`
-	ProcessIDs   []int                 `json:"processIds,omitempty"`
+	ProtocolVersion int                   `json:"protocolVersion,omitempty"`
+	OK              bool                  `json:"ok"`
+	Code            string                `json:"code,omitempty"`
+	State           *State                `json:"state,omitempty"`
+	Lines           []JournalLine         `json:"lines,omitempty"`
+	Path            string                `json:"path,omitempty"`
+	References      *int                  `json:"references,omitempty"`
+	Complete        bool                  `json:"complete,omitempty"`
+	More            bool                  `json:"more,omitempty"`
+	Installation    *InstallationEvidence `json:"installation,omitempty"`
+	ProcessIDs      []int                 `json:"processIds,omitempty"`
+	Runtime         *RuntimeTarget        `json:"runtime,omitempty"`
 }
 
 // Client 每次调用独立建立 Unix 连接，超时同时终止远端操作。

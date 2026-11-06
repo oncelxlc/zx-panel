@@ -90,6 +90,17 @@ func TestOperationDiscriminators(t *testing.T) {
 			t.Fatalf("accepted invalid union: %s", body)
 		}
 	}
+	if _, err := DecodeOperation([]byte(`{"action":"runtime.set-system-default","installationId":"id","expectedRevision":"1"}`)); err != nil {
+		t.Fatal(err)
+	}
+	for _, body := range []string{
+		`{"action":"runtime.set-system-default","installationId":"id","expectedRevision":"1","executable":"/tmp/other"}`,
+		`{"action":"runtime.uninstall","installationId":"id","expectedRevision":"1","package":"bash"}`,
+	} {
+		if _, err := DecodeOperation([]byte(body)); err == nil {
+			t.Fatal("client-controlled runtime target accepted", body)
+		}
+	}
 }
 
 // TestVaultAndCursorBinding 验证加密用途、主体及筛选绑定，阻止密文和游标跨资源复制。

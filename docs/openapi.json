@@ -3605,6 +3605,9 @@
           "isPanelDefault": {
             "type": "boolean"
           },
+          "isSystemDefault": {
+            "type": "boolean"
+          },
           "configuredAppRefs": {
             "type": "integer",
             "minimum": 0,
@@ -3650,6 +3653,7 @@
           "ownership",
           "state",
           "isPanelDefault",
+          "isSystemDefault",
           "configuredAppRefs",
           "observedProcessRefs",
           "referenceCheckComplete",
@@ -3943,6 +3947,7 @@
             "enum": [
               "runtime.install",
               "runtime.set-default",
+              "runtime.set-system-default",
               "runtime.uninstall",
               "app.create",
               "app.update",
@@ -4125,6 +4130,7 @@
             "enum": [
               "runtime.install",
               "runtime.set-default",
+              "runtime.set-system-default",
               "runtime.uninstall",
               "app.create",
               "app.update",
@@ -4254,7 +4260,10 @@
             "properties": {
               "action": {
                 "type": "string",
-                "const": "runtime.set-default"
+                "enum": [
+                  "runtime.set-default",
+                  "runtime.set-system-default"
+                ]
               },
               "installationId": {
                 "type": "string",
@@ -5723,6 +5732,7 @@
                   "enum": [
                     "runtime.install",
                     "runtime.set-default",
+                    "runtime.set-system-default",
                     "runtime.uninstall",
                     "app.create",
                     "app.update",
@@ -6260,6 +6270,9 @@
                 "isPanelDefault": {
                   "type": "boolean"
                 },
+                "isSystemDefault": {
+                  "type": "boolean"
+                },
                 "configuredAppRefs": {
                   "type": "integer",
                   "minimum": 0,
@@ -6305,6 +6318,7 @@
                 "ownership",
                 "state",
                 "isPanelDefault",
+                "isSystemDefault",
                 "configuredAppRefs",
                 "observedProcessRefs",
                 "referenceCheckComplete",
@@ -6759,6 +6773,7 @@
                   "enum": [
                     "runtime.install",
                     "runtime.set-default",
+                    "runtime.set-system-default",
                     "runtime.uninstall",
                     "app.create",
                     "app.update",

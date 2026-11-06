@@ -20,10 +20,11 @@ import (
 // Work 保存已受理任务的独立加密输入，生命周期不依赖原计划过期。
 // Artifact 固定官方摘要；环境秘密只在解密后的短期内存中使用。
 type Work struct {
-	Operation Operation  `json:"operation"`
-	Artifact  *Artifact  `json:"artifact,omitempty"`
-	Kind      string     `json:"kind,omitempty"`
-	Logs      *LogFilter `json:"logs,omitempty"`
+	Operation Operation           `json:"operation"`
+	Artifact  *Artifact           `json:"artifact,omitempty"`
+	Kind      string              `json:"kind,omitempty"`
+	Logs      *LogFilter          `json:"logs,omitempty"`
+	Runtime   *host.RuntimeTarget `json:"runtime,omitempty"`
 }
 
 // Acceptance 是确认计划的严格输入，客户端不得再次改写操作参数。
@@ -44,7 +45,7 @@ func (s *Service) Preview(ctx context.Context, actor int64, op Operation) (Plan,
 		}
 		work.Artifact = &artifact
 	}
-	plan, err := s.inspect(ctx, work)
+	plan, err := s.inspect(ctx, &work)
 	if err != nil {
 		return plan, err
 	}
@@ -93,7 +94,7 @@ func (s *Service) Preview(ctx context.Context, actor int64, op Operation) (Plan,
 
 // inspect 每次受理和执行前重新检查能力、引用、路径、修订与空间。
 // 检查不完整时产生 blockedReasons，不能把未知值当作安全许可。
-func (s *Service) inspect(ctx context.Context, work Work) (Plan, error) {
+func (s *Service) inspect(ctx context.Context, work *Work) (Plan, error) {
 	op := work.Operation
 	plan := Plan{Action: op.Action, Summary: operationLabel(op.Action), Warnings: []Notice{}, BlockedReasons: []Notice{}, ResourceIDs: []string{}, Details: []PlanDetail{}}
 	block := func(code, message string) { plan.BlockedReasons = append(plan.BlockedReasons, Notice{code, message}) }
@@ -165,17 +166,56 @@ func (s *Service) inspect(ctx context.Context, work Work) (Plan, error) {
 		if installation.Revision != op.ExpectedRevision {
 			block("REVISION_CONFLICT", "安装实例已改变，请重新预检")
 		}
-		if installation.Ownership != "panel" {
-			block("EXTERNAL_READ_ONLY", "外部安装只读，不能修改或卸载")
-		}
-		if installation.State != "ready" && op.Action == "runtime.set-default" {
+		if installation.State != "ready" && op.Action != "runtime.uninstall" {
 			block("INSTALLATION_NOT_READY", "该实例未通过可用性核验")
+		}
+		if op.Action == "runtime.set-default" && installation.Kind != "node" && installation.Kind != "go" {
+			block("INVALID_INPUT", "面板默认预选只用于 Node.js 和 Go；其他类别可切换系统默认")
+		}
+		var targetResult host.Result
+		needsTarget := installation.Ownership == "external" || op.Action == "runtime.set-system-default"
+		if needsTarget && cap.InstallRuntime.Enabled {
+			request := runtimeTargetRequest("runtime.target", installation)
+			if op.Action == "runtime.uninstall" {
+				request.Action = "runtime.target-references"
+			}
+			var err error
+			targetResult, err = s.Host.Call(ctx, request)
+			if err != nil || targetResult.Runtime == nil {
+				block("RUNTIME_SOURCE_UNVERIFIED", "无法核实安装来源或目录权限；支持 apt/dpkg、Homebrew 和标准独立 Go 安装，不能对未知目录执行管理操作")
+			} else {
+				target := targetResult.Runtime
+				if op.Action == "runtime.set-system-default" && target.OwnerUID != 0 {
+					block("SYSTEM_DEFAULT_UNTRUSTED", "全局入口可能被 root 使用，不能指向普通账号可改写的 Homebrew 程序；可设为面板默认或绑定应用，系统默认请选择 root 保护的安装")
+				}
+				if work.Runtime == nil {
+					work.Runtime = target
+				} else if work.Runtime.Fingerprint != target.Fingerprint {
+					block("REVISION_CONFLICT", "运行时文件、软件包或系统入口已改变，请重新预检")
+				}
+				plan.Details = append(plan.Details, PlanDetail{"安装管理器", target.Manager}, PlanDetail{"实际操作目标", target.Root})
+				if target.Package != "" {
+					plan.Details = append(plan.Details, PlanDetail{"软件包", target.Package + " " + target.PackageVersion})
+				}
+			}
+		}
+		if op.Action == "runtime.set-system-default" {
+			confirmation := installation.Version
+			plan.ConfirmationText = &confirmation
+			entry := filepath.Join("/usr/local/bin", host.RuntimeCommand(installation.Kind))
+			plan.Details = append(plan.Details, PlanDetail{"系统命令入口", entry})
+			if info, err := os.Lstat(entry); err == nil && info.Mode()&os.ModeSymlink == 0 {
+				block("SYSTEM_ENTRY_CONFLICT", "系统入口是已有普通文件，不会覆盖；请先由管理员处理该冲突")
+			} else if err != nil && !os.IsNotExist(err) {
+				block("SYSTEM_ENTRY_UNAVAILABLE", "无法核实系统入口")
+			}
+			plan.Warnings = append(plan.Warnings, Notice{"SYSTEM_DEFAULT_CHANGE", "切换 /usr/local/bin 的系统入口，影响之后通过公共 PATH 启动的程序；已有进程、显式路径和用户自行前置的 PATH 不变"})
 		}
 		if op.Action == "runtime.uninstall" {
 			text := installation.Version
 			plan.ConfirmationText = &text
-			if installation.IsPanelDefault {
-				block("DEFAULT_IN_USE", "请先切换面板默认版本")
+			if installation.IsPanelDefault || installation.IsSystemDefault {
+				block("DEFAULT_IN_USE", "请先切换面板或系统默认版本")
 			}
 			if installation.ConfiguredAppRefs > 0 {
 				block("RUNTIME_IN_USE", "已有应用配置绑定此安装")
@@ -187,10 +227,23 @@ func (s *Service) inspect(ctx context.Context, work Work) (Plan, error) {
 				} else if *result.References > 0 {
 					block("RUNTIME_IN_USE", "运行进程或 unit 仍引用此安装")
 				}
+			} else if installation.Ownership == "external" && targetResult.Runtime != nil {
+				if !targetResult.Complete || targetResult.References == nil {
+					block("REFERENCE_CHECK_INCOMPLETE", "无法完整核实进程与系统 unit 引用")
+				} else if *targetResult.References > 0 {
+					block("RUNTIME_IN_USE", "运行进程或系统 unit 仍引用此安装")
+				}
+				if targetResult.Runtime.RemovalBlocked != "" {
+					block("PACKAGE_DEPENDENCY_BLOCKED", targetResult.Runtime.RemovalBlocked)
+				}
 			} else {
 				block("REFERENCE_CHECK_INCOMPLETE", "无法完成特权引用检查")
 			}
-			plan.Warnings = append(plan.Warnings, Notice{"REMOVE_RUNTIME", "仅移除此面板安装目录，应用文件和日志保留"})
+			message := "仅移除此面板安装目录，应用文件和日志保留"
+			if installation.Ownership == "external" {
+				message = "卸载上述原安装：apt/dpkg 保留配置且不自动卸载其他包；Homebrew 保留依赖保护；独立 Go 移除其完整安装目录。应用文件和日志保留"
+			}
+			plan.Warnings = append(plan.Warnings, Notice{"REMOVE_RUNTIME", message})
 		}
 	} else if strings.HasPrefix(op.Action, "app.") {
 		if op.Action != "app.create" {
@@ -245,8 +298,12 @@ func (s *Service) inspect(ctx context.Context, work Work) (Plan, error) {
 						return plan, err
 					}
 					plan.ResourceIDs = append(plan.ResourceIDs, installation.ID)
-					if installation.Kind != "node" || installation.Ownership != "panel" || installation.State != "ready" {
-						block("INSTALLATION_NOT_READY", "应用必须绑定可用的具体面板 Node.js 安装")
+					if installation.Kind != "node" || installation.State != "ready" {
+						block("INSTALLATION_NOT_READY", "应用必须绑定可用的具体 Node.js 安装")
+					} else if installation.Ownership == "external" && cap.ManageApps.Enabled {
+						if _, err := s.Host.Call(ctx, runtimeTargetRequest("runtime.target", installation)); err != nil {
+							block("RUNTIME_SOURCE_UNVERIFIED", "helper 无法核实外部 Node.js 的来源或执行权限")
+						}
 					}
 					root, err := os.OpenRoot(directory)
 					if err != nil {
@@ -370,6 +427,9 @@ func (s *Service) Accept(ctx context.Context, actor int64, key string, input Acc
 	if time.Now().After(plan.ExpiresAt) || len(encrypted) == 0 {
 		return Task{}, Fail(409, "PLAN_EXPIRED", "预检计划已过期")
 	}
+	if !plan.CanExecute {
+		return Task{}, Fail(409, "PLAN_BLOCKED", "原预检未通过，请重新预检并核对当前操作范围")
+	}
 	if plan.ConfirmationText != nil && (input.ConfirmationText == nil || *input.ConfirmationText != *plan.ConfirmationText) {
 		return Task{}, Fail(422, "CONFIRMATION_REQUIRED", "确认文本与预检目标不符")
 	}
@@ -381,7 +441,7 @@ func (s *Service) Accept(ctx context.Context, actor int64, key string, input Acc
 	if err = json.Unmarshal(plain, &work); err != nil {
 		return Task{}, err
 	}
-	check, err := s.inspect(ctx, work)
+	check, err := s.inspect(ctx, &work)
 	if err != nil {
 		return Task{}, err
 	}

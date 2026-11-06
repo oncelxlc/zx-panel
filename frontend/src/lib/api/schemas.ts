@@ -120,6 +120,7 @@ export const installationSchema = z.object({
   ownership: z.enum(["panel", "external"]),
   state: z.enum(["ready", "broken", "incompatible", "unknown"]),
   isPanelDefault: z.boolean(),
+  isSystemDefault: z.boolean(),
   configuredAppRefs: z.number().int().nonnegative(),
   observedProcessRefs: z.number().int().nonnegative().nullable(),
   referenceCheckComplete: z.boolean(),
@@ -191,6 +192,7 @@ export const taskSchema = z.object({
   action: z.enum([
     "runtime.install",
     "runtime.set-default",
+    "runtime.set-system-default",
     "runtime.uninstall",
     "app.create",
     "app.update",
@@ -231,6 +233,7 @@ export const planSchema = z.object({
   action: z.enum([
     "runtime.install",
     "runtime.set-default",
+    "runtime.set-system-default",
     "runtime.uninstall",
     "app.create",
     "app.update",

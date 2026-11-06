@@ -57,6 +57,8 @@ export const bootstrapQuery = queryOptions({
   queryKey: ["bootstrap"],
   queryFn: ({ signal }) => request("/bootstrap", bootstrapSchema, { signal }),
   staleTime: 60000,
+  refetchInterval: 30000,
+  refetchOnWindowFocus: true,
 });
 /** capabilitiesQuery 为界面提供当前操作可用性。 */
 export const capabilitiesQuery = queryOptions({
@@ -64,12 +66,16 @@ export const capabilitiesQuery = queryOptions({
   queryFn: ({ signal }) =>
     request("/system/capabilities", capabilitiesSchema, { signal }),
   staleTime: 30000,
+  refetchInterval: 30000,
+  refetchOnWindowFocus: true,
 });
-/** runtimesQuery 不混淆安装数量和应用运行状态。 */
+/** runtimesQuery 接收实时失效通知，并定时补查，避免断流后永久保留旧安装。 */
 export const runtimesQuery = queryOptions({
   queryKey: ["runtimes"],
   queryFn: ({ signal }) =>
     request("/runtimes", z.array(summarySchema), { signal }),
+  refetchInterval: 30000,
+  refetchOnWindowFocus: true,
 });
 /** installationsQuery 按运行时缓存真实安装实例。 */
 export function installationsQuery(kind: string, cursor = "") {
@@ -81,6 +87,8 @@ export function installationsQuery(kind: string, cursor = "") {
         pageSchema(installationSchema),
         { signal },
       ),
+    refetchInterval: 30000,
+    refetchOnWindowFocus: true,
   });
 }
 /** releasesQuery 目录缓存十分钟，手动检查时失效。 */

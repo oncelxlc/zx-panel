@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"slices"
 	"testing"
 	"time"
 )
@@ -41,6 +42,47 @@ func TestExternalRuntimeVersions(t *testing.T) {
 			if got != test.want {
 				t.Fatalf("%s: version %q, want %q", test.kind, got, test.want)
 			}
+		}
+	}
+}
+
+// TestExternalRuntimeRelocation 验证共用扫描在 PATH 缺失时发现安装，并在目录迁移后重新定位。
+// 开发与正式模式使用同一入口；临时 HOME 隔离测试，不执行主机已有运行时。
+func TestExternalRuntimeRelocation(t *testing.T) {
+	if runtime.GOOS != "linux" {
+		t.Skip("external runtime commands require Linux")
+	}
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	t.Setenv("PATH", filepath.Join(home, "removed-toolchain", "bin"))
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	previous := ""
+	for _, directory := range []string{".local/bin", "sdk/go1.27.3/bin", ".linuxbrew/bin", ".linuxbrew/opt/go/libexec/bin"} {
+		bin := filepath.Join(home, directory)
+		if err := os.MkdirAll(bin, 0700); err != nil {
+			t.Fatal(err)
+		}
+		path := filepath.Join(bin, "go")
+		if previous == "" {
+			if err := os.WriteFile(path, []byte("#!/bin/sh\nprintf 'go version go1.27.3 linux/amd64\\n'\n"), 0700); err != nil {
+				t.Fatal(err)
+			}
+		} else if err := os.Rename(previous, path); err != nil {
+			t.Fatal(err)
+		}
+		previous = path
+		paths := externalRuntimePaths()
+		if !slices.Contains(paths, "/usr/local/go/bin") || !slices.Contains(paths, bin) {
+			t.Fatal("standard or current-account Go directory missing", paths)
+		}
+		paths = slices.DeleteFunc(paths, func(path string) bool { return !pathWithin(home, path) })
+		items, err := scanExternalRuntimes(ctx, filepath.Join(home, "panel"), paths)
+		if err != nil || len(items) != 1 {
+			t.Fatalf("discovery after moving to %s: %v, %v", path, items, err)
+		}
+		if item := items[0]; item.Path != path || item.Kind != "go" || item.Version != "1.27.3" || item.State != "ready" || item.Ownership != "external" {
+			t.Fatal("moved Go installation was not rediscovered", item)
 		}
 	}
 }

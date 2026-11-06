@@ -162,7 +162,7 @@ export function RuntimesPage() {
                   </p>
                 ) : (
                   <p className="text-xs text-muted-foreground">
-                    系统安装只读 · 查看版本与安装路径
+                    系统安装 · 按来源预检并管理
                   </p>
                 )}
               </CardContent>
@@ -176,7 +176,7 @@ export function RuntimesPage() {
                   }
                 >
                   {runtime.kind !== "node" && runtime.kind !== "go"
-                    ? "查看安装"
+                    ? "管理安装"
                     : runtime.panelCount + runtime.externalCount === 0
                       ? "安装版本"
                       : "管理版本"}
@@ -213,6 +213,7 @@ export function RuntimeDetailPage() {
   const references = useQuery({
     queryKey: ["runtime-references", referenceID],
     enabled: referencesOpen,
+    refetchInterval: 30000,
     queryFn: ({ signal }) =>
       request(
         `/runtime-installations/${encodeURIComponent(referenceID)}/references`,
@@ -267,7 +268,7 @@ export function RuntimeDetailPage() {
         title={kind === "go" ? "Go 工具链" : description.name}
         description={
           !managed
-            ? "自动展示系统已安装版本与路径；外部安装只读"
+            ? "定时发现已安装版本；按安装来源切换系统默认或卸载"
             : kind === "node"
               ? "多版本隔离安装，应用绑定具体安装实例"
               : "工具链升级不会重编译或更新已有 Go 应用"
@@ -392,7 +393,7 @@ export function RuntimeDetailPage() {
           <CardHeader>
             <CardTitle>安装实例</CardTitle>
             <CardDescription>
-              外部发现的版本只读；默认版本与引用中的版本不可卸载。
+              面板与系统安装均需预检；默认版本、依赖和引用未解除时不可卸载。
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -409,7 +410,10 @@ export function RuntimeDetailPage() {
                     <div className="flex items-center gap-2">
                       <code>{item.version}</code>
                       {item.isPanelDefault && (
-                        <Badge variant="outline">默认</Badge>
+                        <Badge variant="outline">面板默认</Badge>
+                      )}
+                      {item.isSystemDefault && (
+                        <Badge variant="outline">系统默认</Badge>
                       )}
                     </div>,
                     item.ownership === "external" ? "外部发现" : "面板管理",
@@ -422,10 +426,8 @@ export function RuntimeDetailPage() {
                       {item.configuredAppRefs} 个应用 · 查看引用
                     </Button>,
                     <Status status={item.state} />,
-                    item.ownership === "external" ? (
-                      <Badge variant="outline">只读</Badge>
-                    ) : (
-                      <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
+                      {managed && (
                         <Button
                           variant="outline"
                           size="sm"
@@ -442,7 +444,20 @@ export function RuntimeDetailPage() {
                             })
                           }
                         >
-                          设为默认
+                          设为面板默认
+                        </Button>
+                      )}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          disabled={item.isSystemDefault || item.state !== "ready" || !capabilities?.changeRuntimeDefault.enabled}
+                          onClick={() => setOperation({
+                            action: "runtime.set-system-default",
+                            installationId: item.id,
+                            expectedRevision: item.revision,
+                          })}
+                        >
+                          设为系统默认
                         </Button>
                         <Button
                           variant="ghost"
@@ -458,8 +473,7 @@ export function RuntimeDetailPage() {
                         >
                           卸载预检
                         </Button>
-                      </div>
-                    ),
+                      </div>,
                   ],
                 }))}
                 empty="尚未发现已安装版本"
@@ -490,7 +504,7 @@ export function RuntimeDetailPage() {
           </CardContent>
         </Card>
       )}
-      {managed && capabilities && !capabilities.installRuntime.enabled && (
+      {capabilities && !capabilities.installRuntime.enabled && (
         <Alert>
           <AlertTitle>当前环境仅支持可用的只读能力</AlertTitle>
           <AlertDescription>

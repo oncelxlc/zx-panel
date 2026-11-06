@@ -16,8 +16,29 @@ command -v setsid >/dev/null || fail 'WSL 中找不到 setsid，请安装 util-l
 [[ -f frontend/package.json && -f backend/go.mod ]] || fail 'WSL 无法访问完整仓库，请检查共享仓库路径。'
 cd -- "$service"
 
+# 每次启动重新查找现有安装；只补充本进程 PATH，保留用户已有工具的优先级。
+tool_paths=()
+if [[ "${HOME:-}" == /* ]]; then
+  tool_paths+=("$HOME/.local/bin" "$HOME/.asdf/shims" "$HOME/.local/share/mise/shims" "$HOME/.linuxbrew/bin")
+  if [[ "$service" == backend ]]; then
+    tool_paths+=("$HOME"/sdk/go*/bin)
+  else
+    tool_paths+=("$HOME"/.nvm/versions/node/*/bin)
+  fi
+fi
+if [[ "$service" == backend ]]; then
+  tool_paths+=(/usr/local/go/bin /opt/go/bin /usr/lib/go*/bin)
+elif [[ "${NVM_DIR:-}" == /* ]]; then
+  tool_paths+=("$NVM_DIR"/versions/node/*/bin)
+fi
+tool_paths+=(/usr/local/bin /usr/bin /bin /snap/bin /home/linuxbrew/.linuxbrew/bin)
+for directory in "${tool_paths[@]}"; do
+  [[ -d "$directory" ]] && PATH="${PATH:+$PATH:}$directory"
+done
+export PATH
+
 if [[ "$service" == frontend ]]; then
-  command -v node >/dev/null || fail 'WSL 中找不到 Node.js，请安装 Linux Node.js 并加入 Bash 的 PATH。'
+  command -v node >/dev/null || fail 'WSL 当前 PATH 和常见安装目录中找不到 Node.js，请安装 Linux Node.js。'
   node --input-type=module <<'NODE'
 import { createRequire } from "node:module";
 /** fail 报告 Node 平台、版本或原生依赖不满足开发条件。 */
@@ -36,14 +57,14 @@ NODE
   export VITE_DATA_MODE=api
   command=(node node_modules/vite/bin/vite.js "$@")
 else
-  command -v go >/dev/null || fail 'WSL 中找不到 Go，请安装并加入 Bash 的 PATH。'
+  command -v go >/dev/null || fail 'WSL 当前 PATH 和常见安装目录中找不到 Go，请安装 Linux Go 1.25 或更高版本。'
   [[ "$(GOTOOLCHAIN=local go env GOOS GOHOSTOS)" == $'linux\nlinux' ]] || fail 'WSL 后端需要 Linux Go，且 GOOS 必须为 linux。'
   go_version=$(GOTOOLCHAIN=local go env GOVERSION)
   [[ "$go_version" =~ ^go([0-9]+)\.([0-9]+) ]] || fail '无法识别 WSL Go 版本，请使用 Go 1.25 或更高版本。'
   (( BASH_REMATCH[1] > 1 || (BASH_REMATCH[1] == 1 && BASH_REMATCH[2] >= 25) )) || fail 'WSL Go 版本过低，请安装 Go 1.25 或更高版本。'
-  # 可选本机开发配置使数据和密钥位于 Linux 文件系统，避免 Windows 挂载盘权限失真。
+  # 默认服务使用本机开发配置；显式 CLI 子命令由调用者传 --config，避免选项挡住命令名。
   backend_args=()
-  if [[ -f configs/dev.json ]]; then
+  if [[ -f configs/dev.json && ( $# -eq 0 || "$1" == -* ) ]]; then
     backend_args=(--config configs/dev.json)
   fi
   command=(go run -tags devassets ./cmd/server "${backend_args[@]}" "$@")

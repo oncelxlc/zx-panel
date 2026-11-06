@@ -46,6 +46,7 @@ export const statusLabels: Record<string, string> = {
 export const actionLabels: Record<string, string> = {
   "runtime.install": "安装运行时",
   "runtime.set-default": "设置默认版本",
+  "runtime.set-system-default": "切换系统默认",
   "runtime.uninstall": "卸载运行时",
   "app.create": "登记应用",
   "app.update": "保存应用配置",

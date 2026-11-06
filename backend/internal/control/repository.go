@@ -7,7 +7,9 @@ import (
 	"errors"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"path/filepath"
 	"strconv"
+	"zx-panel/internal/host"
 )
 
 // Repository 集中参数化业务 SQL 和事务边界。
@@ -123,6 +125,11 @@ func (r *Repository) Installations(ctx context.Context, kind string) ([]Installa
 		item.Revision = Revision(revision)
 		item.IsPanelDefault = def
 		item.ConfiguredAppRefs = refs
+		executable := item.Path
+		if item.Ownership == "panel" {
+			executable = filepath.Join(item.Path, "bin", host.RuntimeCommand(item.Kind))
+		}
+		item.IsSystemDefault = host.IsSystemRuntimeDefault(item.Kind, executable)
 		items = append(items, item)
 	}
 	return items, rows.Err()

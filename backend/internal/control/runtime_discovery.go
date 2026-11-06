@@ -38,7 +38,7 @@ var externalRuntimes = []externalRuntime{
 }
 
 // IsRuntimeKind 允许查询已支持探测的运行时类别。
-// 安装目录与写操作仍独立限制为 Node.js 和 Go。
+// 新安装仍限 Node.js 和 Go，外部安装管理另由 helper 核实来源。
 func IsRuntimeKind(kind string) bool {
 	for _, probe := range externalRuntimes {
 		if probe.kind == kind {
@@ -53,12 +53,13 @@ func IsRuntimeKind(kind string) bool {
 func externalRuntimePaths() []string {
 	paths := filepath.SplitList(os.Getenv("PATH"))
 	paths = append(paths, "/usr/local/bin", "/usr/bin", "/bin", "/snap/bin", "/usr/local/go/bin", "/opt/go/bin", "/home/linuxbrew/.linuxbrew/bin", "/usr/share/dotnet", "/usr/local/share/dotnet", "/opt/dotnet")
-	patterns := []string{"/usr/lib/go*/bin", "/usr/lib/jvm/*/bin"}
+	patterns := []string{"/usr/lib/go*/bin", "/usr/lib/jvm/*/bin", "/home/linuxbrew/.linuxbrew/opt/*/bin", "/home/linuxbrew/.linuxbrew/opt/*/libexec/bin"}
 	if home, err := os.UserHomeDir(); err == nil && filepath.IsAbs(home) {
-		for _, directory := range []string{".local/bin", ".cargo/bin", ".bun/bin", ".deno/bin", ".dotnet", ".asdf/shims", ".local/share/mise/shims"} {
+		for _, directory := range []string{".local/bin", ".linuxbrew/bin", ".cargo/bin", ".bun/bin", ".deno/bin", ".dotnet", ".asdf/shims", ".local/share/mise/shims"} {
 			paths = append(paths, filepath.Join(home, directory))
 		}
-		patterns = append(patterns, filepath.Join(home, ".nvm/versions/node/*/bin"), filepath.Join(home, ".rustup/toolchains/*/bin"))
+		patterns = append(patterns, filepath.Join(home, "sdk/go*/bin"), filepath.Join(home, ".nvm/versions/node/*/bin"), filepath.Join(home, ".rustup/toolchains/*/bin"))
+		patterns = append(patterns, filepath.Join(home, ".linuxbrew/opt/*/bin"), filepath.Join(home, ".linuxbrew/opt/*/libexec/bin"))
 	}
 	for variable, directory := range map[string]string{"NVM_DIR": "versions/node/*/bin", "CARGO_HOME": "bin", "RUSTUP_HOME": "toolchains/*/bin"} {
 		if root := os.Getenv(variable); filepath.IsAbs(root) {

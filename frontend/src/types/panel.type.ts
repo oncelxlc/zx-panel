@@ -142,6 +142,7 @@ export interface RuntimeInstallation {
   ownership: "panel" | "external";
   state: "ready" | "broken" | "incompatible" | "unknown";
   isPanelDefault: boolean;
+  isSystemDefault: boolean;
   configuredAppRefs: number;
   observedProcessRefs: number | null;
   referenceCheckComplete: boolean;
@@ -212,7 +213,7 @@ export type EnvironmentChange =
 export type OperationSpec =
   | { action: "runtime.install"; releaseId: string; makeDefault: boolean }
   | {
-      action: "runtime.set-default";
+      action: "runtime.set-default" | "runtime.set-system-default";
       installationId: string;
       expectedRevision: string;
     }

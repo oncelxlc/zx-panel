@@ -8,7 +8,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"zx-panel/internal/host"
 )
 
 // RuntimeSummary 分开呈现安装事实与目录缓存状态。
@@ -96,8 +95,12 @@ func (s *Service) References(ctx context.Context, id string) (References, error)
 	}
 	pids, complete := inspectProcessReferences(installation.Path)
 	unitReferences := 0
-	if installation.Ownership == "panel" && s.Config.Helper.Enabled {
-		response, e := s.Host.Call(ctx, host.Request{Action: "runtime.references", ID: id, Kind: installation.Kind})
+	if s.Config.Helper.Enabled {
+		request := runtimeTargetRequest("runtime.references", installation)
+		if installation.Ownership == "external" {
+			request.Action = "runtime.target-references"
+		}
+		response, e := s.Host.Call(ctx, request)
 		if e == nil && response.References != nil {
 			pids, complete = response.ProcessIDs, response.Complete
 			unitReferences = *response.References - len(pids)
@@ -135,6 +138,9 @@ func (s *Service) References(ctx context.Context, id string) (References, error)
 // DiscoverExternal 保存系统位置与服务账号可访问工具链的只读安装事实。
 // 可执行版本读取在非 root 主服务身份下运行；未再次发现的记录降为未知。
 func (s *Service) DiscoverExternal(ctx context.Context) error {
+	// 扫描与卸载提交互斥，避免把卸载前读到的旧快照重新写回登记。
+	s.runtimeMu.Lock()
+	defer s.runtimeMu.Unlock()
 	items, err := scanExternalRuntimes(ctx, s.Config.Paths.RuntimeRoot, externalRuntimePaths())
 	if err != nil {
 		return err

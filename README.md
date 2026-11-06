@@ -1,5 +1,7 @@
 # zx-panel v1.1
 
+本轮新增外部运行时管理、系统默认切换及权限重启提示；代码与隔离测试已更新，真实 apt/Homebrew 卸载和新部署模板验收仍待完成，下述历史验收不自动适用于这些修改。
+
 单机 Linux 服务器管理面板。Vite + React + TypeScript / shadcn Base UI + Nova，Go + Gin / PostgreSQL。管理目标始终是面板所在机器。
 
 前端普通反馈统一使用右上角 shadcn Toast：默认折叠，悬停或键盘聚焦时展开，最多显示 8 条。字段校验、操作确认及必须持续可见的状态信息保留在原位置，具体边界见[操作反馈规范](docs/implementation.md#63-操作反馈)。
@@ -63,16 +65,16 @@ pnpm dev:frontend:wsl --port 7203
 
 Windows 与 WSL 应使用各自的 `node_modules`。运行 WSL 前端前，在 WSL 的独立仓库副本中用 **Linux Node.js 和 pnpm** 执行 `pnpm install --frozen-lockfile`；两端共用挂载目录时切换依赖平台会影响另一端开发。脚本只检查并报告问题，不自动安装或替换依赖。
 
-联合命令启动前检查 WSL 及默认发行版、交互式登录 Bash 的 Go 和 `setsid`（util-linux）、默认非 root 用户及仓库路径；检查失败返回非零状态，前后端均不启动。交互式登录 Bash 会加载用户登录与交互配置中的工具 PATH（例如 `.profile`、`.bashrc`），兼容 Homebrew 等安装方式。先在 WSL 中安装 Go（最低 1.25）并加入 Bash 的 PATH，配置 WSL 可访问的独立开发 PostgreSQL，再从仓库目录执行以下准备命令（已有账号升级仍须按下文备份）：
+联合命令启动前检查 WSL 及默认发行版、Go 和 `setsid`（util-linux）、默认非 root 用户及仓库路径；检查失败返回非零状态，前后端均不启动。联合与独立命令每次启动都会加载当前交互式登录 Bash 环境，并补充探测常见系统和当前账号的工具目录（包括 `/usr/local/go/bin`、`/opt/go/bin`、`~/sdk/go*/bin`、Homebrew、nvm 和工具管理器 shims）。已有 PATH 优先，探测只补充本次进程环境，不写 shell 配置或保存工具绝对路径；常见位置的安装迁移后无需重新配置项目。先在 WSL 中安装 Go（最低 1.25），配置 WSL 可访问的独立开发 PostgreSQL，再从仓库目录执行以下准备命令（已有账号升级仍须按下文备份）：
 
 ```powershell
 # WSL 开发先复制 backend/configs/dev.example.json 为 backend/configs/dev.json，
 # 将 paths 改为 WSL 用户目录下的绝对 Linux 路径；密钥目录 0700、密钥 0600。
-wsl --exec bash -lic 'go -C backend run -tags devassets ./cmd/server migrate up --config configs/dev.json'
-wsl --exec bash -lic 'go -C backend run -tags devassets ./cmd/server setup-token --config configs/dev.json'
+pnpm dev:backend:wsl migrate up --config configs/dev.json
+pnpm dev:backend:wsl setup-token --config configs/dev.json
 ```
 
-后端命令使用 `backend/.env`，存在已忽略的 `backend/configs/dev.json` 时也会加载该后端配置；CLI 迁移、备份等命令应显式使用相同 `--config configs/dev.json`（Go 的 `-C backend` 已切换工作目录）。备份客户端 `pg_dump` 的版本不能低于数据库；当前 WSL/Compose 开发环境的客户端用法见 [启动验证记录](docs/verification.md#2026-10-01-开发环境启动验证)。不自动启动数据库、迁移或创建管理员。`dev:all` 需要 Windows 到 WSL 的 localhost 转发可用，任一服务退出都会停止另一侧，Ctrl+C 同时退出；Go 最多留出 40 秒排空。Vite 仍通过 `/api` 代理访问 25000，`pnpm dev` 和 `pnpm dev:mock` 保持原有行为。
+后端命令使用 `backend/.env`，默认启动服务时也会加载已存在且忽略提交的 `backend/configs/dev.json`；CLI 迁移、备份等显式子命令应自行传入相同 `--config configs/dev.json`（启动脚本已切换到 `backend/` 工作目录）。备份客户端 `pg_dump` 的版本不能低于数据库；当前 WSL/Compose 开发环境的客户端用法见 [启动验证记录](docs/verification.md#2026-10-01-开发环境启动验证)。不自动启动数据库、迁移或创建管理员。`dev:all` 需要 Windows 到 WSL 的 localhost 转发可用，任一服务退出都会停止另一侧，Ctrl+C 同时退出；Go 最多留出 40 秒排空。Vite 仍通过 `/api` 代理访问 25000，`pnpm dev` 和 `pnpm dev:mock` 保持原有行为。
 
 `scripts/` 按用途拆分：`dev/` 开发启动与环境检查，`build/` 前端发布资源及 Linux 二进制构建，`contract/` OpenAPI 生成与契约校验，`test/` 隔离 API 浏览器测试，`security/` 秘密扫描，`acceptance/` WSL/QEMU 验收和资源测量。验收脚本的实验范围与授权要求见 [Linux 验收清单](docs/linux-acceptance.md)。
 
@@ -97,8 +99,12 @@ go -C backend run -tags devassets ./cmd/server migrate up --backup ./before-v1.1
 - 安装只接受固定官方 HTTPS 来源与 SHA-256；下载 ≤512 MiB、展开 ≤2 GiB / 100,000 项。运行时总配额 20 GiB、暂存 3 GiB、已验证缓存 2 GiB，导出总配额 500 MiB。磁盘空间不足不会自动删除安装。
 - Node.js 25+ 官方包需要系统 `libatomic`；安装会以受限账号核对版本，未通过不提交。平台下限及来源见 [Node 官方构建说明](https://github.com/nodejs/node/blob/main/BUILDING.md)。
 - 单 worker 串行执行变更。先预检、确认、持久受理，再执行与核验；断开浏览器不取消任务。恢复时只认 root 提交标记和数据库证据，不盲目重放。
-- 新运行时保留旧版本与已有绑定；默认值只影响新建应用的预选。外部安装只读；默认、配置或进程引用、扫描不完整均阻止卸载。
-- 运行时页自动识别 Node.js、Go、Rust、Python、Java、PHP、Ruby、.NET、Bun、Deno，展示版本、路径与状态；启动后立即扫描，之后每分钟刷新。扫描范围为 Linux 主服务 PATH、常见系统位置和当前账号的常见工具链目录（包括 Homebrew、nvm、rustup）；不加载其他账号的 shell 配置，服务沙箱不可访问的安装不会被发现。新增类别只读，面板安装仍限于 Node.js/Go；使用前按上述备份流程执行追加的 003 迁移。
+- 新运行时保留旧版本与已有绑定。“面板默认”只影响 Node.js/Go 的后续预选，已核实来源的外部 Node.js 可绑定应用；“系统默认”是单独确认的操作，原子切换 `/usr/local/bin` 的固定命令入口，不覆盖已有普通文件或 `/usr/bin` 包文件。全局入口仅接受 root 保护的安装，禁止将普通账号可改写的 Homebrew 程序放入 root 可能使用的系统入口；Homebrew 仍可设面板默认、绑定应用和按来源卸载。系统入口影响之后通过公共 PATH 启动的程序，既有进程、显式路径及用户前置 PATH 不变。
+- 运行时页自动识别 Node.js、Go、Rust、Python、Java、PHP、Ruby、.NET、Bun、Deno。开发和正式后端启动后立即扫描，之后每分钟重新查找实际安装；页面接收 SSE 更新，并每 30 秒补查列表、引用和管理能力，恢复窗口焦点时也重新获取。扫描服务 PATH、常见系统位置和当前账号工具链目录，包括 Homebrew opt/keg-only、`~/sdk/go*/bin`、nvm、rustup；不加载 shell 配置，不使用构建时或上次发现的固定路径。新位置作为新实例出现，消失的旧位置标为未知。
+- 外部安装不再统一只读。helper 独立核实 apt/dpkg 运行时包、标准 Homebrew 前缀（同一 formula 仅一个已安装 keg），以及 `/usr/local/go`、`/opt/go` 的独立 Go 安装。预检展示原安装/软件包和影响范围，确认、受理和执行时重新核对指纹、依赖、默认值及进程/unit 引用。dpkg 精确卸载目标包并保留配置，不自动卸载其他包；Homebrew 以安装所属账号执行，不使用 force 或 ignore-dependencies。来源不明、不可访问或核验不完整时明确阻止，不把未知目录当作可删除安装。官方新版本安装仍限于 Node.js/Go。
+- 管理功能需要匹配的 helper v2 和更新后的 systemd 模板。进入界面时若 helper 未启用、不可用或版本过旧，会提示由管理员配置并以 sudo 启动/重启 helper；首次启用需重启 Go 后端，之后可点击重新检查。**Go Web 后端保持非 root，不通过浏览器收集 sudo 密码。** 新增包管理与模板权限尚未完成真实卸载验收，旧的 M0–M5 产物摘要不覆盖本轮修改，详见[权限变化](docs/helper-permission-decision.md)。
+
+Mock 模式的 `?scenario=helper-unavailable` 可复现进入界面时的权限提示与重启指引，不操作真实服务。
 - 正式 helper 使用已批准的 `CAP_SYS_PTRACE` 检查跨账号可执行文件引用，并过滤 ptrace、process_vm_readv/writev、kcmp。引用未知或不完整时仍禁止卸载；权限及验证边界见 [权限决定](docs/helper-permission-decision.md)。
 - 新应用只登记并保持停止，保存配置不隐式重启。删除只移除登记/unit，保留项目文件和已有 journal。环境值 AES-GCM 加密，主密钥必须独立备份。
 - 原始指标 2 秒共享采集、15 分钟环形缓冲；文件系统 15 秒采集；历史按 10 秒聚合保留最多 24 小时 / 128 MiB。未知和预热值为 null，历史缺口不插值。

@@ -54,7 +54,7 @@ export const operationSchema = z.discriminatedUnion("action", [
     .strict(),
   z
     .object({
-      action: z.literal("runtime.set-default"),
+      action: z.enum(["runtime.set-default", "runtime.set-system-default"]),
       installationId: z.string().min(1),
       expectedRevision: z.string().min(1),
     })

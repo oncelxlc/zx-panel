@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import childProcess from "node:child_process";
 import { EventEmitter } from "node:events";
-import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, rename, rm, symlink, writeFile } from "node:fs/promises";
 import { release } from "node:os";
 import { delimiter, resolve } from "node:path";
 import test from "node:test";
@@ -133,7 +133,7 @@ test("普通 Linux 不能通过 WSL 环境检查", { skip: process.platform !== 
   assert.match(result.stderr, /必须在 WSL 中运行/);
 });
 
-test("Bash 检查拒绝 root、非 WSL、错误工具平台及旧版本，检查模式不启动服务", { skip: process.platform !== "linux" }, async () => {
+test("Bash 启动探测迁移后的工具，保留平台和版本检查且检查模式不启动服务", { skip: process.platform !== "linux" }, async () => {
   await mkdir(new URL("../test-results/", import.meta.url), { recursive: true });
   const directory = await mkdtemp(fileURLToPath(new URL("../test-results/dev-wsl-", import.meta.url)));
   try {
@@ -187,6 +187,35 @@ test("Bash 检查拒绝 root、非 WSL、错误工具平台及旧版本，检查
       const result = check(env, service);
       assert.equal(result.status, 1);
       assert.match(result.stderr, message);
+    }
+
+    // 隔离 PATH，模拟 Go 未加入环境且随后迁移目录，不依赖主机安装。
+    for (const name of ["bash", "dirname", "setsid"]) {
+      await symlink(`/usr/bin/${name}`, `${directory}/${name}`);
+    }
+    const home = `${directory}/home with spaces`;
+    let previousGo = `${directory}/go`;
+    for (const location of [".local/bin", "sdk/go1.27.3/bin"]) {
+      const bin = `${home}/${location}`;
+      await mkdir(bin, { recursive: true });
+      await rename(previousGo, `${bin}/go`);
+      previousGo = `${bin}/go`;
+      const env = { HOME: home, PATH: directory };
+      const result = check(env);
+      assert.equal(result.status, 0, result.stderr);
+      const outdated = check({ ...env, ZX_DEV_TEST_GOVERSION: "go1.24.9" });
+      assert.equal(outdated.status, 1);
+      assert.match(outdated.stderr, /Go 版本过低/);
+    }
+    let previousNode = `${directory}/node`;
+    for (const nvmRoot of [`${home}/.nvm`, `${home}/custom-nvm`]) {
+      const bin = `${nvmRoot}/versions/node/v22.21.9/bin`;
+      await mkdir(bin, { recursive: true });
+      await rename(previousNode, `${bin}/node`);
+      previousNode = `${bin}/node`;
+      const result = check({ HOME: home, PATH: directory, NVM_DIR: nvmRoot, ZX_DEV_TEST_NODE_VERSION: "22.21.9" }, "frontend");
+      assert.equal(result.status, 1);
+      assert.match(result.stderr, /Node.js 版本不满足/);
     }
   } finally {
     await rm(directory, { recursive: true, force: true });

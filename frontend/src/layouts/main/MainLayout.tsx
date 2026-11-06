@@ -9,6 +9,7 @@ import { MainSider } from "./MainSider";
 import { TaskSheet } from "@/features/panel/TaskSheet";
 import { useRealtime } from "@/features/panel/realtime";
 import { ToastNotice } from "@/features/panel/ToastNotice";
+import { RuntimeAccessNotice } from "@/features/panel/RuntimeAccessNotice";
 
 /** MainLayout 共享一条主实时流并按断点安排侧栏和内容焦点。 */
 export default function MainLayout() {
@@ -100,6 +101,7 @@ export default function MainLayout() {
               description="保留最后一次读数，采样时间决定数据是否过期。"
             />
           )}
+          <RuntimeAccessNotice />
           <Outlet />
           <TaskSheet />
         </div>

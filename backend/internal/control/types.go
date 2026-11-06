@@ -205,7 +205,7 @@ type History struct {
 }
 
 // Installation 标识一个版本、平台和路径对应的安装实例。
-// 外部发现的实例始终只读。
+// 外部来源保留原归属，管理动作由 helper 独立核实安装来源。
 type Installation struct {
 	ID                     string     `json:"id"`
 	Kind                   string     `json:"kind"`
@@ -215,6 +215,7 @@ type Installation struct {
 	Ownership              string     `json:"ownership"`
 	State                  string     `json:"state"`
 	IsPanelDefault         bool       `json:"isPanelDefault"`
+	IsSystemDefault        bool       `json:"isSystemDefault"`
 	ConfiguredAppRefs      int        `json:"configuredAppRefs"`
 	ObservedProcessRefs    *int       `json:"observedProcessRefs"`
 	ReferenceCheckComplete bool       `json:"referenceCheckComplete"`

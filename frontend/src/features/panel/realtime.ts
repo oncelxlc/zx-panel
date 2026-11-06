@@ -161,8 +161,10 @@ export function useRealtime() {
                 };
               });
             }
-            if (name === "runtime.changed")
+            if (name === "runtime.changed") {
               void queryClient.invalidateQueries({ queryKey: ["runtimes"] });
+              void queryClient.invalidateQueries({ queryKey: ["runtime-references"] });
+            }
             if (name === "app.changed") {
               void queryClient.invalidateQueries({ queryKey: ["apps"] });
               void queryClient.invalidateQueries({ queryKey: ["app"] });

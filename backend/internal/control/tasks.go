@@ -249,7 +249,7 @@ func (s *Service) executeTask(parent context.Context, actor int64, task Task) {
 	}
 	if err == nil && work.Operation.Action != "catalog.refresh" && work.Operation.Action != "logs.export" {
 		var plan Plan
-		plan, err = s.inspect(ctx, work)
+		plan, err = s.inspect(ctx, &work)
 		if err == nil && !plan.CanExecute {
 			err = Fail(409, plan.BlockedReasons[0].Code, plan.BlockedReasons[0].Message)
 		}
@@ -274,8 +274,10 @@ func (s *Service) executeTask(parent context.Context, actor int64, task Task) {
 			err = s.installRuntime(ctx, &task, work)
 		case "runtime.set-default":
 			err = s.setDefault(ctx, &task, work.Operation)
+		case "runtime.set-system-default":
+			err = s.setSystemDefault(ctx, &task, work)
 		case "runtime.uninstall":
-			err = s.uninstallRuntime(ctx, &task, work.Operation)
+			err = s.uninstallRuntime(ctx, &task, work)
 		default:
 			err = s.changeApp(ctx, &task, work.Operation)
 		}
@@ -405,8 +407,8 @@ func (s *Service) setDefault(ctx context.Context, task *Task, op Operation) erro
 	if err = json.Unmarshal(body, &installation); err != nil {
 		return err
 	}
-	if installation.Ownership != "panel" || installation.State != "ready" {
-		return Fail(409, "INSTALLATION_NOT_READY", "只能选择可用的面板安装")
+	if installation.State != "ready" || kind != "node" && kind != "go" {
+		return Fail(409, "INSTALLATION_NOT_READY", "只能选择可用的 Node.js 或 Go 安装")
 	}
 	if _, err = tx.Exec(ctx, "UPDATE app.runtime_installations SET revision=revision+1 WHERE id=$1 OR id IN (SELECT installation_id FROM app.runtime_defaults WHERE kind=$2)", op.InstallationID, kind); err != nil {
 		return err
@@ -421,22 +423,35 @@ func (s *Service) setDefault(ctx context.Context, task *Task, op Operation) erro
 	return s.Events.Publish("runtime.changed", map[string]string{"kind": kind})
 }
 
-// uninstallRuntime 在单 worker 引用互斥范围内删除面板目录，再删除登记。
-// 外部安装、默认值及运行或配置引用都已在执行前重新阻止。
-func (s *Service) uninstallRuntime(ctx context.Context, task *Task, op Operation) error {
+// uninstallRuntime 在单 worker 引用互斥范围内按来源卸载，再删除登记。
+// 默认值、依赖和运行或配置引用都已在执行前重新核实。
+func (s *Service) uninstallRuntime(ctx context.Context, task *Task, work Work) error {
+	s.runtimeMu.Lock()
+	defer s.runtimeMu.Unlock()
+	op := work.Operation
 	installation, err := s.installation(ctx, op.InstallationID)
 	if err != nil {
 		return err
 	}
-	if installation.Ownership != "panel" || installation.IsPanelDefault || installation.ConfiguredAppRefs > 0 {
-		return Fail(409, "RUNTIME_IN_USE", "安装仍被引用或并非面板所有")
+	if installation.Revision != op.ExpectedRevision {
+		return Fail(409, "REVISION_CONFLICT", "安装状态已刷新，请重新预检")
+	}
+	if installation.IsPanelDefault || installation.IsSystemDefault || installation.ConfiguredAppRefs > 0 {
+		return Fail(409, "RUNTIME_IN_USE", "安装仍是默认版本或被引用")
 	}
 	if err = s.taskStage(ctx, task, "commit", false, nil, nil); err != nil {
 		return err
 	}
-	commit, cancel := context.WithTimeout(context.WithoutCancel(ctx), time.Minute)
+	commit, cancel := context.WithTimeout(context.WithoutCancel(ctx), 2*time.Minute)
 	defer cancel()
-	if _, err = s.Host.Call(commit, host.Request{Action: "runtime.remove", ID: installation.ID, Kind: installation.Kind}); err != nil {
+	request := runtimeTargetRequest("runtime.remove", installation)
+	if installation.Ownership == "external" {
+		if work.Runtime == nil {
+			return Fail(409, "RUNTIME_SOURCE_UNVERIFIED", "缺少已核实的卸载目标")
+		}
+		request.Action, request.Fingerprint = "runtime.external-remove", work.Runtime.Fingerprint
+	}
+	if _, err = s.Host.Call(commit, request); err != nil {
 		return Fail(409, "REFERENCE_CHECK_INCOMPLETE", "helper 拒绝删除，请检查完整引用与目录状态")
 	}
 	task.Result = map[string]any{"installationId": installation.ID, "directoryRemoved": true}

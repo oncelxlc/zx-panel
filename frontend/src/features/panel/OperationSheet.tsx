@@ -78,7 +78,7 @@ export function OperationSheet({ operation, onClose }: OperationSheetProps) {
   const accepted = !!plan && acceptedPlan === plan.id;
   const needsPreview =
     submit.error instanceof ApiError &&
-    ["PLAN_EXPIRED", "REVISION_CONFLICT"].includes(submit.error.code);
+    ["PLAN_EXPIRED", "PLAN_BLOCKED", "REVISION_CONFLICT"].includes(submit.error.code);
   /** 重新预检意味着新的确认流程，不能沿用旧的文本和幂等键。 */
   function recheck() {
     key.current = crypto.randomUUID();

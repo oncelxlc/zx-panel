@@ -81,15 +81,15 @@ function error(code: string, message: string, status = 422) {
 /** capabilities 对无权限和不支持平台场景禁用真实意义的写动作。 */
 function capabilities() {
   const result = structuredClone(demoCapabilities);
-  if (["unsupported", "permission-denied"].includes(scenario)) {
+  if (["unsupported", "permission-denied", "helper-unavailable"].includes(scenario)) {
     const blocked = {
       enabled: false,
       reasonCode:
-        scenario === "unsupported" ? "UNSUPPORTED_PLATFORM" : "FORBIDDEN",
+        scenario === "unsupported" ? "UNSUPPORTED_PLATFORM" : scenario === "helper-unavailable" ? "HELPER_DISABLED" : "FORBIDDEN",
       message:
         scenario === "unsupported"
           ? "测试平台不支持安装或 systemd"
-          : "测试账号没有管理权限",
+          : scenario === "helper-unavailable" ? "测试 helper 未启用；启用后需重新启动 Go 后端" : "测试账号没有管理权限",
     };
     result.installRuntime = blocked;
     result.changeRuntimeDefault = blocked;
@@ -183,7 +183,7 @@ function planFor(operation: OperationSpec): OperationPlan {
   let summary = "核对操作后创建后台任务";
   let confirmationText: string | null = null;
   const resourceIds: string[] = [];
-  if (["permission-denied", "unsupported"].includes(scenario))
+  if (["permission-denied", "unsupported", "helper-unavailable"].includes(scenario))
     blocked.push({ code: "FORBIDDEN", message: "当前演示场景不允许此操作" });
   if (operation.action.startsWith("runtime.")) {
     summary =
@@ -191,7 +191,9 @@ function planFor(operation: OperationSpec): OperationPlan {
         ? "隔离安装新版本，保留旧版本与现有应用绑定"
         : operation.action === "runtime.set-default"
           ? "只改变后续新建应用的默认预选，不修改系统 PATH"
-          : "仅移除该面板管理安装目录，保留应用文件与日志";
+          : operation.action === "runtime.set-system-default"
+            ? "切换 /usr/local/bin 的系统入口，影响之后通过公共 PATH 启动的程序"
+            : "按安装来源卸载指定版本，保留依赖保护、应用文件与日志";
     if ("installationId" in operation) {
       resourceIds.push(operation.installationId);
       const item = state.installations.find(
@@ -200,15 +202,12 @@ function planFor(operation: OperationSpec): OperationPlan {
       if (!item)
         blocked.push({ code: "RESOURCE_NOT_FOUND", message: "安装不存在" });
       else {
-        if (item.ownership === "external")
-          blocked.push({
-            code: "EXTERNAL_INSTALL_READ_ONLY",
-            message: "外部安装仅供查看",
-          });
+        if (operation.action === "runtime.set-system-default") confirmationText = item.version;
         if (operation.action === "runtime.uninstall") {
           confirmationText = item.version;
           if (
             item.isPanelDefault ||
+            item.isSystemDefault ||
             item.configuredAppRefs > 0 ||
             (item.observedProcessRefs ?? 1) > 0 ||
             scenario === "in-use"
@@ -302,6 +301,7 @@ function applyOperation(operation: OperationSpec) {
         ownership: "panel",
         state: "ready",
         isPanelDefault: operation.makeDefault,
+        isSystemDefault: false,
         configuredAppRefs: 0,
         observedProcessRefs: 0,
         referenceCheckComplete: true,
@@ -323,6 +323,12 @@ function applyOperation(operation: OperationSpec) {
         if (item.kind === target.kind)
           item.isPanelDefault = item.id === target.id;
       });
+  }
+  if (operation.action === "runtime.set-system-default") {
+    const target = state.installations.find((item) => item.id === operation.installationId);
+    if (target) state.installations.forEach((item) => {
+      if (item.kind === target.kind) item.isSystemDefault = item.id === target.id;
+    });
   }
   if (operation.action === "app.create")
     state.apps.push({

@@ -239,10 +239,14 @@ func (s *Service) appDefinition(ctx context.Context, app App) (host.Definition, 
 		if err != nil {
 			return definition, err
 		}
-		if installation.Ownership != "panel" || installation.State != "ready" {
+		if installation.State != "ready" || installation.Kind != "node" {
 			return definition, Fail(409, "INSTALLATION_NOT_READY", "应用绑定的运行时不可用")
 		}
 		definition.Executable = filepath.Join(installation.Path, "bin", "node")
+		if installation.Ownership == "external" {
+			definition.Executable = installation.Path
+			definition.RuntimeID, definition.RuntimeKind = installation.ID, installation.Kind
+		}
 		definition.Args = append([]string{filepath.Join(app.WorkingDirectory, app.Execution.EntryFile)}, definition.Args...)
 	} else {
 		definition.Executable = app.Execution.ExecutablePath

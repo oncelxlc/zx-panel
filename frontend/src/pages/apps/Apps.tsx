@@ -269,7 +269,7 @@ function AppForm({ app, onReview, onDirtyChange }: AppFormProps) {
                   options={(installs.data?.items ?? [])
                     .filter(
                       (item) =>
-                        item.state === "ready" && item.ownership === "panel",
+                        item.state === "ready",
                     )
                     .map((item) => ({
                       value: item.id,
