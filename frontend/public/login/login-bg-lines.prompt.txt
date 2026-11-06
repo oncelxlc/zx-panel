@@ -1,0 +1,12 @@
+工具：内置 image_gen（style-transfer 编辑）
+原图：frontend/public/login/login-bg-dart.png
+品牌配色参考：frontend/public/icons/android-chrome-512x512.png
+交付：frontend/public/login/login-bg-lines.webp（1672 × 941；浏览器 WebP 编码质量 0.94）
+此提示词仅用于维护素材，不加入生产静态资源白名单。
+
+最终提示词：
+Use case: style-transfer. Asset type: static background illustration for the ZX Panel login webpage. Image 1 is the EDIT TARGET: existing dark login illustration. Image 2 is supporting BRAND COLOR reference only (the existing ZX logo); do not place or redraw the logo in the background.
+Transform Image 1 into extremely minimal, precise, architectural monoline art on a perfectly flat near-black charcoal background (#101211). Preserve the original recognizable subjects and composition: on the left, a monitoring panel with a simple chart/donut and an isometric row of server racks receding to the right; one small cloud above the server racks; a few flowing data paths below; sparse circuit traces at the far top right and bottom right corner.
+Simplify massively: three or four server cabinets, a handful of clean lines per cabinet, no dense mesh, no fine texture, no glow, no particles, no gradients, no grids, no 3D materials. Mostly restrained soft silver-gray and graphite outlines with very few muted sage green accents on connections, inspired by the brand. Absolutely no blue or cyan. Thin continuous elegant lines, careful geometry, premium understated technical drawing, ample dark negative space.
+Keep the main illustration within the LEFT 46% of the canvas and the center/right (x 53–93%, y 15–85%) almost entirely flat empty charcoal for a login form overlay. Main server illustration vertically centered, outer edges gently reduce contrast without texture. The scene must remain recognizable compared to the original, but feel like simple vector line art. No UI card, no input controls, no buttons, no typography, no textual labels or numbers, no watermark.
+Output one wide landscape image, aspect ratio 16:9.

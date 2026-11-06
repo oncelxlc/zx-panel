@@ -1,6 +1,7 @@
 import { THEME_STORAGE_KEY } from "@/theme/constants";
 import {
   getSystemTheme,
+  isDarkThemePath,
   isSystemThemePath,
   syncDocumentTheme,
 } from "@/theme/systemTheme";
@@ -49,7 +50,7 @@ function getStoredPreference(): ThemePreference {
 }
 
 /**
- * ThemeProvider 在路由内管理主题；登录页强制跟随系统，后台使用已保存偏好。
+ * ThemeProvider 在路由内管理主题；登录页固定深色，初始化页跟随系统，后台使用已保存偏好。
  * 系统变化与站内导航统一同步根节点主题，并清理尚未完成的切换动画。
  */
 export function ThemeProvider({ children }: ThemeProviderProps) {
@@ -58,8 +59,9 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     useState<ThemePreference>(getStoredPreference);
   const [systemMode, setSystemMode] = useState<ThemeMode>(getSystemTheme);
 
-  const resolvedMode =
-    isSystemThemePath(pathname) || preference === "system"
+  const resolvedMode = isDarkThemePath(pathname)
+    ? "dark"
+    : isSystemThemePath(pathname) || preference === "system"
       ? systemMode
       : preference;
 

@@ -1,9 +1,12 @@
 .login-page {
   position: relative;
   display: flex;
+  flex-direction: column;
   min-height: 100svh;
-  padding: 64px clamp(24px, 6vw, 96px);
+  padding: 40px clamp(24px, 6vw, 96px);
+  gap: 48px;
   isolation: isolate;
+  color: var(--foreground);
   background: var(--background);
 }
 
@@ -13,6 +16,7 @@
   inset: 0;
   overflow: clip;
   pointer-events: none;
+  opacity: 0.6;
 
   img {
     position: absolute;
@@ -23,28 +27,32 @@
   }
 }
 
-.login-page__image { animation: content-reveal var(--motion-panel) var(--motion-ease) both; }
+.login-page__header {
+  width: 100%;
+  max-width: 1280px;
+  margin-inline: auto;
+}
 
 .login-page__body {
   display: grid;
+  flex: 1;
+  align-items: center;
   width: 100%;
   max-width: 1200px;
-  margin: auto;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 448px);
+  margin-inline: auto;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 384px);
   gap: 64px;
 }
 
 .login-page__panel {
-  display: flex;
   min-width: 0;
   grid-column: 2;
-  flex-direction: column;
-  gap: 24px;
+  padding-block: 24px;
 }
 
 @media (max-width: 1023px) {
   .login-page__body {
-    max-width: 448px;
+    max-width: 384px;
     grid-template-columns: minmax(0, 1fr);
     gap: 0;
   }
@@ -52,11 +60,17 @@
   .login-page__panel {
     grid-column: 1;
   }
+
+  .login-page__background {
+    opacity: 0.12;
+  }
 }
 
 @media (max-width: 767px) {
   .login-page {
-    padding: 32px 20px;
+    padding: 24px;
+    gap: 40px;
   }
-  .login-page__background img { object-position: 65% center; }
+
+  .login-page__background img { object-position: 30% center; }
 }

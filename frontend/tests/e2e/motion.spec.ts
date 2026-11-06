@@ -225,7 +225,7 @@ test("slow or failed decorative images do not block or move the login form", asy
   let release = () => {};
   const ready = new Promise<void>((resolve) => { release = resolve; });
   // MSW 会透传图片请求，Context 同时拦截页面和 Service Worker 发出的请求。
-  await context.route("**/login/login-bg-light.png", async (route) => {
+  await context.route("**/login/login-bg-lines.webp", async (route) => {
     await ready;
     await route.continue();
   });
@@ -233,18 +233,23 @@ test("slow or failed decorative images do not block or move the login form", asy
     await page.goto("/login", { waitUntil: "domcontentloaded" });
     const input = page.getByRole("textbox", { name: "账号", exact: true });
     await expect(input).toBeVisible();
-    await expect(page.locator(".login-page__image")).toHaveCount(0);
+    const image = page.locator(".login-page__image");
+    await expect(image).toHaveJSProperty("naturalWidth", 0);
     await input.fill("demo");
     const before = await input.boundingBox();
     release();
-    await expect(page.locator(".login-page__image")).toHaveCSS("opacity", "1");
+    await expect(image).toHaveJSProperty("naturalWidth", 1672);
     expect(await input.boundingBox()).toEqual(before);
     await page.screenshot({ path: testInfo.outputPath("login-loaded.png") });
-    await context.route("**/login/login-bg-dart.png", (route) => route.abort());
     await page.emulateMedia({ colorScheme: "dark" });
     await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
     await expect(input).toHaveValue("demo");
-    await expect(page.locator(".login-page__image")).toHaveAttribute("src", "/login/login-bg-light.png");
+    await expect(image).toHaveAttribute("src", "/login/login-bg-lines.webp");
+    await context.route("**/login/login-bg-lines.webp", (route) => route.abort());
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await expect(image).toBeHidden();
+    await input.fill("still-usable");
+    await expect(input).toHaveValue("still-usable");
   } finally {
     release();
   }

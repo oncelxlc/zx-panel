@@ -5,16 +5,21 @@ import { URL } from "node:url";
 import { runInNewContext } from "node:vm";
 import {
   getSystemTheme,
+  isDarkThemePath,
   isSystemThemePath,
   syncDocumentTheme,
 } from "../src/theme/systemTheme.ts";
 
-test("登录首屏跟随系统且默认暗色，后台继续读取历史偏好", () => {
+test("登录首屏固定暗色、初始化跟随系统，后台继续读取历史偏好", () => {
   const html = readFileSync(new URL("../index.html", import.meta.url), "utf8");
   assert.ok(html.includes('src="/theme-init.js"'));
   const script = readFileSync(new URL("../public/theme-init.js", import.meta.url), "utf8");
 
-  for (const pathname of ["/login", "/login/", "/LOGIN//", "/setup", "/SETUP//", "/"]) {
+  for (const [pathname, policy] of [
+    ["/login", "dark"], ["/login/", "dark"], ["/LOGIN//", "dark"],
+    ["/setup", "system"], ["/SETUP//", "system"],
+    ["/", "stored"], ["/login/settings", "stored"], ["/setup/settings", "stored"],
+  ]) {
     for (const system of ["light", "dark", "unsupported"]) {
       for (const stored of ["light", "dark", "system", "blocked"]) {
         let storageReads = 0;
@@ -36,13 +41,15 @@ test("登录首屏跟随系统且默认暗色，后台继续读取历史偏好",
             },
           },
         });
-        const forcedSystem = isSystemThemePath(pathname);
-        const expected = !forcedSystem && ["light", "dark"].includes(stored)
-          ? stored
-          : system === "light" ? "light" : "dark";
+        const expected = policy === "dark" ? "dark"
+          : policy === "stored" && ["light", "dark"].includes(stored)
+            ? stored
+            : system === "light" ? "light" : "dark";
+        assert.equal(isDarkThemePath(pathname), policy === "dark");
+        assert.equal(isSystemThemePath(pathname), policy === "system");
         assert.equal(root.dataset.theme, expected, `${pathname}/${system}/${stored}`);
         assert.equal(root.dark, expected === "dark");
-        if (forcedSystem) assert.equal(storageReads, 0);
+        if (policy !== "stored") assert.equal(storageReads, 0);
       }
     }
   }

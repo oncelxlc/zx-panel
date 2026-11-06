@@ -7,21 +7,16 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { getLoginTarget, validateLoginForm } from "@/auth/loginForm";
 import { toast } from "@/lib/toast";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import {
   Field,
   FieldError,
-  FieldDescription,
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
@@ -34,15 +29,7 @@ import {
 import { Item, ItemContent, ItemMedia, ItemTitle } from "@/components/ui/item";
 import { Spinner } from "@/components/ui/spinner";
 import type { LoginFormErrors, LoginFormValues } from "@/types/auth.type";
-import {
-  ArrowRight,
-  Eye,
-  EyeOff,
-  LockKeyhole,
-  ShieldCheck,
-  UserRound,
-  X,
-} from "lucide-react";
+import { Eye, EyeOff, X } from "lucide-react";
 import { useRef, useState } from "react";
 import type { ChangeEvent, FocusEvent, FormEvent } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router";
@@ -144,37 +131,33 @@ export function LoginPage() {
   return (
     <main className="login-page">
       <LoginBackground />
+      <header className="login-page__header">
+        <Item className="w-auto gap-3 p-0">
+          <ItemMedia variant="image">
+            <img src="/icons/android-chrome-192x192.png" width={40} height={40} alt="" />
+          </ItemMedia>
+          <ItemContent>
+            <ItemTitle>ZX PANEL</ItemTitle>
+          </ItemContent>
+        </Item>
+      </header>
       <div className="login-page__body">
         <section className="login-page__panel" aria-labelledby="login-title">
-          <Card size="lg" variant="glass">
-            <CardHeader className="gap-2">
-              <Item size="sm" className="mb-5 gap-3 p-0">
-                <ItemMedia>
-                  <Avatar size="lg" aria-hidden="true">
-                    <AvatarFallback>Z</AvatarFallback>
-                  </Avatar>
-                </ItemMedia>
-                <ItemContent>
-                  <ItemTitle>ZX PANEL</ItemTitle>
-                </ItemContent>
-              </Item>
+          <Card>
+            <CardHeader>
               <CardTitle id="login-title" role="heading" aria-level={1}>
                 欢迎回来
               </CardTitle>
-              <CardDescription>登录你的账号，进入管理控制台。</CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} noValidate aria-busy={submitting}>
-                <FieldGroup className="gap-5">
+                <FieldGroup>
                   <Field
                     data-invalid={Boolean(errors.username)}
                     data-disabled={submitting}
                   >
                     <FieldLabel htmlFor="username">账号</FieldLabel>
                     <InputGroup className="h-12">
-                      <InputGroupAddon className="pl-3.5">
-                        <UserRound aria-hidden="true" />
-                      </InputGroupAddon>
                       <InputGroupInput
                         className="h-full"
                         ref={usernameRef}
@@ -183,7 +166,6 @@ export function LoginPage() {
                         value={values.username}
                         onChange={handleChange}
                         onBlur={handleBlur}
-                        placeholder="请输入账号"
                         autoComplete="username"
                         autoCapitalize="none"
                         spellCheck={false}
@@ -220,9 +202,6 @@ export function LoginPage() {
                   >
                     <FieldLabel htmlFor="password">密码</FieldLabel>
                     <InputGroup className="h-12">
-                      <InputGroupAddon className="pl-3.5">
-                        <LockKeyhole aria-hidden="true" />
-                      </InputGroupAddon>
                       <InputGroupInput
                         className="h-full"
                         ref={passwordRef}
@@ -232,7 +211,6 @@ export function LoginPage() {
                         value={values.password}
                         onChange={handleChange}
                         onBlur={handleBlur}
-                        placeholder="请输入密码"
                         autoComplete="current-password"
                         required
                         disabled={submitting}
@@ -265,7 +243,7 @@ export function LoginPage() {
                     )}
                   </Field>
                   <Button
-                    className="mt-1 h-12 w-full"
+                    className="h-12 w-full"
                     type="submit"
                     disabled={submitting}
                   >
@@ -273,9 +251,6 @@ export function LoginPage() {
                       <Spinner data-icon="inline-start" aria-hidden="true" />
                     )}
                     {submitting ? "正在登录…" : "登录控制台"}
-                    {!submitting && (
-                      <ArrowRight data-icon="inline-end" aria-hidden="true" />
-                    )}
                   </Button>
                 </FieldGroup>
                 <span className="sr-only" role="status">
@@ -283,16 +258,7 @@ export function LoginPage() {
                 </span>
               </form>
             </CardContent>
-            <CardFooter className="justify-center py-4">
-              <Badge variant="secondary">
-                <ShieldCheck data-icon="inline-start" aria-hidden="true" />
-                仅限授权用户访问
-              </Badge>
-            </CardFooter>
           </Card>
-          <FieldDescription className="mx-auto w-fit">
-            ZX Panel · 让管理更简单
-          </FieldDescription>
         </section>
       </div>
     </main>

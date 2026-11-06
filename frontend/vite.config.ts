@@ -17,7 +17,7 @@ export default defineConfig(({ command, mode }) => {
       /** API 包排除 Mock worker 与未引用的大图。 */
       async generateBundle() {
         if (!productionAPI) return;
-        for (const name of ["theme-init.js", "icons/apple-touch-icon.png", "icons/favicon-32x32.png", "icons/favicon-16x16.png", "icons/favicon.ico", "icons/site.webmanifest", "icons/android-chrome-192x192.png", "icons/android-chrome-512x512.png", "login/login-bg-light.png", "login/login-bg-dart.png"]) {
+        for (const name of ["theme-init.js", "icons/apple-touch-icon.png", "icons/favicon-32x32.png", "icons/favicon-16x16.png", "icons/favicon.ico", "icons/site.webmanifest", "icons/android-chrome-192x192.png", "icons/android-chrome-512x512.png", "login/login-bg-lines.webp"]) {
           this.emitFile({ type: "asset", fileName: name, source: await readFile(new URL(`./public/${name}`, import.meta.url)) });
         }
       },
