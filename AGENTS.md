@@ -19,7 +19,7 @@
 - Frontend:
   - `frontend/index.html` is the Vite HTML entry.
   - `frontend/src/main.tsx` mounts React, TanStack Query, TooltipProvider and Toaster; `frontend/src/features/panel` owns shared SSE, tasks, plans and bounded logs.
-  - `frontend/src/routes/router.tsx` defines lazy-loaded pages and wraps routes with `ThemeProvider` so theme policy follows navigation. `main.tsx` mounts this router directly; the former `App.tsx` demo and `pages/index/` page have been removed.
+  - `frontend/src/routes/router.tsx` lazy-loads the authentication guard, main layout and pages so public routes do not load the authenticated shell. It wraps routes with `ThemeProvider` so theme policy follows navigation. `main.tsx` mounts this router directly; the former `App.tsx` demo and `pages/index/` page have been removed.
   - Public `/login` and `/setup`; `/` redirects to `/overview`, with `/runtimes`, `/apps`, `/monitoring`, `/logs`, `/settings` and details.
   - `frontend/src/layouts/main/MainLayout.tsx` owns the authenticated shell, sidebar state, shared realtime stream and task sheet. `MainSider.tsx` and `MainHeader.tsx` share navigation from `frontend/src/features/panel/navigation.ts`; its types live in `frontend/src/types/panel-ui.type.ts`.
   - `frontend/src/auth/*` contains HttpOnly Cookie session handling, memory-only CSRF state, and the authentication guard; no Bearer/sessionStorage auth.

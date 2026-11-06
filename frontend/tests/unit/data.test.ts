@@ -64,6 +64,45 @@ describe("public API and bounded logs", () => {
     ).toBeLessThanOrEqual(5 * 1024 * 1024);
     expect(large.droppedCount).toBeGreaterThan(0);
   });
+  it.each([
+    "中😀\ud800x\udc00".repeat(128),
+    "x".repeat(16383) + "😀",
+    "中".repeat(5462),
+  ])("preserves UTF-8 byte limits across encoding buffer boundaries", (message) => {
+    const records = Array.from({ length: 4000 }, (_, index) => ({
+      id: `行-${String(index).padStart(4, "0")}-😀`,
+      sourceId: "来源-\ud800",
+      at: "2026-09-28T14:24:00Z",
+      level: "info" as const,
+      message,
+      truncated: false,
+    }));
+    const encoder = new TextEncoder();
+    const recordBytes =
+      encoder.encode(message).length +
+      encoder.encode(records[0].id).length +
+      encoder.encode(records[0].sourceId).length +
+      128;
+    const retained = Math.floor((5 * 1024 * 1024) / recordBytes);
+    const bounded = mergeLogs(records.slice(0, 100), records.slice(100));
+    expect(bounded.records).toEqual(records.slice(-retained));
+    expect(bounded.droppedCount).toBe(records.length - retained);
+  });
+  it("keeps the exact byte limit and drops a single oversized record", () => {
+    const line = {
+      id: "1",
+      sourceId: "panel",
+      at: "2026-09-28T14:24:00Z",
+      level: "info" as const,
+      message: "x".repeat(5 * 1024 * 1024 - 128 - 1 - 5),
+      truncated: false,
+    };
+    expect(mergeLogs([], [line])).toEqual({ records: [line], droppedCount: 0 });
+    expect(mergeLogs([], [{ ...line, message: line.message + "x" }])).toEqual({
+      records: [],
+      droppedCount: 1,
+    });
+  });
   it("rejects cross-action fields and preserves argument and secret whitespace", () => {
     expect(releaseSchema.safeParse({ ...demoReleases[0], kind: "rust" }).success).toBe(false);
     expect(

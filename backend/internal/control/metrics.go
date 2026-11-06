@@ -177,6 +177,64 @@ func metricValues(s Snapshot) map[string]Value {
 	return values
 }
 
+// metricValue 直接读取单条历史序列，避免为每个样本构造全部指标映射。
+// 设备从后向前匹配，保持完整映射对重复 ID 的覆盖顺序。
+func metricValue(s Snapshot, metric, device string) (Value, bool) {
+	if device == "" {
+		switch metric {
+		case "cpu":
+			return s.CPUUsagePercent, true
+		case "memory":
+			return s.Memory.UsagePercent, true
+		case "load.one", "load.five", "load.fifteen":
+			if s.LoadAverage != nil {
+				switch metric {
+				case "load.one":
+					return Number(s.LoadAverage.One), true
+				case "load.five":
+					return Number(s.LoadAverage.Five), true
+				default:
+					return Number(s.LoadAverage.Fifteen), true
+				}
+			}
+		default:
+			if strings.HasPrefix(metric, "cpu.") {
+				index, err := strconv.Atoi(strings.TrimPrefix(metric, "cpu."))
+				if err == nil && index >= 0 && index < len(s.CPUPerCorePercent) && metric == "cpu."+strconv.Itoa(index) {
+					return s.CPUPerCorePercent[index], true
+				}
+			}
+		}
+	}
+	switch metric {
+	case "disk":
+		for i := len(s.Filesystems) - 1; i >= 0; i-- {
+			if s.Filesystems[i].ID == device {
+				return s.Filesystems[i].UsagePercent, true
+			}
+		}
+	case "disk.read", "disk.write":
+		for i := len(s.BlockDevices) - 1; i >= 0; i-- {
+			if s.BlockDevices[i].ID == device {
+				if metric == "disk.read" {
+					return s.BlockDevices[i].ReadBytesPerSecond, true
+				}
+				return s.BlockDevices[i].WriteBytesPerSecond, true
+			}
+		}
+	case "network", "network.tx":
+		for i := len(s.Networks) - 1; i >= 0; i-- {
+			if s.Networks[i].ID == device {
+				if metric == "network" {
+					return s.Networks[i].RXBytesPerSecond, true
+				}
+				return s.Networks[i].TXBytesPerSecond, true
+			}
+		}
+	}
+	return Value{}, false
+}
+
 // aggregate 保存样本数量、平均和峰值，null 不进入分母。
 // 一段全部不可用的序列返回显式缺口。
 func aggregate(at time.Time, values []Value) HistoryPoint {
@@ -265,7 +323,7 @@ func (c *Collector) History(ctx context.Context, r *Repository, metric, device s
 			if sample.SampledAt.Before(from) || sample.SampledAt.After(to) {
 				continue
 			}
-			value, ok := metricValues(sample)[metric+"|"+device]
+			value, ok := metricValue(sample, metric, device)
 			if !ok {
 				continue
 			}

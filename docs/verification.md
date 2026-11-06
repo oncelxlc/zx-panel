@@ -117,3 +117,21 @@
 - Windows 与 WSL 均通过 `go -C backend test -tags devassets ./...` 和 `go -C backend vet -tags devassets ./...`；WSL 正式嵌入资源与 API 包测试也通过。首次 Windows 沙箱的 Go 文件重命名和 Vitest 临时缓存读取失败，正常用户环境复核全部通过，未修改测试规则。
 - `pnpm contract` 成功且 OpenAPI/错误码无漂移；shadcn 正确识别 `frontend/` 下的 Vite、Base UI/Nova 和组件路径。API 资源构建、Linux amd64/arm64 主程序与 helper 发布构建成功，秘密特征扫描及差异空白检查通过。
 - 本轮未连接数据库执行集成测试、未迁移数据库、未部署或重跑 systemd/QEMU/race/稳定性验收，未触发远端 CI。新发布产物的 `linuxAcceptance` 为 `pending`，历史验收仅适用于原报告摘要。GoLand 新目录下的断点调试尚未实测。
+
+## 2026-11-07 加载与运行开销优化
+
+- 保留功能、界面、API、采样/轮询频率和容量限制，仅调整路由依赖加载、日志字节计数与原始历史样本的单指标读取；没有新增依赖或修改数据库、helper、部署模板和开发启动流程。
+- 同机分别执行改动前后的 `pnpm build`，用已安装 Chrome 的独立新上下文访问生产静态产物 `/login` 和 `/setup`，仅拦截初始化状态 API；收集页面实际请求的全部 JS（含 `theme-init.js`）。两页均无浏览器运行时错误。gzip 列为逐文件本地压缩估算，不是 Nginx 网络实测；不包含 CSS、图片或 API。
+
+| 页面 | JS 原始字节：优化前 → 后 | gzip 估算字节：优化前 → 后 |
+| --- | --- | --- |
+| 登录 | 821,387 → 595,233（减少 27.5%） | 268,960 → 196,372（减少 27.0%） |
+| 初始化 | 858,590 → 710,701（减少 17.2%） | 281,833 → 237,322（减少 15.8%） |
+
+- `AuthGuard` 与 `MainLayout` 沿用现有路由 `lazy` 方式，认证树不变；首次进入后台会加载独立分包。主入口由 812,438 降至 561,280 字节，仍超过 Vite 500 kB 提示阈值；没有调高阈值。既有外部主题脚本与 Zod 注释构建提示保留。
+- 日志合并以固定 16 KiB 缓冲复用 `TextEncoder.encodeInto`，超长字段回退完整编码。Node 26.13.0 合成微基准对比改动前后真实 `mergeLogs`：5000 条保留日志加 1 条新日志、每轮 100 次、预热后 3 轮中位数 689.15 → 149.80 ms，输出深比较相等。该结果不是浏览器整页耗时或长期负载数据。
+- 历史查询内存基准：Windows amd64、Go 1.27.3、Intel i7-14700HX，450 个样本、64 核、4 组设备，`go -C backend test -tags devassets ./internal/control -run '^$' -bench '^BenchmarkCollectorHistory$' -benchmem -count=3`。三轮中位数：CPU 8.739 → 0.251 ms/op，单核 9.347 → 0.378 ms/op，网络发送 8.008 → 0.280 ms/op；每次分配约 6,651,600 → 382,034 字节（减少 94.3%），46,400 → 2,288 次分配。此基准不连接数据库或主机采集器，不代表 Linux 生产服务延迟。
+- 验证通过：`pnpm build`、`pnpm typecheck`、22 项 Vitest、`pnpm lint`（保留原有 `useVirtualizer` 兼容性警告），control 包全部单测与 `go vet -tags devassets ./internal/control`、`git diff --check`。新增编码边界、精确容量、指标映射等价和历史窗口测试。
+- 本机 Chrome Mock E2E 7 项通过：新增公共页面延迟加载/后台直达，全部 4 项登录测试、主路由/任务深链、高吞吐日志虚拟窗口。临时配置仅将浏览器切为已安装 Chrome，并使用独立 7204 端口；未修改仓库 Playwright 配置。沙箱清理未能关闭测试服务器，定向结束本轮 Vite 后，测试命令正常返回 0，服务器已清理。
+- Windows 沙箱内 control 完整测试曾因 `TestArtifactCacheIntegrity` 的临时文件 `renameat` 报 `Access is denied` / `The handle is invalid`；相同代码、相同完整测试命令在普通本机环境复跑通过，未跳过测试或调整校验。
+- 本轮没有重建正式嵌入资源/发布二进制、连接数据库或执行 Linux/systemd/QEMU/race/长期负载验收；历史部署验收哈希不覆盖这些源码变更。

@@ -1,11 +1,9 @@
-import { AuthGuard } from "@/auth/AuthGuard";
-import MainLayout from "@/layouts/main/MainLayout";
 import { ThemeProvider } from "@/theme/ThemeProvider";
 import { createBrowserRouter, Navigate, Outlet } from "react-router";
 
 /**
  * router 定义公开登录页和受 AuthGuard 保护的主布局路由。
- * 页面组件使用懒加载拆分登录页与首页资源。
+ * 守卫、主布局和页面按路由懒加载，公开页面不提前加载后台依赖。
  */
 export const router = createBrowserRouter([
   {
@@ -30,11 +28,17 @@ export const router = createBrowserRouter([
           })),
       },
       {
-        Component: AuthGuard,
+        lazy: () =>
+          import("@/auth/AuthGuard").then((module) => ({
+            Component: module.AuthGuard,
+          })),
         children: [
           {
             path: "/",
-            Component: MainLayout,
+            lazy: () =>
+              import("@/layouts/main/MainLayout").then((module) => ({
+                Component: module.default,
+              })),
             children: [
               {
                 index: true,
