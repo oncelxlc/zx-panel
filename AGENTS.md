@@ -1,5 +1,12 @@
 # AGENTS.md
 
+## Agent Workflow
+- Communicate in Chinese by default; keep code, identifiers and documentation consistent with the repository's existing language and comment rules.
+- Before editing, inspect the related implementation, callers, tests, configuration and relevant README/docs. Use current source and package scripts to verify project facts.
+- Make the smallest complete change, reuse existing components and dependencies, and preserve unrelated uncommitted changes. Do not create/switch branches, commit, push, rebase, reset or rewrite Git history unless explicitly requested.
+- Resolve minor ambiguity from existing conventions and state important assumptions in the result. Ask when ambiguity would materially change architecture, public APIs, data structures or irreversible operations.
+- Run the smallest relevant validation set without weakening checks. Report changed files, key decisions, validation results and anything not verified; documentation-only updates normally need reference checks and `git diff --check`, not a full runtime rebuild.
+
 ## Scope and Current State
 - External-runtime management and revised service templates added after the earlier M0–M5 reports require new runtime acceptance. Source/unit tests and harmless transient identity jobs are not package-uninstall acceptance; historical hashes remain the boundary for release claims.
 - This repo implements a single-server Linux panel with a Vite + React + TypeScript frontend, Go/Gin API, PostgreSQL persistence, and a separate Unix Socket helper.
@@ -12,15 +19,16 @@
 - Frontend:
   - `frontend/index.html` is the Vite HTML entry.
   - `frontend/src/main.tsx` mounts React, TanStack Query, TooltipProvider and Toaster; `frontend/src/features/panel` owns shared SSE, tasks, plans and bounded logs.
-  - `frontend/src/routes/router.tsx` is the active React Router configuration and wraps routes with `ThemeProvider` so theme policy follows navigation.
+  - `frontend/src/routes/router.tsx` defines lazy-loaded pages and wraps routes with `ThemeProvider` so theme policy follows navigation. `main.tsx` mounts this router directly; the former `App.tsx` demo and `pages/index/` page have been removed.
   - Public `/login` and `/setup`; `/` redirects to `/overview`, with `/runtimes`, `/apps`, `/monitoring`, `/logs`, `/settings` and details.
+  - `frontend/src/layouts/main/MainLayout.tsx` owns the authenticated shell, sidebar state, shared realtime stream and task sheet. `MainSider.tsx` and `MainHeader.tsx` share navigation from `frontend/src/features/panel/navigation.ts`; its types live in `frontend/src/types/panel-ui.type.ts`.
   - `frontend/src/auth/*` contains HttpOnly Cookie session handling, memory-only CSRF state, and the authentication guard; no Bearer/sessionStorage auth.
   - `frontend/src/theme/*` contains theme preference, system-theme listeners, and the shared appearance popover in the sidebar footer. Color mode (`zx-panel-theme`) and shell style (`zx-panel-theme-style`, default or Islands) persist independently and sync across tabs. Both styles share identical layout geometry; Islands uses non-layout decorative surfaces. Collapsed desktop footer popovers open to the right with bottom alignment, clear of the sidebar.
   - `frontend/src/components/ui/*` contains official shadcn/ui source components (Base UI + Nova, neutral colors, Lucide icons).
   - `frontend/src/styles/theme.styles.ts` is the source of truth for semantic light/dark tokens and motion timing; `main.tsx` applies its compiled classes before asynchronous startup.
   - Component and page styles live in adjacent `*.styles.ts` files, compiled by the official StyleX Vite plugin. `styles/reset.css` only normalizes browser defaults and reduced-motion behavior; there are no Tailwind or Sass dependencies.
 - Frontend tooling:
-  - Root `package.json` and `pnpm-workspace.yaml` keep shared scripts/tooling; `frontend/package.json` owns frontend dependencies. Root pnpm commands delegate to the frontend project.
+  - Root `package.json` and `pnpm-workspace.yaml` keep shared scripts/tooling; `frontend/package.json` owns frontend dependencies. Frontend commands delegate through `pnpm --dir frontend`; combined development, contract, API-test and release orchestration remain at the root.
   - `frontend/vite.config.ts` configures React, `@/* -> src/*`, and dev server port `7200` with `strictPort: true`.
   - `frontend/tsconfig.json` enables strict TypeScript and includes frontend-local `src` plus `vite.config.ts`.
   - Root `eslint.config.mjs` provides shared flat ESLint config with TypeScript, React Hooks, and React Refresh rules.
@@ -38,7 +46,7 @@
 - Domain packages are expected to live under `backend/internal/*`. Add new backend code there rather than coupling it to frontend files.
 
 ## Developer Workflows
-- Frontend runtime target is modern Node (`frontend/package.json` engines: Node `^22.22.0 || >=24.0.0`).
+- Use Node `^22.22.0 || >=24.0.0` and pnpm `>=10.0.0` as declared in the package engines; the Go module requires Go `1.25.0` or newer. Install workspace dependencies from the root with `pnpm install --frozen-lockfile`.
 - Use pnpm for frontend package scripts:
   - `pnpm dev` starts Vite on `http://localhost:7200`.
   - `pnpm dev:all` runs Windows Vite and the Go API in the default WSL distribution/user. Combined and independent WSL launchers load interactive login Bash, then discover installed tools from common system/current-account directories on every invocation, preserving existing PATH priority without rewriting shell configuration. They check WSL, Go/setsid, a non-root user and the shared repository before starting the backend. When present, ignored `backend/configs/dev.json` is passed to the Go API; use the same explicit `--config` for CLI preparation, and keep Linux keys/data in the WSL filesystem. PostgreSQL preparation and explicit migration remain manual. Ctrl+C or either service exiting stops both.
@@ -47,13 +55,16 @@
   - `pnpm start` or `pnpm preview` previews the built frontend.
   - `pnpm lint` runs ESLint.
   - `pnpm typecheck` (or `pnpm --dir frontend exec tsc --noEmit`) checks frontend types.
+  - `pnpm test` runs Vitest tests under `frontend/tests/unit/`; it does not include the separate Node or Playwright suites.
   - `pnpm test:login` runs Node built-in tests for login validation and safe return paths.
-  - `pnpm test:theme` checks login theme policy, dark fallback, and theme transition cleanup.
+  - `pnpm test:theme` checks initial color/style policy, public-page and storage fallbacks, and theme transition cleanup.
   - `pnpm test:dev` checks combined and independent WSL startup guards, argument forwarding and process cleanup.
+  - `pnpm test:e2e` runs Chromium against its own Mock Vite server on `127.0.0.1:7201`; install Chromium with `pnpm exec playwright install chromium` when needed. For appearance/sidebar changes, target `pnpm --dir frontend exec playwright test tests/e2e/appearance.spec.ts tests/e2e/motion.spec.ts` to cover style persistence, stable geometry, footer popovers and motion.
   - `pnpm lint:fix` applies fixable ESLint changes.
 - Backend commands:
   - `go -C backend run -tags devassets ./cmd/server` starts the development API on loopback `PORT` or `25000` after explicit migration.
   - On Linux/WSL, every `devassets` service startup in development mode first builds `backend/build/wsl/zx-panel-helper` from current source and stops on build failure. This shared startup hook covers direct Go runs, pnpm launchers and GoLand debugging; cwd must remain `backend/` with a Linux Go SDK available. It only builds the helper, without sudo, installation or service restart; maintenance commands, release builds and non-Linux previews skip it.
+  - The startup hook lives in `backend/internal/server/dev_helper_linux.go`, with `dev_helper_disabled.go` for other builds. On Linux/WSL, `go -C backend test -tags devassets ./internal/server -run TestDevelopment` covers rebuilds, toolchain fallback, failed/canceled builds and stopping startup before database/data initialization. Windows tests exclude this Linux-only coverage. See `docs/wsl-go-debug.md` for manual builds and debugging.
   - `go -C backend test -tags devassets ./...` and `go -C backend vet -tags devassets ./...` validate Go. `ZX_PANEL_INTEGRATION=1` creates random isolated test databases; it must verify current_database() before any test writes.
   - `scripts/acceptance/wsl-lab.sh` and `scripts/acceptance/wsl-lab.py` reproduce the explicitly authorized isolated WSL experiment; they use dedicated paths, users, service units and PostgreSQL on 25433. Never repoint these tests at the existing development database.
   - `scripts/acceptance/wsl-release-checks.py export` tests actual 50 MiB export limits; its `uninstall` mode requires explicit authorization for temporary process-inspection capability and experimental runtime removal. Its `deployment` mode exercises the explicitly approved production template, binds template/binary SHA256 values to the report, then restores the original lab units. All modes wait for executable/capability/seccomp/socket readiness, restore capabilities and stop dedicated services. `uninstall --resume-installation` only reuses the installation recorded by its own failed check. `scripts/acceptance/wsl-resource-budget.mjs` measures cold browser transfers with JS/CSS compression and confirms API/SSE remain uncompressed.
@@ -72,7 +83,7 @@
 - Use the configured alias `@/* -> src/*` when it improves clarity.
 - Keep styles in adjacent `*.styles.ts` modules using `stylex.create`. Compose library controls through `xstyle`; use `styleProps` for native elements and Base UI state callbacks. Do not concatenate atomic class names to override component styles. Dynamic positions and measurements use StyleX parameters; Base UI positioning and Recharts series-color variables remain library data at the boundary.
 - Use existing shadcn/ui controls before adding new UI dependencies. These Base UI/Nova source components retain their standard behaviors with StyleX styling. The Tailwind generator configuration and CLI have been removed; when adding an official component, review the upstream source and adapt its styles and project types/comments instead of reintroducing Tailwind.
-- Keep theme colors in `frontend/src/styles/theme.styles.ts` and the external CSP-compatible `frontend/public/theme-init.js` referenced by `frontend/index.html` aligned with runtime theme policy. Login is always dark with one static line-art background and no toggle; setup follows the system with dark fallback. Preserve `zx-panel-theme` preferences for authenticated pages. Theme transitions respect reduced motion.
+- Keep theme colors in `frontend/src/styles/theme.styles.ts` and the external CSP-compatible `frontend/public/theme-init.js` referenced by `frontend/index.html` aligned with runtime theme policy. Login is always dark with one static line-art background and no toggle; setup follows the system with dark fallback. Both public pages use the default shell style without overwriting saved preferences. Preserve independent `zx-panel-theme` and `zx-panel-theme-style` preferences for authenticated pages. Theme transitions respect reduced motion.
 - Build visual and interactive UI from shadcn components, including login branding, cards, feedback, navigation, and tooltips. Keep native elements for semantic structure and layout only; page styles should compose component layout without redefining their colors, typography, or shadows. Keep `FieldError` mounted to reserve two lines before validation; longer errors scroll without changing form height.
 - Use the shared shadcn Toast for ordinary error, warning, success and information feedback: top-right, collapsed by default, with at most eight visible when expanded. Keep explicitly required field validation, operation review/confirmation, local query retry details, task error records, observation/read-only scope and log gap/drop indicators in context. State-driven notices use `ToastNotice` to avoid duplicate notifications on re-render.
 - Use the official Sidebar composition for the main navigation, with `SidebarMenuButton render={<NavLink ... />}`. Use `Item render={<a ... />}` for other structured links so native link semantics remain intact.
@@ -97,7 +108,7 @@
 - For static deployment of the Vite SPA, configure the host to fall back unknown UI paths to `frontend/index.html` so page and detail routes load directly; never fall back `/api/*`, SSE or downloads to HTML.
 
 ## Practical Examples for Agents
-- New UI view in the current scaffold: add a route entry under `frontend/src/routes/router.tsx`; place authenticated pages under `AuthGuard`.
+- New UI view: add a lazy route under `frontend/src/routes/router.tsx`; place authenticated pages under `AuthGuard` and `MainLayout`. For a main navigation entry, update `frontend/src/features/panel/navigation.ts` and the relevant navigation/page tests.
 - New frontend helper: place it under an appropriate `frontend/src/<domain-or-purpose>/` directory and import via relative paths or `@/`.
 - New backend endpoint: add route wiring in `backend/internal/api/resources.go`; move handlers/services into focused `backend/internal/<domain>/` packages as complexity grows.
 - New backend config: extend `backend/internal/config/panel.go` and document the environment variable in `README.md`.
@@ -105,8 +116,8 @@
 
 ## v1.1 Delivery and Safety
 - `pnpm dev:mock` uses fixed MSW data; `pnpm dev` uses the real same-origin API. Do not silently fall back between modes.
-- `pnpm test`, `pnpm test:e2e`, `pnpm test:api`, `pnpm contract --check-go`, and `pnpm scan:secrets` cover added validation. The API browser fixture uses an isolated database and embedded production assets. Preserve the original Node login/theme tests.
-- Generate API fixtures with `ZX_PANEL_CONTRACT_FIXTURES=1` during the isolated integration test. They contain public responses only.
+- `pnpm test:api` builds embedded production assets and runs `frontend/tests/api-e2e/` against the isolated Go browser fixture on `127.0.0.1:7202`, without MSW or Vite. It requires PostgreSQL access with permission to create isolated databases. Preserve the separate Node login/theme tests alongside Vitest and Mock E2E coverage; CI wiring is in `.github/workflows/verify.yml`.
+- Generate API fixtures with `ZX_PANEL_CONTRACT_FIXTURES=1` during the isolated integration test, then run `pnpm contract --check-go` to validate Go responses against frontend schemas. Fixtures contain public responses only; `pnpm scan:secrets` provides the repository secret-pattern check.
 - `pnpm build:release` validates API-only assets into `backend/internal/web/ui/dist`; `pnpm release` builds Linux amd64/arm64 binaries. Formal Go builds require these ignored generated assets; `devassets` is explicitly development only. Rebuilding resets build-time acceptance to pending; completed acceptance applies only to the artifact hashes in `docs/acceptance-deployment.json`.
 - Responses retain `success/data/error` and add `meta.requestId/serverTime`; synchronize OpenAPI via `pnpm contract`.
 - Never edit an applied SQL migration. Append a new version and preserve LF bytes for stable checksums.
