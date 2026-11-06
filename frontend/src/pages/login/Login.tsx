@@ -127,7 +127,7 @@ export function LoginPage() {
       <LoginBackground />
       <header {...styleProps(styles.header)}>
         <Item xstyle={styles.brand}>
-          <ItemMedia variant="image">
+          <ItemMedia variant="image" xstyle={styles.brandMark}>
             <img
               src="/icons/android-chrome-192x192.png"
               width={40}
@@ -141,14 +141,14 @@ export function LoginPage() {
         </Item>
       </header>
       <div {...styleProps(styles.body)}>
-        <section
-          {...styleProps(styles.panel)}
-          data-slot="login-panel"
-          aria-labelledby="login-title"
-        >
+        <section {...styleProps(styles.panel)} aria-labelledby="login-title">
           <Card size="lg" variant="glass" xstyle={styles.card}>
             <CardHeader xstyle={styles.cardHeader}>
-              <ItemMedia variant="image" aria-hidden="true">
+              <ItemMedia
+                variant="image"
+                xstyle={styles.brandMark}
+                aria-hidden="true"
+              >
                 <img
                   src="/icons/android-chrome-192x192.png"
                   width={40}

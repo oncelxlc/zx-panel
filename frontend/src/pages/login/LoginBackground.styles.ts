@@ -15,6 +15,7 @@ export const styles = stylex.create({
     width: "100%",
     height: "100%",
     objectFit: "cover",
+    filter: "grayscale(1)",
     objectPosition: {
       default: "left center",
       "@media (max-width: 767px)": "30% center",

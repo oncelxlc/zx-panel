@@ -27,12 +27,36 @@ test("login stays dark with one background across system themes and viewport siz
     ).toBe("light");
   }
   await expect(page.getByRole("button", { name: /主题/ })).toHaveCount(0);
+  const palette = await page.locator(".login-page").evaluate((element) => {
+    const style = getComputedStyle(element);
+    return [
+      "--background",
+      "--foreground",
+      "--primary",
+      "--primary-foreground",
+      "--secondary",
+      "--muted",
+      "--muted-foreground",
+      "--border",
+      "--input",
+      "--ring",
+    ].map((token) => style.getPropertyValue(token).trim());
+  });
+  for (const color of palette) expect(color).toMatch(/^#([\da-f]{1,2})\1\1$/i);
+  expect(
+    await page
+      .locator('[data-slot="card"]')
+      .evaluate(
+        (element) => getComputedStyle(element, "::before").backgroundImage,
+      ),
+  ).toContain("/login/login-bg-lines.webp");
 
   for (const [width, height] of [
     [1440, 900],
     [1024, 768],
     [768, 1024],
     [375, 812],
+    [320, 568],
     [812, 375],
   ]) {
     await page.setViewportSize({ width, height });
@@ -52,7 +76,10 @@ test("login stays dark with one background across system themes and viewport siz
     expect((await input.boundingBox())?.height).toBe(36);
     expect((await submit.boundingBox())?.height).toBe(36);
     const card = await page.locator('[data-slot="card"]').boundingBox();
-    expect((card?.height ?? 0) / (card?.width ?? 1)).toBeGreaterThan(1.4);
+    expect((card?.height ?? 0) / (card?.width ?? 1)).toBeGreaterThanOrEqual(
+      4 / 3,
+    );
+    expect(card?.width).toBe(Math.min(352, width - 48));
     const title = await page
       .getByRole("heading", { name: "欢迎回来" })
       .boundingBox();
@@ -83,7 +110,7 @@ test("login stays dark with one background across system themes and viewport siz
   }
 });
 
-test("login floats into view, stays still while typing and respects reduced motion", async ({
+test("login enters once, stays still on hover and respects reduced motion", async ({
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: "no-preference" });
@@ -113,10 +140,16 @@ test("login floats into view, stays still while typing and respects reduced moti
   expect(frames.middleOpacity).toBeGreaterThan(0);
   expect(frames.middleOpacity).toBeLessThan(1);
   expect(frames.finalHeight).toBe(frames.height);
+  const beforeHover = await card.boundingBox();
   await card.hover();
-  await expect(card).toHaveCSS("transform", "matrix(1, 0, 0, 1, 0, -8)");
+  await expect(card).toHaveCSS("transform", "none");
+  expect(await card.evaluate((element) => element.getAnimations().length)).toBe(
+    0,
+  );
+  expect(await card.boundingBox()).toEqual(beforeHover);
   await panel.hover({ position: { x: 2, y: 2 } });
-  await expect(card).toHaveCSS("transform", "matrix(1, 0, 0, 1, 0, -8)");
+  await expect(card).toHaveCSS("transform", "none");
+  expect(await card.boundingBox()).toEqual(beforeHover);
   const input = page.getByRole("textbox", { name: "账号", exact: true });
   await input.fill("demo");
   await expect(input).toBeFocused();
