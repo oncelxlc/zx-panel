@@ -1,3 +1,5 @@
+import { styleProps } from "@/lib/styleProps";
+import { styles } from "./App.styles";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -153,7 +155,7 @@ export default function App() {
   };
 
   return (
-    <div className="shell">
+    <div {...styleProps(styles.shell)}>
       <Card>
         <CardHeader>
           <Badge variant="secondary">ZX PANEL</Badge>
@@ -188,7 +190,7 @@ export default function App() {
             ))}
           </ItemGroup>
         </CardContent>
-        <CardFooter className="flex-wrap gap-2">
+        <CardFooter xstyle={styles.cardFooter}>
           <Button>Button</Button>
           <Button variant="outline" onClick={toggleTheme}>
             {resolvedMode === "dark" ? "切换亮色" : "切换暗色"}
@@ -204,7 +206,7 @@ export default function App() {
             </CardTitle>
             <CardDescription>{activeRoute.description}</CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-col gap-4">
+          <CardContent xstyle={styles.cardContent}>
             <ItemTitle>Route details</ItemTitle>
             <ItemGroup>
               {activeRoute.details.map((detail) => (

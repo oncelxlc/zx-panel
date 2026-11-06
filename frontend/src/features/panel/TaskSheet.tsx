@@ -1,3 +1,5 @@
+import { styleProps } from "@/lib/styleProps";
+import { styles } from "./TaskSheet.styles";
 import { actionLabels, stageLabels } from "@/features/panel/navigation";
 import { useDisplayTimezone } from "@/features/panel/display";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -104,14 +106,14 @@ export function TaskSheet() {
         if (!value) select(null);
       }}
     >
-      <SheetContent className="w-full sm:max-w-[640px]">
+      <SheetContent xstyle={styles.sheetContent}>
         <SheetHeader>
           <SheetTitle>任务记录</SheetTitle>
           <SheetDescription>
             仅展示后端实际任务。关闭面板后，已受理任务继续执行。
           </SheetDescription>
         </SheetHeader>
-        <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-auto px-4 pb-4">
+        <div {...styleProps(styles.body)}>
           {selected === "all" || !selected ? (
             <QueryState
               pending={tasks.isPending}
@@ -140,13 +142,11 @@ export function TaskSheet() {
                   </Item>
                 ))}
                 {tasks.data?.items.length === 0 && (
-                  <p className="text-sm text-muted-foreground">
-                    暂时没有任务。
-                  </p>
+                  <p {...styleProps(styles.description)}>暂时没有任务。</p>
                 )}
               </ItemGroup>
               {(cursor || tasks.data?.nextCursor) && (
-                <div className="flex justify-end gap-2">
+                <div {...styleProps(styles.actions)}>
                   <Button
                     variant="outline"
                     disabled={!cursor}
@@ -189,17 +189,17 @@ export function TaskSheet() {
               >
                 {task && (
                   <>
-                    <div className="flex flex-wrap justify-between gap-2">
+                    <div {...styleProps(styles.taskHeading)}>
                       <code>{actionLabels[task.action] ?? task.action}</code>
                       <Status status={task.status} />
                     </div>
-                    <p className="text-sm">
+                    <p {...styleProps(styles.summary)}>
                       当前阶段：{stageLabels[task.stage] ?? task.stage}
                     </p>
                     {task.progress.completedBytes !== null && (
                       <>
                         <Progress value={percent} aria-label="下载进度" />
-                        <p className="text-xs text-muted-foreground">
+                        <p {...styleProps(styles.caption)}>
                           {formatBytes(task.progress.completedBytes)} /{" "}
                           {formatBytes(task.progress.totalBytes)}
                         </p>
@@ -232,7 +232,7 @@ export function TaskSheet() {
                         </Button>
                       )}
                     {task.result && (
-                      <pre className="overflow-auto rounded-lg bg-muted p-3 font-mono text-xs whitespace-pre-wrap">
+                      <pre {...styleProps(styles.errorDetails)}>
                         {JSON.stringify(task.result, null, 2)}
                       </pre>
                     )}
@@ -253,9 +253,9 @@ export function TaskSheet() {
                       error={logs.error}
                       retry={() => void logs.refetch()}
                     >
-                      <div className="rounded-lg border bg-muted/30 p-3 font-mono text-xs leading-5">
+                      <div {...styleProps(styles.logs)}>
                         {logs.data?.items.map((line) => (
-                          <p key={line.id} className="break-all">
+                          <p key={line.id} {...styleProps(styles.logLine)}>
                             {formatTime(line.at, timeZone)} [{line.level}]{" "}
                             {line.message}
                           </p>

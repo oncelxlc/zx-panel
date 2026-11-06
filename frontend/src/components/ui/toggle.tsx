@@ -1,23 +1,35 @@
-import { Toggle as TogglePrimitive } from "@base-ui/react/toggle"
-import { type VariantProps } from "class-variance-authority"
-import { cn } from "@/lib/utils"
+import { Toggle as TogglePrimitive } from "@base-ui/react/toggle";
+import { styleProps } from "@/lib/styleProps";
+import type { StyledProps } from "@/types/style.type";
+import { styles } from "./toggle.styles";
 
-import { toggleVariants } from "@/lib/toggleVariants"
+import type { ToggleOptions } from "@/types/ui.type";
 
 /** Toggle 组合官方组件的焦点、键盘与语义样式，页面通过属性扩展。 */
 function Toggle({
   className,
+  xstyle,
+  style,
   variant = "default",
   size = "default",
   ...props
-}: TogglePrimitive.Props & VariantProps<typeof toggleVariants>) {
+}: StyledProps<TogglePrimitive.Props & ToggleOptions>) {
   return (
     <TogglePrimitive
       data-slot="toggle"
-      className={cn(toggleVariants({ variant, size, className }))}
+      {...styleProps(
+        [
+          styles.root,
+          styles[size],
+          variant === "outline" && styles.outline,
+          xstyle,
+        ],
+        className,
+        style,
+      )}
       {...props}
     />
-  )
+  );
 }
 
-export { Toggle }
+export { Toggle };

@@ -1,3 +1,4 @@
+import { styles } from "./Index.styles";
 import { useAuthenticatedUser } from "@/auth/authContext";
 import {
   Card,
@@ -11,7 +12,7 @@ import {
 export function IndexPage() {
   const user = useAuthenticatedUser();
   return (
-    <Card className="max-w-3xl">
+    <Card xstyle={styles.card}>
       <CardHeader>
         <CardTitle role="heading" aria-level={1}>
           你好，{user.displayName || user.username}

@@ -17,8 +17,8 @@
   - `frontend/src/auth/*` contains HttpOnly Cookie session handling, memory-only CSRF state, and the authentication guard; no Bearer/sessionStorage auth.
   - `frontend/src/theme/*` contains theme preference, system-theme listeners, and the shared theme toggle.
   - `frontend/src/components/ui/*` contains official shadcn/ui source components (Base UI + Nova, neutral colors, Lucide icons).
-  - `frontend/src/styles/theme.css` is the Tailwind v4 entry and the source of truth for semantic light/dark CSS tokens.
-  - `frontend/src/styles.scss` and page SCSS files contain layout styles; do not process Tailwind through Sass.
+  - `frontend/src/styles/theme.styles.ts` is the source of truth for semantic light/dark tokens and motion timing; `main.tsx` applies its compiled classes before asynchronous startup.
+  - Component and page styles live in adjacent `*.styles.ts` files, compiled by the official StyleX Vite plugin. `styles/reset.css` only normalizes browser defaults and reduced-motion behavior; there are no Tailwind or Sass dependencies.
 - Frontend tooling:
   - Root `package.json` and `pnpm-workspace.yaml` keep shared scripts/tooling; `frontend/package.json` owns frontend dependencies. Root pnpm commands delegate to the frontend project.
   - `frontend/vite.config.ts` configures React, `@/* -> src/*`, and dev server port `7200` with `strictPort: true`.
@@ -69,10 +69,10 @@
 - Inside frontend functions and methods, use single-line `//` comments only for important state transitions, security checks, error handling, resource cleanup, or other non-obvious logic; avoid line-by-line narration.
 - Prefer existing React hooks and local context patterns over adding global state libraries.
 - Use the configured alias `@/* -> src/*` when it improves clarity.
-- Keep styling aligned with the current SCSS/global class pattern in `frontend/src/styles.scss`.
-- Use existing shadcn/ui controls before adding new UI dependencies. Add official components with `pnpm --dir frontend exec shadcn add @shadcn/<component>` and review generated files for type/comment conventions.
-- Keep theme colors in `frontend/src/styles/theme.css` and the external CSP-compatible `frontend/public/theme-init.js` referenced by `frontend/index.html` aligned with runtime theme policy. Login is always dark with one static line-art background and no toggle; setup follows the system with dark fallback. Preserve `zx-panel-theme` preferences for authenticated pages. Theme transitions respect reduced motion.
-- Build visual and interactive UI from shadcn components, including login branding, cards, feedback, navigation, and tooltips. Keep native elements for semantic structure and layout only; page SCSS must not override component colors, typography, or shadows.
+- Keep styles in adjacent `*.styles.ts` modules using `stylex.create`. Compose library controls through `xstyle`; use `styleProps` for native elements and Base UI state callbacks. Do not concatenate atomic class names to override component styles. Dynamic positions and measurements use StyleX parameters; Base UI positioning and Recharts series-color variables remain library data at the boundary.
+- Use existing shadcn/ui controls before adding new UI dependencies. These Base UI/Nova source components retain their standard behaviors with StyleX styling. The Tailwind generator configuration and CLI have been removed; when adding an official component, review the upstream source and adapt its styles and project types/comments instead of reintroducing Tailwind.
+- Keep theme colors in `frontend/src/styles/theme.styles.ts` and the external CSP-compatible `frontend/public/theme-init.js` referenced by `frontend/index.html` aligned with runtime theme policy. Login is always dark with one static line-art background and no toggle; setup follows the system with dark fallback. Preserve `zx-panel-theme` preferences for authenticated pages. Theme transitions respect reduced motion.
+- Build visual and interactive UI from shadcn components, including login branding, cards, feedback, navigation, and tooltips. Keep native elements for semantic structure and layout only; page styles should compose component layout without redefining their colors, typography, or shadows. Keep `FieldError` mounted to reserve two lines before validation; longer errors scroll without changing form height.
 - Use the shared shadcn Toast for ordinary error, warning, success and information feedback: top-right, collapsed by default, with at most eight visible when expanded. Keep explicitly required field validation, operation review/confirmation, local query retry details, task error records, observation/read-only scope and log gap/drop indicators in context. State-driven notices use `ToastNotice` to avoid duplicate notifications on re-render.
 - Use the official Sidebar composition for the main navigation, with `SidebarMenuButton render={<NavLink ... />}`. Use `Item render={<a ... />}` for other structured links so native link semantics remain intact.
 - Keep the sidebar context and hook in `frontend/src/hooks/use-sidebar.ts`; TooltipProvider is mounted at the app entry.

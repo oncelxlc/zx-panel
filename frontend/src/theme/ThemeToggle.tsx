@@ -1,3 +1,6 @@
+import { styleProps } from "@/lib/styleProps";
+import { iconStyles } from "@/components/ui/icon.styles";
+import { styles } from "./ThemeToggle.styles";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -18,16 +21,16 @@ export function ThemeToggle() {
           <Button
             variant="outline"
             size="icon"
-            className="size-11"
+            xstyle={styles.button}
             onClick={toggleTheme}
             aria-label={label}
           />
         }
       >
         {resolvedMode === "dark" ? (
-          <Sun aria-hidden="true" />
+          <Sun {...styleProps(iconStyles.root)} aria-hidden="true" />
         ) : (
-          <Moon aria-hidden="true" />
+          <Moon {...styleProps(iconStyles.root)} aria-hidden="true" />
         )}
       </TooltipTrigger>
       <TooltipContent>{label}</TooltipContent>

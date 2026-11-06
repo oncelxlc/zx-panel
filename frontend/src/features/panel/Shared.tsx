@@ -1,3 +1,7 @@
+import { iconStyles } from "@/components/ui/icon.styles";
+import { styleProps } from "@/lib/styleProps";
+import { styles } from "./Shared.styles";
+import { motion } from "@/styles/motion.styles";
 import { useId } from "react";
 import { Link } from "react-router";
 import {
@@ -62,16 +66,14 @@ import type {
 /** PageHeading 为业务页面提供紧凑且一致的标题层级。 */
 export function PageHeading({ title, description, action }: PageHeadingProps) {
   return (
-    <div className="page-heading">
+    <div {...styleProps(styles.pageHeading)}>
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
+        <h1 {...styleProps(styles.heading)}>{title}</h1>
         {description && (
-          <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+          <p {...styleProps(styles.description)}>{description}</p>
         )}
       </div>
-      {action && (
-        <div className="flex flex-wrap items-center gap-2">{action}</div>
-      )}
+      {action && <div {...styleProps(styles.actions)}>{action}</div>}
     </div>
   );
 }
@@ -110,7 +112,7 @@ export function Status({ status, children }: StatusProps) {
         error ? "danger" : warning ? "warning" : good ? "success" : "secondary"
       }
     >
-      <Icon aria-hidden="true" />
+      <Icon {...styleProps(iconStyles.root)} aria-hidden="true" />
       {children ?? statusLabels[status] ?? status}
     </Badge>
   );
@@ -125,9 +127,16 @@ export function QueryState({
 }: QueryStateProps) {
   if (pending)
     return (
-      <div className="query-placeholder grid gap-4" role="status" aria-label="正在加载">
+      <div
+        {...styleProps([styles.placeholder, motion.placeholder])}
+        role="status"
+        aria-label="正在加载"
+      >
         {placeholder ?? (
-          <><Skeleton className="h-28 w-full" /><Skeleton className="h-48 w-full" /></>
+          <>
+            <Skeleton xstyle={styles.summarySkeleton} />
+            <Skeleton xstyle={styles.tableSkeleton} />
+          </>
         )}
       </div>
     );
@@ -148,7 +157,10 @@ export function QueryState({
         />
         {(retry || children) && (
           <Alert variant="destructive">
-            <TriangleAlert aria-hidden="true" />
+            <TriangleAlert
+              {...styleProps(iconStyles.root)}
+              aria-hidden="true"
+            />
             <AlertTitle>读取失败</AlertTitle>
             <AlertDescription>
               <p>{error.message}</p>
@@ -165,15 +177,19 @@ export function QueryState({
         )}
       </>
     );
-  return children == null ? children : <div className="query-content">{children}</div>;
+  return children == null ? (
+    children
+  ) : (
+    <div {...styleProps([styles.queryContent, motion.content])}>{children}</div>
+  );
 }
 
 /** 预留趋势图及底部工具栏的空间，让网络加载与图表分包使用同一占位。 */
 export function ChartSkeleton() {
   return (
-    <div className="flex flex-col gap-3">
-      <Skeleton className="h-60 w-full" />
-      <Skeleton className="h-11 w-full md:h-7" />
+    <div {...styleProps(styles.stack)}>
+      <Skeleton xstyle={styles.chartSkeleton} />
+      <Skeleton xstyle={styles.chartActionsSkeleton} />
     </div>
   );
 }
@@ -209,7 +225,10 @@ export function DataTable({
               <Empty>
                 <EmptyHeader>
                   <EmptyMedia variant="icon">
-                    <Inbox aria-hidden="true" />
+                    <Inbox
+                      {...styleProps(iconStyles.root)}
+                      aria-hidden="true"
+                    />
                   </EmptyMedia>
                   <EmptyTitle>{empty}</EmptyTitle>
                   <EmptyDescription>
@@ -236,10 +255,13 @@ export function MetricCard({
   percent,
 }: MetricCardProps) {
   return (
-    <Card className="metric-card">
+    <Card xstyle={styles.metricCard}>
       <CardHeader>
-        <CardDescription className="flex items-center gap-2">
-          <Icon aria-hidden="true" className="size-4" />
+        <CardDescription xstyle={styles.labelRow}>
+          <Icon
+            aria-hidden="true"
+            {...styleProps([iconStyles.root, styles.metricIcon])}
+          />
           {title}
         </CardDescription>
         <CardAction>
@@ -250,14 +272,12 @@ export function MetricCard({
             render={<Link to={to} />}
             aria-label={`查看${title}监控`}
           >
-            <ArrowUpRight aria-hidden="true" />
+            <ArrowUpRight {...styleProps(iconStyles.root)} aria-hidden="true" />
           </Button>
         </CardAction>
       </CardHeader>
-      <CardContent className="flex flex-col gap-3">
-        <div className="font-mono text-3xl leading-9 font-semibold tracking-tight tabular-nums">
-          {value}
-        </div>
+      <CardContent xstyle={styles.stack}>
+        <div {...styleProps(styles.metricValue)}>{value}</div>
         <CardDescription>{detail}</CardDescription>
         {percent != null && (
           <Progress value={percent} aria-label={`${title}使用率`} />
@@ -266,7 +286,9 @@ export function MetricCard({
           <Status status={quality.quality} />
         )}
         {sampledAt && (
-          <span className="sr-only">采样时间 {formatTime(sampledAt)}</span>
+          <span {...styleProps(styles.hidden)}>
+            采样时间 {formatTime(sampledAt)}
+          </span>
         )}
       </CardContent>
     </Card>
@@ -279,11 +301,13 @@ export function Choice({
   onChange,
   options,
   disabled,
+  errorId,
+  invalid,
 }: ChoiceProps) {
   const id = useId();
   return (
-    <div className="flex items-center gap-2">
-      <span id={id} className="text-xs text-muted-foreground">
+    <div {...styleProps(styles.labelRow)}>
+      <span id={id} {...styleProps(styles.caption)}>
         {label}
       </span>
       <Select
@@ -294,7 +318,11 @@ export function Choice({
         disabled={disabled}
         items={options}
       >
-        <SelectTrigger aria-labelledby={id}>
+        <SelectTrigger
+          aria-labelledby={id}
+          aria-describedby={errorId}
+          aria-invalid={invalid}
+        >
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
@@ -322,8 +350,8 @@ export function CopyText({ value }: CopyTextProps) {
     }
   }
   return (
-    <div className="flex min-w-0 items-center gap-1">
-      <code className="max-w-80 truncate text-xs" title={value}>
+    <div {...styleProps(styles.copyRow)}>
+      <code {...styleProps(styles.copyValue)} title={value}>
         {value}
       </code>
       <Button
@@ -332,7 +360,7 @@ export function CopyText({ value }: CopyTextProps) {
         onClick={() => void copy()}
         aria-label="复制路径"
       >
-        <Copy aria-hidden="true" />
+        <Copy {...styleProps(iconStyles.root)} aria-hidden="true" />
       </Button>
     </div>
   );

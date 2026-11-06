@@ -90,7 +90,7 @@ try {
       const logState = await page.evaluate(() => {
         const { document, performance } = globalThis;
         return {
-        renderedRows: document.querySelectorAll('[aria-label="日志纯文本，可选择复制"] .absolute').length,
+        renderedRows: document.querySelectorAll('[aria-label="日志纯文本，可选择复制"] [data-slot=log-row]').length,
         bufferedText: [...document.querySelectorAll("span")].find((element) => /条显示$/.test(element.textContent ?? ""))?.textContent ?? "",
         droppedText: document.body.textContent?.match(/缓冲已裁剪 \d+ 条记录/)?.[0] ?? "",
         heapBytes: performance.memory?.usedJSHeapSize ?? null,
@@ -118,7 +118,7 @@ try {
   if (report.pageErrors.length) throw new Error("Browser runtime errors occurred");
   if (report.samples.some((sample) => sample.logState.renderedRows > 100)) throw new Error("Log virtualization bound exceeded");
   stage = "log-pause";
-  const rows = page.getByRole("region", { name: "日志纯文本，可选择复制" }).locator(".absolute");
+  const rows = page.getByRole("region", { name: "日志纯文本，可选择复制" }).locator("[data-slot=log-row]");
   await page.getByRole("button", { name: "暂停显示", exact: true }).click();
   await page.getByRole("button", { name: "恢复显示", exact: true }).waitFor();
   const frozen = await rows.last().innerText();

@@ -1,3 +1,5 @@
+import { styleProps } from "@/lib/styleProps";
+import { styles } from "./AuthGuard.styles";
 import { useEffect, useState } from "react";
 import { Navigate, Outlet, useLocation } from "react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -38,18 +40,18 @@ export function AuthGuard() {
     );
   if (session.isPending)
     return (
-      <div
-        className="flex min-h-svh items-center justify-center gap-3"
-        role="status"
-      >
+      <div {...styleProps(styles.div)} role="status">
         <Spinner aria-hidden="true" />
         正在验证会话…
       </div>
     );
   if (session.isError)
     return (
-      <div className="m-auto max-w-lg p-6">
-        <QueryState error={session.error} retry={() => void session.refetch()} />
+      <div {...styleProps(styles.div1)}>
+        <QueryState
+          error={session.error}
+          retry={() => void session.refetch()}
+        />
       </div>
     );
   if (!session.data.authenticated || !session.data.user)

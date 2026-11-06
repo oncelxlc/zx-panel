@@ -1,3 +1,5 @@
+import { styleProps } from "@/lib/styleProps";
+import { styles } from "./Setup.styles";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -81,8 +83,8 @@ export function SetupPage() {
   if (status.data && !status.data.setupRequired)
     return <Navigate to="/login" replace />;
   return (
-    <main className="flex min-h-svh items-center justify-center p-4">
-      <Card className="w-full max-w-lg">
+    <main {...styleProps(styles.main)}>
+      <Card xstyle={styles.card}>
         <CardHeader>
           <CardTitle role="heading" aria-level={1}>
             初始化 zx-panel
@@ -141,8 +143,9 @@ export function SetupPage() {
                       autoComplete={item.auto}
                       {...form.register(item.key)}
                       aria-invalid={!!form.formState.errors[item.key]}
+                      aria-describedby={`${item.key}-error`}
                     />
-                    <FieldError>
+                    <FieldError id={`${item.key}-error`}>
                       {form.formState.errors[item.key]?.message}
                     </FieldError>
                   </Field>

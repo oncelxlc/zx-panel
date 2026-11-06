@@ -1,17 +1,44 @@
 import type { Button as BaseButton } from "@base-ui/react/button";
-import type { VariantProps } from "class-variance-authority";
+
 import type { ComponentProps } from "react";
-import type { buttonVariants } from "@/lib/buttonVariants";
+import type { StyledProps } from "./style.type";
 import type { Avatar as AvatarPrimitive } from "@base-ui/react/avatar";
 import type { Dialog as SheetPrimitive } from "@base-ui/react/dialog";
 import type { Tooltip as TooltipPrimitive } from "@base-ui/react/tooltip";
 import type { useRender } from "@base-ui/react/use-render";
 import type { CSSProperties } from "react";
-import type { badgeVariants } from "@/lib/badgeVariants";
+import type { Tabs as TabsPrimitive } from "@base-ui/react/tabs";
+
+/** 单个开关和分组共享的视觉选项。 */
+export type ToggleOptions = {
+  variant?: "default" | "outline";
+  size?: "default" | "sm" | "lg";
+};
+
+/** 标签列表提供填充和线条两种选中表现。 */
+export type TabsListProps = TabsPrimitive.List.Props & {
+  variant?: "default" | "line";
+};
 
 /** 基础按钮的交互属性与项目统一视觉变体。 */
-export type ButtonProps = BaseButton.Props &
-  VariantProps<typeof buttonVariants>;
+export type ButtonProps = StyledProps<BaseButton.Props> & {
+  variant?:
+    | "default"
+    | "outline"
+    | "secondary"
+    | "ghost"
+    | "destructive"
+    | "link";
+  size?:
+    | "default"
+    | "xs"
+    | "sm"
+    | "lg"
+    | "icon"
+    | "icon-xs"
+    | "icon-sm"
+    | "icon-lg";
+};
 
 /** 卡片保留原生容器属性；大尺寸用于独立表单，玻璃变体用于图片背景。 */
 export type CardProps = ComponentProps<"div"> & {
@@ -56,8 +83,18 @@ export type AvatarProps = AvatarPrimitive.Root.Props & {
 };
 
 /** 徽标保留 Base UI 的元素组合能力和官方视觉变体。 */
-export type BadgeProps = useRender.ComponentProps<"span"> &
-  VariantProps<typeof badgeVariants>;
+export type BadgeProps = useRender.ComponentProps<"span"> & {
+  variant?:
+    | "success"
+    | "warning"
+    | "danger"
+    | "default"
+    | "secondary"
+    | "destructive"
+    | "outline"
+    | "ghost"
+    | "link";
+};
 
 /** 信息条目使用官方密度和容器变体，可组合成语义链接。 */
 export type ItemProps = useRender.ComponentProps<"div"> & {

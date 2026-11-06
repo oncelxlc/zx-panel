@@ -1,3 +1,5 @@
+import { styleProps } from "@/lib/styleProps";
+import { styles } from "./MainLayout.styles";
 import { useCallback, useEffect, useState } from "react";
 import { Outlet, useLocation } from "react-router";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
@@ -21,10 +23,13 @@ export default function MainLayout() {
       window.matchMedia("(min-width: 1280px)").matches,
   );
   /** 更新展开状态，侧栏占位与外壳由同一组 CSS 过渡保持同步。 */
-  const changeSidebar = useCallback((nextOpen: boolean) => {
-    if (nextOpen === open) return;
-    setOpen(nextOpen);
-  }, [open]);
+  const changeSidebar = useCallback(
+    (nextOpen: boolean) => {
+      if (nextOpen === open) return;
+      setOpen(nextOpen);
+    },
+    [open],
+  );
   useEffect(() => {
     const query = window.matchMedia("(min-width: 1280px)");
     let timeout: number | undefined;
@@ -52,23 +57,31 @@ export default function MainLayout() {
     document.getElementById("main-content")?.focus({ preventScroll: true });
   }, [pathname]);
   return (
-    <SidebarProvider open={open} onOpenChange={changeSidebar} className="overflow-x-clip">
+    <SidebarProvider
+      open={open}
+      onOpenChange={changeSidebar}
+      xstyle={styles.sidebarProvider}
+    >
       <Button
         nativeButton={false}
         variant="outline"
-        className="skip-link"
+        xstyle={styles.skipLink}
         render={<a href="#main-content" />}
       >
         跳转到主要内容
       </Button>
       <MainSider />
-      <SidebarInset className="min-w-0">
-        <header className="sticky top-0 z-10 border-b bg-background">
+      <SidebarInset xstyle={styles.sidebarInset}>
+        <header {...styleProps(styles.header)}>
           <MainHeader />
         </header>
-        <div id="main-content" className="panel-content" tabIndex={-1}>
+        <div
+          id="main-content"
+          {...styleProps(styles.panelContent)}
+          tabIndex={-1}
+        >
           {import.meta.env.VITE_DATA_MODE === "mock" && (
-            <div className="mb-4">
+            <div {...styleProps(styles.notice)}>
               <Badge variant="warning">
                 演示数据 · 当前操作不会影响真实服务器
               </Badge>
@@ -76,7 +89,7 @@ export default function MainLayout() {
           )}
           {realtime.data?.system.observationScope !== "host" &&
             realtime.data && (
-              <Alert className="mb-4">
+              <Alert xstyle={styles.notice}>
                 <AlertTitle>
                   当前观测范围：
                   {realtime.data.system.observationScope === "container"

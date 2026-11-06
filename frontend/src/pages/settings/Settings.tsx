@@ -1,3 +1,5 @@
+import { styleProps } from "@/lib/styleProps";
+import { styles } from "./Settings.styles";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -103,8 +105,9 @@ function PreferencesForm({ settings }: PreferencesFormProps) {
             id="display-timezone"
             {...form.register("displayTimezone")}
             aria-invalid={!!form.formState.errors.displayTimezone}
+            aria-describedby="display-timezone-error"
           />
-          <FieldError>
+          <FieldError id="display-timezone-error">
             {form.formState.errors.displayTimezone?.message}
           </FieldError>
         </Field>
@@ -142,8 +145,11 @@ function PreferencesForm({ settings }: PreferencesFormProps) {
               max={item.max}
               {...form.register(item.key, { valueAsNumber: true })}
               aria-invalid={!!form.formState.errors[item.key]}
+              aria-describedby={`${item.key}-error`}
             />
-            <FieldError>{form.formState.errors[item.key]?.message}</FieldError>
+            <FieldError id={`${item.key}-error`}>
+              {form.formState.errors[item.key]?.message}
+            </FieldError>
           </Field>
         ))}
         <QueryState error={save.error} />
@@ -213,8 +219,11 @@ function PasswordForm() {
               autoComplete={item.auto}
               {...form.register(item.key)}
               aria-invalid={!!form.formState.errors[item.key]}
+              aria-describedby={`${item.key}-error`}
             />
-            <FieldError>{form.formState.errors[item.key]?.message}</FieldError>
+            <FieldError id={`${item.key}-error`}>
+              {form.formState.errors[item.key]?.message}
+            </FieldError>
           </Field>
         ))}
         <QueryState error={save.error} />
@@ -248,7 +257,7 @@ export function SettingsPage() {
     }
   }
   return (
-    <div className="page-stack max-w-4xl">
+    <div {...styleProps(styles.pageStack)}>
       <PageHeading
         title="设置"
         description="只调整面板本身，不修改主机系统配置"
@@ -257,7 +266,7 @@ export function SettingsPage() {
         <CardHeader>
           <CardTitle>外观</CardTitle>
           <CardDescription>
-            浏览器偏好即时保存；登录与初始化页始终跟随系统
+            浏览器偏好即时保存；登录页固定深色，初始化页跟随系统
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -308,7 +317,7 @@ export function SettingsPage() {
         </CardHeader>
         <CardContent>
           <PasswordForm />
-          <div className="mt-5">
+          <div {...styleProps(styles.appearanceActions)}>
             <Button
               variant="outline"
               disabled={leaving}
@@ -327,13 +336,17 @@ export function SettingsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <dl className="detail-grid text-sm">
+          <dl {...styleProps(styles.detailGrid)}>
             <dt>版本</dt>
-            <dd>{settings.data?.version ?? "读取中"}</dd>
+            <dd {...styleProps(styles.detailValue)}>
+              {settings.data?.version ?? "读取中"}
+            </dd>
             <dt>监控数据占用</dt>
-            <dd>{formatBytes(settings.data?.storageBytes)}</dd>
+            <dd {...styleProps(styles.detailValue)}>
+              {formatBytes(settings.data?.storageBytes)}
+            </dd>
             <dt>运行时目录</dt>
-            <dd>
+            <dd {...styleProps(styles.detailValue)}>
               <code>{settings.data?.runtimeRoot ?? "读取中"}</code>
               （部署配置，只读）
             </dd>

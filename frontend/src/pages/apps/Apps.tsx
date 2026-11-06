@@ -1,3 +1,6 @@
+import { iconStyles } from "@/components/ui/icon.styles";
+import { styleProps } from "@/lib/styleProps";
+import { styles } from "./Apps.styles";
 import { UnsavedChanges } from "@/features/panel/UnsavedChanges";
 import { LogsPage } from "@/pages/logs/Logs";
 import {
@@ -198,7 +201,7 @@ function AppForm({ app, onReview, onDirtyChange }: AppFormProps) {
     );
   }
   return (
-    <form onSubmit={form.handleSubmit(submit)} className="flex flex-col gap-5">
+    <form onSubmit={form.handleSubmit(submit)} {...styleProps(styles.form)}>
       <UnsavedChanges dirty={dirty} />
       <Alert>
         <AlertTitle>使用已经部署到服务器的文件</AlertTitle>
@@ -214,8 +217,11 @@ function AppForm({ app, onReview, onDirtyChange }: AppFormProps) {
             id="app-name"
             {...form.register("name")}
             aria-invalid={!!form.formState.errors.name}
+            aria-describedby="app-name-error"
           />
-          <FieldError>{form.formState.errors.name?.message}</FieldError>
+          <FieldError id="app-name-error">
+            {form.formState.errors.name?.message}
+          </FieldError>
         </Field>
         <Controller
           control={form.control}
@@ -238,8 +244,9 @@ function AppForm({ app, onReview, onDirtyChange }: AppFormProps) {
             id="app-dir"
             {...form.register("workingDirectory")}
             aria-invalid={!!form.formState.errors.workingDirectory}
+            aria-describedby="app-dir-error"
           />
-          <FieldError>
+          <FieldError id="app-dir-error">
             {form.formState.errors.workingDirectory?.message}
           </FieldError>
         </Field>
@@ -253,8 +260,11 @@ function AppForm({ app, onReview, onDirtyChange }: AppFormProps) {
             id="app-executable"
             {...form.register("executable")}
             aria-invalid={!!form.formState.errors.executable}
+            aria-describedby="app-executable-error"
           />
-          <FieldError>{form.formState.errors.executable?.message}</FieldError>
+          <FieldError id="app-executable-error">
+            {form.formState.errors.executable?.message}
+          </FieldError>
         </Field>
         {kind === "node" && (
           <Field data-invalid={!!form.formState.errors.runtimeInstallationId}>
@@ -264,13 +274,12 @@ function AppForm({ app, onReview, onDirtyChange }: AppFormProps) {
               render={({ field }) => (
                 <Choice
                   label="运行时实例"
+                  errorId="app-runtime-error"
+                  invalid={!!form.formState.errors.runtimeInstallationId}
                   value={field.value}
                   onChange={field.onChange}
                   options={(installs.data?.items ?? [])
-                    .filter(
-                      (item) =>
-                        item.state === "ready",
-                    )
+                    .filter((item) => item.state === "ready")
                     .map((item) => ({
                       value: item.id,
                       label: item.version + " · " + item.path,
@@ -278,7 +287,7 @@ function AppForm({ app, onReview, onDirtyChange }: AppFormProps) {
                 />
               )}
             />
-            <FieldError>
+            <FieldError id="app-runtime-error">
               {form.formState.errors.runtimeInstallationId?.message}
             </FieldError>
           </Field>
@@ -290,6 +299,8 @@ function AppForm({ app, onReview, onDirtyChange }: AppFormProps) {
             render={({ field }) => (
               <Choice
                 label="服务账号"
+                errorId="app-user-error"
+                invalid={!!form.formState.errors.runAsUser}
                 value={field.value}
                 onChange={field.onChange}
                 options={(bootstrap.data?.system.serviceAccounts ?? []).map(
@@ -298,7 +309,9 @@ function AppForm({ app, onReview, onDirtyChange }: AppFormProps) {
               />
             )}
           />
-          <FieldError>{form.formState.errors.runAsUser?.message}</FieldError>
+          <FieldError id="app-user-error">
+            {form.formState.errors.runAsUser?.message}
+          </FieldError>
         </Field>
         <Controller
           control={form.control}
@@ -321,9 +334,12 @@ function AppForm({ app, onReview, onDirtyChange }: AppFormProps) {
             id="app-args"
             {...form.register("args")}
             aria-invalid={!!form.formState.errors.args}
+            aria-describedby="app-args-error"
             placeholder={'["--port", "3000"]'}
           />
-          <FieldError>{form.formState.errors.args?.message}</FieldError>
+          <FieldError id="app-args-error">
+            {form.formState.errors.args?.message}
+          </FieldError>
         </Field>
         <Field data-invalid={!!form.formState.errors.environment}>
           <FieldLabel htmlFor="app-env">
@@ -335,8 +351,11 @@ function AppForm({ app, onReview, onDirtyChange }: AppFormProps) {
             autoComplete="off"
             spellCheck={false}
             aria-invalid={!!form.formState.errors.environment}
+            aria-describedby="app-env-error"
           />
-          <FieldError>{form.formState.errors.environment?.message}</FieldError>
+          <FieldError id="app-env-error">
+            {form.formState.errors.environment?.message}
+          </FieldError>
         </Field>
         {app?.environmentKeys.map((entry) => (
           <Controller
@@ -399,7 +418,7 @@ export function AppsPage() {
     );
   }
   return (
-    <div className="page-stack">
+    <div {...styleProps(styles.pageStack)}>
       <PageHeading
         title="应用与进程"
         description="托管应用可控制；未托管系统进程仅供查看"
@@ -409,7 +428,7 @@ export function AppsPage() {
               disabled={!bootstrap.data?.capabilities.manageApps.enabled}
               onClick={() => setCreating(true)}
             >
-              <Plus data-icon="inline-start" />
+              <Plus {...styleProps(iconStyles.root)} data-icon="inline-start" />
               新建应用
             </Button>
           )
@@ -466,7 +485,7 @@ export function AppsPage() {
                       ? "—"
                       : `${app.cpuUsagePercent.toFixed(1)}%`,
                     formatBytes(app.memoryBytes),
-                    <div className="flex gap-1">
+                    <div {...styleProps(styles.rowActions)}>
                       <Button
                         size="sm"
                         variant="outline"
@@ -504,11 +523,14 @@ export function AppsPage() {
               />
             </QueryState>
           ) : (
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-wrap items-center gap-3">
-                <InputGroup className="max-w-sm">
+            <div {...styleProps(styles.stack)}>
+              <div {...styleProps(styles.filters)}>
+                <InputGroup xstyle={styles.inputGroup}>
                   <InputGroupAddon>
-                    <Search aria-hidden="true" />
+                    <Search
+                      {...styleProps(iconStyles.root)}
+                      aria-hidden="true"
+                    />
                   </InputGroupAddon>
                   <InputGroupInput
                     aria-label="搜索进程名称或 PID"
@@ -597,14 +619,14 @@ export function AppsPage() {
           else setCreating(open);
         }}
       >
-        <SheetContent className="w-full sm:max-w-[640px]">
+        <SheetContent xstyle={styles.sheetContent}>
           <SheetHeader>
             <SheetTitle>新建托管应用</SheetTitle>
             <SheetDescription>
               文件必须已经存在于允许目录，不执行上传、拉取或安装依赖。
             </SheetDescription>
           </SheetHeader>
-          <div className="min-h-0 flex-1 overflow-auto px-4 pb-4">
+          <div {...styleProps(styles.sheetBody)}>
             <AppForm
               onDirtyChange={setDraftDirty}
               onReview={(next) => {
@@ -654,13 +676,13 @@ export function AppDetailPage() {
   const [operation, setOperation] = useState<OperationSpec | null>(null);
   const item: ManagedApp | undefined = app.data;
   return (
-    <div className="page-stack">
+    <div {...styleProps(styles.pageStack)}>
       <PageHeading
         title={item?.name ?? "应用详情"}
         description={item?.unitName}
         action={
           item && (
-            <div className="flex gap-2">
+            <div {...styleProps(styles.actions)}>
               <Button
                 variant="outline"
                 disabled={!bootstrap.data?.capabilities.manageApps.enabled}
@@ -727,26 +749,34 @@ export function AppDetailPage() {
                       onReview={setOperation}
                     />
                   ) : (
-                    <div className="flex flex-col gap-5">
-                      <dl className="detail-grid text-sm">
+                    <div {...styleProps(styles.form)}>
+                      <dl {...styleProps(styles.detailGrid)}>
                         <dt>状态</dt>
-                        <dd>
+                        <dd {...styleProps(styles.detailValue)}>
                           <Status status={item.status} />
                         </dd>
                         <dt>应用目录</dt>
-                        <dd>
+                        <dd {...styleProps(styles.detailValue)}>
                           <CopyText value={item.workingDirectory} />
                         </dd>
                         <dt>服务账号</dt>
-                        <dd>{item.runAsUser}</dd>
+                        <dd {...styleProps(styles.detailValue)}>
+                          {item.runAsUser}
+                        </dd>
                         <dt>主 PID</dt>
-                        <dd>{item.mainPid ?? "—"}</dd>
+                        <dd {...styleProps(styles.detailValue)}>
+                          {item.mainPid ?? "—"}
+                        </dd>
                         <dt>启动时间</dt>
-                        <dd>{formatTime(item.startedAt, timeZone)}</dd>
+                        <dd {...styleProps(styles.detailValue)}>
+                          {formatTime(item.startedAt, timeZone)}
+                        </dd>
                         <dt>内存</dt>
-                        <dd>{formatBytes(item.memoryBytes)}</dd>
+                        <dd {...styleProps(styles.detailValue)}>
+                          {formatBytes(item.memoryBytes)}
+                        </dd>
                         <dt>环境变量</dt>
-                        <dd>
+                        <dd {...styleProps(styles.detailValue)}>
                           {item.environmentKeys
                             .map((entry) => entry.name)
                             .join("、") || "未配置"}

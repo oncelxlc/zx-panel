@@ -1,46 +1,43 @@
 import type { AlertProps } from "@/types/ui.type";
 import * as React from "react";
-import { cva } from "class-variance-authority";
-import { cn } from "@/lib/utils";
-
-/** 按反馈语义选择提示容器样式。 */
-const alertVariants = cva(
-  "group/alert relative grid w-full gap-0.5 rounded-lg border px-2.5 py-2 text-left text-sm has-data-[slot=alert-action]:relative has-data-[slot=alert-action]:pr-18 has-[>svg]:grid-cols-[auto_1fr] has-[>svg]:gap-x-2 *:[svg]:row-span-2 *:[svg]:translate-y-0.5 *:[svg]:text-current *:[svg:not([class*='size-'])]:size-4",
-  {
-    variants: {
-      variant: {
-        default: "bg-card text-card-foreground",
-        destructive:
-          "bg-card text-destructive *:data-[slot=alert-description]:text-destructive/90 *:[svg]:text-current",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-    },
-  },
-);
+import { styleProps } from "@/lib/styleProps";
+import type { StyledProps } from "@/types/style.type";
+import { styles } from "./alert.styles";
 
 /** 呈现可被辅助技术播报的反馈，支持普通和错误状态。 */
-function Alert({ className, variant, ...props }: AlertProps) {
+function Alert({
+  className,
+  xstyle,
+  style,
+  variant,
+  ...props
+}: StyledProps<AlertProps>) {
   return (
     <div
       data-slot="alert"
+      data-variant={variant ?? "default"}
       role="alert"
-      className={cn(alertVariants({ variant }), className)}
+      {...styleProps(
+        [styles.root, variant === "destructive" && styles.destructive, xstyle],
+        className,
+        style,
+      )}
       {...props}
     />
   );
 }
 
 /** 呈现反馈标题并与提示图标对齐。 */
-function AlertTitle({ className, ...props }: React.ComponentProps<"div">) {
+function AlertTitle({
+  className,
+  xstyle,
+  style,
+  ...props
+}: StyledProps<React.ComponentProps<"div">>) {
   return (
     <div
       data-slot="alert-title"
-      className={cn(
-        "font-medium group-has-[>svg]/alert:col-start-2 [&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground",
-        className,
-      )}
+      {...styleProps([styles.title, xstyle], className, style)}
       {...props}
     />
   );
@@ -49,26 +46,30 @@ function AlertTitle({ className, ...props }: React.ComponentProps<"div">) {
 /** 容纳反馈详情和后续操作说明。 */
 function AlertDescription({
   className,
+  xstyle,
+  style,
   ...props
-}: React.ComponentProps<"div">) {
+}: StyledProps<React.ComponentProps<"div">>) {
   return (
     <div
       data-slot="alert-description"
-      className={cn(
-        "text-sm text-balance text-muted-foreground md:text-pretty [&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground [&_p:not(:last-child)]:mb-4",
-        className,
-      )}
+      {...styleProps([styles.description, xstyle], className, style)}
       {...props}
     />
   );
 }
 
 /** 将反馈的附加操作定位到容器右上角。 */
-function AlertAction({ className, ...props }: React.ComponentProps<"div">) {
+function AlertAction({
+  className,
+  xstyle,
+  style,
+  ...props
+}: StyledProps<React.ComponentProps<"div">>) {
   return (
     <div
       data-slot="alert-action"
-      className={cn("absolute top-2 right-2", className)}
+      {...styleProps([styles.action, xstyle], className, style)}
       {...props}
     />
   );

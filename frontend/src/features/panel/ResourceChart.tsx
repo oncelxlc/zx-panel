@@ -1,3 +1,5 @@
+import { styleProps } from "@/lib/styleProps";
+import { styles } from "./ResourceChart.styles";
 import { useState } from "react";
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import {
@@ -43,14 +45,14 @@ export function ResourceChart({
     );
   const valid = history.points.filter((point) => point.avg !== null);
   return (
-    <div className="flex flex-col gap-3">
-      <p className="sr-only">
+    <div {...styleProps(styles.stack)}>
+      <p {...styleProps(styles.hidden)}>
         {label}，{history.points.length} 个时间点，其中 {valid.length}{" "}
         个有效；缺口代表未采集或不可用。
       </p>
       <ChartContainer
         config={{ avg: { label, color: "var(--chart-1)" } }}
-        className="h-60 w-full"
+        xstyle={styles.chartContainer}
         initialDimension={{ width: 640, height: 240 }}
       >
         <AreaChart
@@ -58,8 +60,13 @@ export function ResourceChart({
           data={history.points}
           margin={{ left: 0, right: 12, top: 8, bottom: 0 }}
         >
-          <CartesianGrid vertical={false} />
+          <CartesianGrid
+            vertical={false}
+            stroke="var(--border)"
+            strokeOpacity={0.5}
+          />
           <XAxis
+            tick={{ fill: "var(--muted-foreground)" }}
             dataKey="at"
             tickLine={false}
             axisLine={false}
@@ -69,6 +76,7 @@ export function ResourceChart({
             }
           />
           <YAxis
+            tick={{ fill: "var(--muted-foreground)" }}
             width={58}
             tickLine={false}
             axisLine={false}
@@ -78,6 +86,7 @@ export function ResourceChart({
             }
           />
           <ChartTooltip
+            cursor={{ stroke: "var(--border)" }}
             content={
               <ChartTooltipContent
                 labelFormatter={(value) => formatTime(String(value), timeZone)}
@@ -96,8 +105,8 @@ export function ResourceChart({
           />
         </AreaChart>
       </ChartContainer>
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <span className="text-xs text-muted-foreground">
+      <div {...styleProps(styles.footer)}>
+        <span {...styleProps(styles.caption)}>
           {history.availableFrom
             ? `自 ${formatTime(history.availableFrom, timeZone)} 开始采集`
             : "采集范围不可用"}{" "}
@@ -113,7 +122,7 @@ export function ResourceChart({
         </Button>
       </div>
       {table && (
-        <div className="max-h-64 overflow-auto">
+        <div {...styleProps(styles.tableScroll)}>
           <DataTable
             headers={["时间", "平均", "最低", "最高", "样本"]}
             rows={history.points.map((point) => ({

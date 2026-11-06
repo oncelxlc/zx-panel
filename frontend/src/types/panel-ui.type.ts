@@ -76,6 +76,8 @@ export interface ChoiceProps {
   onChange: (value: string) => void;
   options: { value: string; label: string }[];
   disabled?: boolean;
+  errorId?: string;
+  invalid?: boolean;
 }
 
 /** UnsavedChangesProps 只表示是否存在需要确认的未提交草稿。 */

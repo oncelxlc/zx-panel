@@ -1,19 +1,24 @@
 import { Separator as SeparatorPrimitive } from "@base-ui/react/separator";
-import { cn } from "@/lib/utils";
+import { styleProps } from "@/lib/styleProps";
+import type { StyledProps } from "@/types/style.type";
+import { styles } from "./separator.styles";
 
 /** 使用 Base UI 分隔相邻内容，支持水平和垂直方向。 */
 function Separator({
   className,
+  xstyle,
+  style,
   orientation = "horizontal",
   ...props
-}: SeparatorPrimitive.Props) {
+}: StyledProps<SeparatorPrimitive.Props>) {
   return (
     <SeparatorPrimitive
       data-slot="separator"
       orientation={orientation}
-      className={cn(
-        "shrink-0 bg-border data-horizontal:h-px data-horizontal:w-full data-vertical:w-px data-vertical:self-stretch",
+      {...styleProps(
+        [styles.root, styles[orientation], xstyle],
         className,
+        style,
       )}
       {...props}
     />

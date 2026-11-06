@@ -1,15 +1,19 @@
 import * as React from "react";
-import { cn } from "@/lib/utils";
+import { styleProps } from "@/lib/styleProps";
+import type { StyledProps } from "@/types/style.type";
+import { styles } from "./label.styles";
 
 /** 为输入控件提供可关联的可见标签。 */
-function Label({ className, ...props }: React.ComponentProps<"label">) {
+function Label({
+  className,
+  xstyle,
+  style,
+  ...props
+}: StyledProps<React.ComponentProps<"label">>) {
   return (
     <label
       data-slot="label"
-      className={cn(
-        "flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50",
-        className,
-      )}
+      {...styleProps([styles.root, xstyle], className, style)}
       {...props}
     />
   );

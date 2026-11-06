@@ -1,3 +1,6 @@
+import { iconStyles } from "@/components/ui/icon.styles";
+import { styleProps } from "@/lib/styleProps";
+import { styles } from "./Logs.styles";
 import type { ApplicationLogsProps } from "@/types/panel-ui.type";
 import { useDisplayTimezone } from "@/features/panel/display";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
@@ -96,13 +99,17 @@ export function LogsPage({
     overscan: 12,
   });
   useLayoutEffect(() => {
-    const lastIndex = records.findIndex((line) => line.id === previousLast.current);
+    const lastIndex = records.findIndex(
+      (line) => line.id === previousLast.current,
+    );
     const removed = lastIndex < 0 ? 0 : previousLength.current - lastIndex - 1;
     if (following && pausedAt === null && visible.length) {
       virtual.scrollToIndex(visible.length - 1, { align: "end" });
     } else if (previousFilter.current === filters && removed > 0) {
       // 使用上次实际位置补偿前缀裁剪，避免浏览器收缩滚动区后再次跳动。
-      virtual.scrollToOffset(Math.max(0, scrollOffset.current - removed * logRowHeight));
+      virtual.scrollToOffset(
+        Math.max(0, scrollOffset.current - removed * logRowHeight),
+      );
     } else if (previousFilter.current !== filters) {
       virtual.scrollToOffset(0);
     }
@@ -245,7 +252,7 @@ export function LogsPage({
     );
   }
   return (
-    <div className="page-stack">
+    <div {...styleProps(styles.pageStack)}>
       {gapDetected && (
         <Alert>
           <AlertTitle>日志存在同步缺口</AlertTitle>
@@ -268,9 +275,15 @@ export function LogsPage({
               }
             >
               {pausedAt === null ? (
-                <Pause data-icon="inline-start" />
+                <Pause
+                  {...styleProps(iconStyles.root)}
+                  data-icon="inline-start"
+                />
               ) : (
-                <Play data-icon="inline-start" />
+                <Play
+                  {...styleProps(iconStyles.root)}
+                  data-icon="inline-start"
+                />
               )}
               {pausedAt === null ? "暂停显示" : "恢复显示"}
             </Button>
@@ -283,7 +296,10 @@ export function LogsPage({
               }
               onClick={() => exportLogs.mutate()}
             >
-              <Download data-icon="inline-start" />
+              <Download
+                {...styleProps(iconStyles.root)}
+                data-icon="inline-start"
+              />
               导出
             </Button>
           </>
@@ -314,8 +330,8 @@ export function LogsPage({
             最大单行 16 KiB，截断会标记；复制时仅选择需要的文本
           </CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-col gap-4">
-          <div className="flex flex-wrap items-center gap-3">
+        <CardContent xstyle={styles.cardContent}>
+          <div {...styleProps(styles.filters)}>
             <Choice
               disabled={!!fixedSource}
               label="来源"
@@ -339,7 +355,7 @@ export function LogsPage({
               ]}
             />
             <Input
-              className="max-w-xs"
+              xstyle={styles.input}
               value={search}
               onChange={(event) => filter("search", event.target.value)}
               placeholder="纯文本搜索…"
@@ -368,7 +384,7 @@ export function LogsPage({
             retry={() => void query.refetch()}
           >
             <div
-              className="log-lines rounded-lg border bg-muted/20"
+              {...styleProps(styles.logLines)}
               ref={element}
               tabIndex={0}
               role="region"
@@ -376,45 +392,42 @@ export function LogsPage({
               onScroll={() => {
                 scrollOffset.current = element.current?.scrollTop ?? 0;
               }}
-              onWheel={(event) => { if (event.deltaY < 0) setFollowing(false); }}
+              onWheel={(event) => {
+                if (event.deltaY < 0) setFollowing(false);
+              }}
               onPointerDown={() => setFollowing(false)}
               onKeyDown={(event) => {
-                if (["ArrowUp", "PageUp", "Home"].includes(event.key)) setFollowing(false);
+                if (["ArrowUp", "PageUp", "Home"].includes(event.key))
+                  setFollowing(false);
               }}
             >
-              <div
-                style={{
-                  height: virtual.getTotalSize(),
-                  width: "100%",
-                  position: "relative",
-                }}
-              >
+              <div {...styleProps(styles.virtualSpace(virtual.getTotalSize()))}>
                 {virtual.getVirtualItems().map((row) => {
                   const line = visible[row.index];
                   return (
                     <div
                       key={line.id}
-                      className="absolute top-0 left-0 flex w-max min-w-full gap-3 px-3 font-mono text-xs leading-7"
-                      style={{
-                        transform: `translateY(${row.start}px)`,
-                        height: row.size,
-                      }}
+                      data-slot="log-row"
+                      {...styleProps([
+                        styles.logRow,
+                        styles.virtualRow(row.start, row.size),
+                      ])}
                     >
-                      <span className="text-muted-foreground">
+                      <span {...styleProps(styles.timestamp)}>
                         {formatTime(line.at, timeZone)}
                       </span>
                       <span
-                        className={
+                        {...styleProps(
                           line.level === "error"
-                            ? "text-danger"
+                            ? styles.error
                             : line.level === "warn"
-                              ? "text-warning"
-                              : "text-muted-foreground"
-                        }
+                              ? styles.warning
+                              : styles.timestamp,
+                        )}
                       >
                         [{line.level.toUpperCase()}]
                       </span>
-                      <span className="whitespace-pre">
+                      <span {...styleProps(styles.message)}>
                         {line.message}
                         {line.truncated ? " …[已截断]" : ""}
                       </span>
@@ -423,21 +436,21 @@ export function LogsPage({
                 })}
               </div>
               {visible.length === 0 && (
-                <p className="p-4 text-sm text-muted-foreground">
+                <p {...styleProps(styles.empty)}>
                   {pausedAt !== null && records.length
                     ? "暂停位置已超出保留窗口，请恢复显示。"
                     : "当前范围没有日志记录。"}
                 </p>
               )}
             </div>
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="text-xs text-muted-foreground">
+            <div {...styleProps(styles.footer)}>
+              <span {...styleProps(styles.caption)}>
                 {visible.length} 条显示
                 {pausedAt !== null && (
                   <Badge variant="secondary">新增 {added} 条</Badge>
                 )}
               </span>
-              <div className="flex gap-2">
+              <div {...styleProps(styles.actions)}>
                 {query.data?.nextCursor && (
                   <Button
                     variant="outline"
@@ -461,7 +474,10 @@ export function LogsPage({
                       void query.refetch();
                     }}
                   >
-                    <ArrowDown data-icon="inline-start" />
+                    <ArrowDown
+                      {...styleProps(iconStyles.root)}
+                      data-icon="inline-start"
+                    />
                     回到最新
                   </Button>
                 )}

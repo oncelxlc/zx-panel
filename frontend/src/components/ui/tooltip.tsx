@@ -1,6 +1,9 @@
+import { motion } from "@/styles/motion.styles";
 import type { TooltipContentProps } from "@/types/ui.type";
 import { Tooltip as TooltipPrimitive } from "@base-ui/react/tooltip";
-import { cn } from "@/lib/utils";
+import { styleProps } from "@/lib/styleProps";
+import type { StyledProps } from "@/types/style.type";
+import { styles } from "./tooltip.styles";
 
 /** 统一子树内提示的延迟与交互管理。 */
 function TooltipProvider({
@@ -29,13 +32,15 @@ function TooltipTrigger({ ...props }: TooltipPrimitive.Trigger.Props) {
 /** 使用门户定位提示内容，避免被布局容器裁切。 */
 function TooltipContent({
   className,
+  xstyle,
+  style,
   side = "top",
   sideOffset = 4,
   align = "center",
   alignOffset = 0,
   children,
   ...props
-}: TooltipContentProps) {
+}: StyledProps<TooltipContentProps>) {
   return (
     <TooltipPrimitive.Portal>
       <TooltipPrimitive.Positioner
@@ -43,18 +48,19 @@ function TooltipContent({
         alignOffset={alignOffset}
         side={side}
         sideOffset={sideOffset}
-        className="isolate z-50"
+        {...styleProps(styles.positioner)}
       >
         <TooltipPrimitive.Popup
           data-slot="tooltip-content"
-          className={cn(
-            "z-50 inline-flex w-fit max-w-xs motion-popup origin-(--transform-origin) items-center gap-1.5 rounded-md bg-foreground px-3 py-1.5 text-xs text-background has-data-[slot=kbd]:pr-1.5 **:data-[slot=kbd]:relative **:data-[slot=kbd]:isolate **:data-[slot=kbd]:z-50 **:data-[slot=kbd]:rounded-sm ",
+          {...styleProps(
+            [motion.popup, styles.popup, xstyle],
             className,
+            style,
           )}
           {...props}
         >
           {children}
-          <TooltipPrimitive.Arrow className="z-50 size-2.5 translate-y-[calc(-50%-2px)] rotate-45 rounded-[2px] bg-foreground fill-foreground data-[side=bottom]:top-1 data-[side=inline-end]:top-1/2! data-[side=inline-end]:-left-1 data-[side=inline-end]:-translate-y-1/2 data-[side=inline-start]:top-1/2! data-[side=inline-start]:-right-1 data-[side=inline-start]:-translate-y-1/2 data-[side=left]:top-1/2! data-[side=left]:-right-1 data-[side=left]:-translate-y-1/2 data-[side=right]:top-1/2! data-[side=right]:-left-1 data-[side=right]:-translate-y-1/2 data-[side=top]:-bottom-2.5" />
+          <TooltipPrimitive.Arrow {...styleProps(styles.arrow)} />
         </TooltipPrimitive.Popup>
       </TooltipPrimitive.Positioner>
     </TooltipPrimitive.Portal>

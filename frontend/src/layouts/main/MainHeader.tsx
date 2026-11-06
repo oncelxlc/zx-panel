@@ -1,3 +1,6 @@
+import { iconStyles } from "@/components/ui/icon.styles";
+import { styleProps } from "@/lib/styleProps";
+import { styles } from "./MainHeader.styles";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -41,7 +44,6 @@ import {
   tasksQuery,
 } from "@/features/panel/queries";
 import { navigation } from "@/features/panel/navigation";
-import "./MainHeader.scss";
 
 /** MainHeader 提供页面搜索、真实任务数、三态主题与账号操作。 */
 export function MainHeader() {
@@ -93,34 +95,36 @@ export function MainHeader() {
     navigate(path);
   }
   return (
-    <div className="header-layout">
-      <div className="header-layout__left">
-        <SidebarTrigger className="size-11" />
-        <span className="text-sm font-medium">{page?.label ?? "zx-panel"}</span>
+    <div {...styleProps(styles.headerLayout)}>
+      <div {...styleProps(styles.leading)}>
+        <SidebarTrigger xstyle={styles.sidebarTrigger} />
+        <span {...styleProps(styles.pageTitle)}>
+          {page?.label ?? "zx-panel"}
+        </span>
       </div>
-      <div className="header-layout__right">
+      <div {...styleProps(styles.actions)}>
         <Button
-          className="size-11 md:hidden"
+          xstyle={styles.mobileSearch}
           variant="ghost"
           size="icon"
           aria-label="搜索"
           onClick={() => setSearch(true)}
         >
-          <Search aria-hidden="true" />
+          <Search {...styleProps(iconStyles.root)} aria-hidden="true" />
         </Button>
         <Button
           variant="outline"
-          className="hidden w-64 justify-between md:flex"
+          xstyle={styles.desktopSearch}
           onClick={() => setSearch(true)}
         >
-          <Search data-icon="inline-start" />
+          <Search {...styleProps(iconStyles.root)} data-icon="inline-start" />
           <span>搜索页面、运行时或应用…</span>
-          <kbd className="text-xs">⌘ K</kbd>
+          <kbd {...styleProps(styles.shortcut)}>⌘ K</kbd>
         </Button>
         <Button
           variant="ghost"
           size="icon"
-          className="relative size-11"
+          xstyle={styles.taskButton}
           aria-label={"任务记录，" + active + " 个进行中"}
           onClick={() =>
             setParams((previous) => {
@@ -129,29 +133,27 @@ export function MainHeader() {
             })
           }
         >
-          <ClipboardList aria-hidden="true" />
-          {active > 0 && (
-            <Badge className="absolute right-0 top-0">{active}</Badge>
-          )}
+          <ClipboardList {...styleProps(iconStyles.root)} aria-hidden="true" />
+          {active > 0 && <Badge xstyle={styles.taskCount}>{active}</Badge>}
         </Button>
-        <div className="hidden md:block">
+        <div {...styleProps(styles.desktopOnly)}>
           <DropdownMenu>
             <DropdownMenuTrigger
               render={
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="size-11"
+                  xstyle={styles.sidebarTrigger}
                   aria-label="选择主题"
                 />
               }
             >
               {preference === "system" ? (
-                <Monitor aria-hidden="true" />
+                <Monitor {...styleProps(iconStyles.root)} aria-hidden="true" />
               ) : preference === "dark" ? (
-                <Moon aria-hidden="true" />
+                <Moon {...styleProps(iconStyles.root)} aria-hidden="true" />
               ) : (
-                <Sun aria-hidden="true" />
+                <Sun {...styleProps(iconStyles.root)} aria-hidden="true" />
               )}
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -176,12 +178,15 @@ export function MainHeader() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="size-11"
+                xstyle={styles.sidebarTrigger}
                 aria-label="账号菜单"
               />
             }
           >
-            <CircleUserRound aria-hidden="true" />
+            <CircleUserRound
+              {...styleProps(iconStyles.root)}
+              aria-hidden="true"
+            />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuGroup>
@@ -192,7 +197,7 @@ export function MainHeader() {
                 账号与设置
               </DropdownMenuItem>
               <DropdownMenuItem disabled={leaving} onClick={() => void leave()}>
-                <LogOut aria-hidden="true" />
+                <LogOut {...styleProps(iconStyles.root)} aria-hidden="true" />
                 {leaving ? "正在退出…" : "退出登录"}
               </DropdownMenuItem>
             </DropdownMenuGroup>
@@ -212,7 +217,10 @@ export function MainHeader() {
             <CommandGroup heading="页面">
               {navigation.map((item) => (
                 <CommandItem key={item.path} onSelect={() => go(item.path)}>
-                  <item.icon aria-hidden="true" />
+                  <item.icon
+                    {...styleProps(iconStyles.root)}
+                    aria-hidden="true"
+                  />
                   {item.label}
                 </CommandItem>
               ))}

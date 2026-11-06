@@ -1,3 +1,6 @@
+import { iconStyles } from "@/components/ui/icon.styles";
+import { styleProps } from "@/lib/styleProps";
+import { styles } from "./Runtimes.styles";
 import { useRef, useState } from "react";
 import { z } from "zod";
 import { useDisplayTimezone } from "@/features/panel/display";
@@ -93,7 +96,7 @@ export function RuntimesPage() {
     },
   });
   return (
-    <div className="page-stack">
+    <div {...styleProps(styles.pageStack)}>
       <PageHeading
         title="运行时"
         description="自动识别当前服务器的执行环境与工具链，系统安装每分钟刷新"
@@ -103,7 +106,10 @@ export function RuntimesPage() {
             disabled={refresh.isPending}
             onClick={() => refresh.mutate()}
           >
-            <RefreshCw data-icon="inline-start" />
+            <RefreshCw
+              {...styleProps(iconStyles.root)}
+              data-icon="inline-start"
+            />
             检查更新
           </Button>
         }
@@ -114,7 +120,7 @@ export function RuntimesPage() {
         error={runtimes.error}
         retry={() => void runtimes.refetch()}
       >
-        <div className="grid gap-4 lg:grid-cols-2">
+        <div {...styleProps(styles.runtimeGrid)}>
           {runtimes.data?.map((runtime) => (
             <Card key={runtime.kind}>
               <CardHeader>
@@ -125,20 +131,21 @@ export function RuntimesPage() {
                   {runtimeDescriptions[runtime.kind].description}
                 </CardDescription>
               </CardHeader>
-              <CardContent className="flex flex-col gap-4">
-                <p className="break-words font-mono text-2xl font-semibold">
+              <CardContent xstyle={styles.cardContent}>
+                <p {...styleProps(styles.version)}>
                   {runtime.defaultVersion ??
                     (runtime.externalVersions.join(" · ") ||
                       (runtime.kind === "node" || runtime.kind === "go"
                         ? "未设置默认版本"
                         : "版本待核实"))}
                 </p>
-                {runtime.defaultVersion && runtime.externalVersions.length > 0 && (
-                  <p className="text-sm text-muted-foreground">
-                    系统已安装：{runtime.externalVersions.join(" · ")}
-                  </p>
-                )}
-                <div className="flex flex-wrap gap-2">
+                {runtime.defaultVersion &&
+                  runtime.externalVersions.length > 0 && (
+                    <p {...styleProps(styles.description)}>
+                      系统已安装：{runtime.externalVersions.join(" · ")}
+                    </p>
+                  )}
+                <div {...styleProps(styles.badges)}>
                   {(runtime.kind === "node" || runtime.kind === "go") && (
                     <Badge variant="secondary">
                       面板管理 {runtime.panelCount}
@@ -152,7 +159,7 @@ export function RuntimesPage() {
                   )}
                 </div>
                 {runtime.kind === "node" || runtime.kind === "go" ? (
-                  <p className="text-xs text-muted-foreground">
+                  <p {...styleProps(styles.caption)}>
                     目录：{formatTime(runtime.checkedAt, timeZone)} ·{" "}
                     {runtime.cacheState === "unavailable"
                       ? "尚无可用目录"
@@ -161,7 +168,7 @@ export function RuntimesPage() {
                         : "已检查"}
                   </p>
                 ) : (
-                  <p className="text-xs text-muted-foreground">
+                  <p {...styleProps(styles.caption)}>
                     系统安装 · 按来源预检并管理
                   </p>
                 )}
@@ -180,7 +187,10 @@ export function RuntimesPage() {
                     : runtime.panelCount + runtime.externalCount === 0
                       ? "安装版本"
                       : "管理版本"}
-                  <ArrowRight data-icon="inline-end" />
+                  <ArrowRight
+                    {...styleProps(iconStyles.root)}
+                    data-icon="inline-end"
+                  />
                 </Button>
               </CardFooter>
             </Card>
@@ -209,7 +219,10 @@ export function RuntimeDetailPage() {
     enabled: managed,
   });
   const referencesOpen = !!params.get("references");
-  const referenceID = useLastOpenValue(params.get("references") ?? "", referencesOpen);
+  const referenceID = useLastOpenValue(
+    params.get("references") ?? "",
+    referencesOpen,
+  );
   const references = useQuery({
     queryKey: ["runtime-references", referenceID],
     enabled: referencesOpen,
@@ -225,12 +238,11 @@ export function RuntimeDetailPage() {
   const [operation, setOperation] = useState<OperationSpec | null>(null);
   const [defaultChoice, setMakeDefault] = useState<boolean | null>(null);
   const makeDefault = defaultChoice ?? installs.data?.items.length === 0;
-  const tab =
-    !managed
-      ? "installed"
-      : params.get("action") === "install"
-        ? "available"
-        : (params.get("tab") ?? "installed");
+  const tab = !managed
+    ? "installed"
+    : params.get("action") === "install"
+      ? "available"
+      : (params.get("tab") ?? "installed");
   /** 筛选留在 URL，不把安装路径或秘密配置写入 URL。 */
   function changeTab(value: string) {
     setParams((previous) => {
@@ -263,7 +275,7 @@ export function RuntimeDetailPage() {
   const capabilities = bootstrap.data?.capabilities;
   const items = installs.data?.items ?? [];
   return (
-    <div className="page-stack">
+    <div {...styleProps(styles.pageStack)}>
       <PageHeading
         title={kind === "go" ? "Go 工具链" : description.name}
         description={
@@ -276,7 +288,10 @@ export function RuntimeDetailPage() {
         action={
           managed ? (
             <Button onClick={() => changeTab("available")}>
-              <Download data-icon="inline-start" />
+              <Download
+                {...styleProps(iconStyles.root)}
+                data-icon="inline-start"
+              />
               安装版本
             </Button>
           ) : undefined
@@ -301,7 +316,7 @@ export function RuntimeDetailPage() {
                 : "版本与兼容性由本机后端核对"}
             </CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-col gap-4">
+          <CardContent xstyle={styles.cardContent}>
             <Field orientation="horizontal">
               <Checkbox
                 id="make-default"
@@ -331,7 +346,7 @@ export function RuntimeDetailPage() {
                           ? "稳定"
                           : release.channel,
                     release.platform,
-                    <div className="flex flex-col gap-1">
+                    <div {...styleProps(styles.versionDetails)}>
                       {formatBytes(release.downloadBytes)}
                       {release.verifiedArtifactCached && (
                         <Badge variant="outline">已验证缓存</Badge>
@@ -363,7 +378,7 @@ export function RuntimeDetailPage() {
                 empty="没有可用版本目录，请在运行时首页检查更新"
               />
               {(params.has("catalogCursor") || releases.data?.nextCursor) && (
-                <div className="flex justify-end gap-2">
+                <div {...styleProps(styles.actions)}>
                   <Button
                     variant="outline"
                     disabled={!params.has("catalogCursor")}
@@ -407,7 +422,7 @@ export function RuntimeDetailPage() {
                 rows={items.map((item) => ({
                   id: item.id,
                   cells: [
-                    <div className="flex items-center gap-2">
+                    <div {...styleProps(styles.status)}>
                       <code>{item.version}</code>
                       {item.isPanelDefault && (
                         <Badge variant="outline">面板默认</Badge>
@@ -426,7 +441,7 @@ export function RuntimeDetailPage() {
                       {item.configuredAppRefs} 个应用 · 查看引用
                     </Button>,
                     <Status status={item.state} />,
-                    <div className="flex flex-wrap gap-2">
+                    <div {...styleProps(styles.badges)}>
                       {managed && (
                         <Button
                           variant="outline"
@@ -447,39 +462,45 @@ export function RuntimeDetailPage() {
                           设为面板默认
                         </Button>
                       )}
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          disabled={item.isSystemDefault || item.state !== "ready" || !capabilities?.changeRuntimeDefault.enabled}
-                          onClick={() => setOperation({
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={
+                          item.isSystemDefault ||
+                          item.state !== "ready" ||
+                          !capabilities?.changeRuntimeDefault.enabled
+                        }
+                        onClick={() =>
+                          setOperation({
                             action: "runtime.set-system-default",
                             installationId: item.id,
                             expectedRevision: item.revision,
-                          })}
-                        >
-                          设为系统默认
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          disabled={!capabilities?.uninstallRuntime.enabled}
-                          onClick={() =>
-                            setOperation({
-                              action: "runtime.uninstall",
-                              installationId: item.id,
-                              expectedRevision: item.revision,
-                            })
-                          }
-                        >
-                          卸载预检
-                        </Button>
-                      </div>,
+                          })
+                        }
+                      >
+                        设为系统默认
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        disabled={!capabilities?.uninstallRuntime.enabled}
+                        onClick={() =>
+                          setOperation({
+                            action: "runtime.uninstall",
+                            installationId: item.id,
+                            expectedRevision: item.revision,
+                          })
+                        }
+                      >
+                        卸载预检
+                      </Button>
+                    </div>,
                   ],
                 }))}
                 empty="尚未发现已安装版本"
               />
               {(params.has("installedCursor") || installs.data?.nextCursor) && (
-                <div className="flex justify-end gap-2">
+                <div {...styleProps(styles.actions)}>
                   <Button
                     variant="outline"
                     onClick={() => changeParam("installedCursor", "")}
@@ -522,14 +543,14 @@ export function RuntimeDetailPage() {
           if (!open) changeParam("references", "");
         }}
       >
-        <SheetContent className="overflow-y-auto sm:max-w-xl">
+        <SheetContent xstyle={styles.sheetContent}>
           <SheetHeader>
             <SheetTitle>安装引用</SheetTitle>
             <SheetDescription>
               配置绑定与当前进程分别核对；卸载时后端会重新扫描。
             </SheetDescription>
           </SheetHeader>
-          <div className="flex flex-col gap-4 px-4 pb-4">
+          <div {...styleProps(styles.sheetBody)}>
             <QueryState
               pending={references.isPending}
               error={references.error}

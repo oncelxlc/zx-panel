@@ -1,114 +1,138 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { cn } from "@/lib/utils"
+import * as React from "react";
+import { styleProps } from "@/lib/styleProps";
+import type { StyledProps } from "@/types/style.type";
+import { styles } from "./table.styles";
 
 /** Table 组合官方组件的焦点、键盘与语义样式，页面通过属性扩展。 */
-function Table({ className, ...props }: React.ComponentProps<"table">) {
+function Table({
+  className,
+  xstyle,
+  style,
+  ...props
+}: StyledProps<React.ComponentProps<"table">>) {
   return (
-    <div
-      data-slot="table-container"
-      className="relative w-full overflow-x-auto"
-    >
+    <div data-slot="table-container" {...styleProps(styles.container)}>
       <table
         data-slot="table"
-        className={cn("w-full caption-bottom text-sm", className)}
+        {...styleProps([styles.root, xstyle], className, style)}
         {...props}
       />
     </div>
-  )
+  );
 }
 
 /** TableHeader 组合官方组件的焦点、键盘与语义样式，页面通过属性扩展。 */
-function TableHeader({ className, ...props }: React.ComponentProps<"thead">) {
+function TableHeader({
+  className,
+  xstyle,
+  style,
+  ...props
+}: StyledProps<React.ComponentProps<"thead">>) {
   return (
     <thead
       data-slot="table-header"
-      className={cn("[&_tr]:border-b", className)}
+      {...styleProps([styles.header, xstyle], className, style)}
       {...props}
     />
-  )
+  );
 }
 
 /** TableBody 组合官方组件的焦点、键盘与语义样式，页面通过属性扩展。 */
-function TableBody({ className, ...props }: React.ComponentProps<"tbody">) {
+function TableBody({
+  className,
+  xstyle,
+  style,
+  ...props
+}: StyledProps<React.ComponentProps<"tbody">>) {
   return (
     <tbody
       data-slot="table-body"
-      className={cn("[&_tr:last-child]:border-0", className)}
+      {...styleProps([styles.body, xstyle], className, style)}
       {...props}
     />
-  )
+  );
 }
 
 /** TableFooter 组合官方组件的焦点、键盘与语义样式，页面通过属性扩展。 */
-function TableFooter({ className, ...props }: React.ComponentProps<"tfoot">) {
+function TableFooter({
+  className,
+  xstyle,
+  style,
+  ...props
+}: StyledProps<React.ComponentProps<"tfoot">>) {
   return (
     <tfoot
       data-slot="table-footer"
-      className={cn(
-        "border-t bg-muted/50 font-medium [&>tr]:last:border-b-0",
-        className
-      )}
+      {...styleProps([styles.footer, xstyle], className, style)}
       {...props}
     />
-  )
+  );
 }
 
 /** TableRow 组合官方组件的焦点、键盘与语义样式，页面通过属性扩展。 */
-function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
+function TableRow({
+  className,
+  xstyle,
+  style,
+  ...props
+}: StyledProps<React.ComponentProps<"tr">>) {
   return (
     <tr
       data-slot="table-row"
-      className={cn(
-        "border-b transition-colors hover:bg-muted/50 has-aria-expanded:bg-muted/50 data-[state=selected]:bg-muted",
-        className
-      )}
+      {...styleProps([styles.row, xstyle], className, style)}
       {...props}
     />
-  )
+  );
 }
 
 /** TableHead 组合官方组件的焦点、键盘与语义样式，页面通过属性扩展。 */
-function TableHead({ className, ...props }: React.ComponentProps<"th">) {
+function TableHead({
+  className,
+  xstyle,
+  style,
+  ...props
+}: StyledProps<React.ComponentProps<"th">>) {
   return (
     <th
       data-slot="table-head"
-      className={cn(
-        "h-10 px-2 text-left align-middle font-medium whitespace-nowrap text-foreground [&:has([role=checkbox])]:pr-0",
-        className
-      )}
+      {...styleProps([styles.head, xstyle], className, style)}
       {...props}
     />
-  )
+  );
 }
 
 /** TableCell 组合官方组件的焦点、键盘与语义样式，页面通过属性扩展。 */
-function TableCell({ className, ...props }: React.ComponentProps<"td">) {
+function TableCell({
+  className,
+  xstyle,
+  style,
+  ...props
+}: StyledProps<React.ComponentProps<"td">>) {
   return (
     <td
       data-slot="table-cell"
-      className={cn(
-        "p-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0",
-        className
-      )}
+      {...styleProps([styles.cell, xstyle], className, style)}
       {...props}
     />
-  )
+  );
 }
 
 /** TableCaption 组合官方组件的焦点、键盘与语义样式，页面通过属性扩展。 */
 function TableCaption({
   className,
+  xstyle,
+  style,
   ...props
-}: React.ComponentProps<"caption">) {
+}: StyledProps<React.ComponentProps<"caption">>) {
   return (
     <caption
       data-slot="table-caption"
-      className={cn("mt-4 text-sm text-muted-foreground", className)}
+      {...styleProps([styles.caption, xstyle], className, style)}
       {...props}
     />
-  )
+  );
 }
 
 export {
@@ -120,4 +144,4 @@ export {
   TableRow,
   TableCell,
   TableCaption,
-}
+};

@@ -1,3 +1,4 @@
+import { styles } from "./RuntimeAccessNotice.styles";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -20,28 +21,38 @@ export function RuntimeAccessNotice() {
   const bootstrap = useQuery(bootstrapQuery);
   const [dismissed, setDismissed] = useState(false);
   const capability = bootstrap.data?.capabilities.installRuntime;
-  const needsHelper = capability?.reasonCode === "HELPER_DISABLED" ||
-    capability?.reasonCode === "HELPER_UNAVAILABLE" || capability?.reasonCode === "HELPER_OUTDATED";
+  const needsHelper =
+    capability?.reasonCode === "HELPER_DISABLED" ||
+    capability?.reasonCode === "HELPER_UNAVAILABLE" ||
+    capability?.reasonCode === "HELPER_OUTDATED";
   if (!needsHelper || capability?.enabled) return null;
   return (
     <>
-      <Alert className="mb-4">
+      <Alert xstyle={styles.alert}>
         <AlertTitle>运行时管理权限未就绪</AlertTitle>
         <AlertDescription>
           <p>{capability.message}</p>
-          <Button variant="outline" size="sm" onClick={() => setDismissed(false)}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setDismissed(false)}
+          >
             查看启动与重启步骤
           </Button>
         </AlertDescription>
       </Alert>
-      <AlertDialog open={!dismissed} onOpenChange={(open) => setDismissed(!open)}>
+      <AlertDialog
+        open={!dismissed}
+        onOpenChange={(open) => setDismissed(!open)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>需要启用管理权限</AlertDialogTitle>
             <AlertDialogDescription>
-              {capability.message} Go 后端使用普通账号运行，特权操作交给独立 helper。
-              已按部署模板安装时，请在服务器终端执行 sudo systemctl restart zx-panel-helper。
-              首次启用 helper 后需重启 Go 后端；已启用时可直接重新检查。
+              {capability.message} Go 后端使用普通账号运行，特权操作交给独立
+              helper。 已按部署模板安装时，请在服务器终端执行 sudo systemctl
+              restart zx-panel-helper。 首次启用 helper 后需重启 Go
+              后端；已启用时可直接重新检查。
             </AlertDialogDescription>
           </AlertDialogHeader>
           <QueryState error={bootstrap.error} />

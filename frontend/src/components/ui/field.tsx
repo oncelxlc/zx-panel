@@ -4,21 +4,24 @@ import type {
   FieldErrorProps,
 } from "@/types/ui.type";
 import { useMemo } from "react";
-import { cva } from "class-variance-authority";
-import { cn } from "@/lib/utils";
+import { styleProps } from "@/lib/styleProps";
+import type { StyledProps } from "@/types/style.type";
+import { styles } from "./field.styles";
 
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 
 /** 以原生字段集合语义组织关联表单控件。 */
-function FieldSet({ className, ...props }: React.ComponentProps<"fieldset">) {
+function FieldSet({
+  className,
+  xstyle,
+  style,
+  ...props
+}: StyledProps<React.ComponentProps<"fieldset">>) {
   return (
     <fieldset
       data-slot="field-set"
-      className={cn(
-        "flex flex-col gap-4 has-[>[data-slot=checkbox-group]]:gap-3 has-[>[data-slot=radio-group]]:gap-3",
-        className,
-      )}
+      {...styleProps([styles.set, xstyle], className, style)}
       {...props}
     />
   );
@@ -27,77 +30,71 @@ function FieldSet({ className, ...props }: React.ComponentProps<"fieldset">) {
 /** 为字段集合提供可见标题与标签样式。 */
 function FieldLegend({
   className,
+  xstyle,
+  style,
   variant = "legend",
   ...props
-}: FieldLegendProps) {
+}: StyledProps<FieldLegendProps>) {
   return (
     <legend
       data-slot="field-legend"
       data-variant={variant}
-      className={cn(
-        "mb-1.5 font-medium data-[variant=label]:text-sm data-[variant=legend]:text-base",
-        className,
-      )}
+      {...styleProps([styles.legend, xstyle], className, style)}
       {...props}
     />
   );
 }
 
 /** 统一多个字段的间距，并提供响应式布局容器。 */
-function FieldGroup({ className, ...props }: React.ComponentProps<"div">) {
+function FieldGroup({
+  className,
+  xstyle,
+  style,
+  ...props
+}: StyledProps<React.ComponentProps<"div">>) {
   return (
     <div
       data-slot="field-group"
-      className={cn(
-        "group/field-group @container/field-group flex w-full flex-col gap-5 data-[slot=checkbox-group]:gap-3 *:data-[slot=field-group]:gap-4",
-        className,
-      )}
+      {...styleProps([styles.group, xstyle], className, style)}
       {...props}
     />
   );
 }
 
-/** 定义字段的纵向、横向和响应式排列方式。 */
-const fieldVariants = cva(
-  "group/field flex w-full gap-2 data-[invalid=true]:text-destructive",
-  {
-    variants: {
-      orientation: {
-        vertical: "flex-col *:w-full [&>.sr-only]:w-auto",
-        horizontal:
-          "flex-row items-center has-[>[data-slot=field-content]]:items-start *:data-[slot=field-label]:flex-auto has-[>[data-slot=field-content]]:[&>[role=checkbox],[role=radio]]:mt-px",
-        responsive:
-          "flex-col *:w-full @md/field-group:flex-row @md/field-group:items-center @md/field-group:*:w-auto @md/field-group:has-[>[data-slot=field-content]]:items-start @md/field-group:*:data-[slot=field-label]:flex-auto [&>.sr-only]:w-auto @md/field-group:has-[>[data-slot=field-content]]:[&>[role=checkbox],[role=radio]]:mt-px",
-      },
-    },
-    defaultVariants: {
-      orientation: "vertical",
-    },
-  },
-);
-
 /** 组合标签、控件和反馈，依据校验状态展示错误样式。 */
-function Field({ className, orientation = "vertical", ...props }: FieldProps) {
+function Field({
+  className,
+  xstyle,
+  style,
+  orientation = "vertical",
+  ...props
+}: StyledProps<FieldProps>) {
   return (
     <div
       role="group"
       data-slot="field"
       data-orientation={orientation}
-      className={cn(fieldVariants({ orientation }), className)}
+      {...styleProps(
+        [styles.root, styles[orientation], xstyle],
+        className,
+        style,
+      )}
       {...props}
     />
   );
 }
 
 /** 组织横向字段内的标签和说明内容。 */
-function FieldContent({ className, ...props }: React.ComponentProps<"div">) {
+function FieldContent({
+  className,
+  xstyle,
+  style,
+  ...props
+}: StyledProps<React.ComponentProps<"div">>) {
   return (
     <div
       data-slot="field-content"
-      className={cn(
-        "group/field-content flex flex-1 flex-col gap-0.5 leading-snug",
-        className,
-      )}
+      {...styleProps([styles.content, xstyle], className, style)}
       {...props}
     />
   );
@@ -106,46 +103,48 @@ function FieldContent({ className, ...props }: React.ComponentProps<"div">) {
 /** 关联字段标签，并反映字段禁用和选择状态。 */
 function FieldLabel({
   className,
+  xstyle,
+  style,
   ...props
-}: React.ComponentProps<typeof Label>) {
+}: StyledProps<React.ComponentProps<typeof Label>>) {
   return (
     <Label
       data-slot="field-label"
-      className={cn(
-        "group/field-label peer/field-label flex w-fit gap-2 leading-snug group-data-[disabled=true]/field:opacity-50 has-data-checked:border-primary/30 has-data-checked:bg-primary/5 has-[>[data-slot=field]]:rounded-lg has-[>[data-slot=field]]:border has-[>[data-slot=field]]:not-has-[:disabled,[data-disabled]]:hover:bg-muted/50 has-[>[data-slot=field]]:has-[:focus-visible]:border-ring has-[>[data-slot=field]]:has-[:focus-visible]:ring-3 has-[>[data-slot=field]]:has-[:focus-visible]:ring-ring/50 *:data-[slot=field]:p-2.5 dark:has-data-checked:border-primary/20 dark:has-data-checked:bg-primary/10",
-        "has-[>[data-slot=field]]:w-full has-[>[data-slot=field]]:flex-col",
-        className,
-      )}
+      xstyle={[styles.label, xstyle]}
+      className={className}
+      style={style}
       {...props}
     />
   );
 }
 
 /** 为无需关联输入元素的字段分组提供标题样式。 */
-function FieldTitle({ className, ...props }: React.ComponentProps<"div">) {
+function FieldTitle({
+  className,
+  xstyle,
+  style,
+  ...props
+}: StyledProps<React.ComponentProps<"div">>) {
   return (
     <div
       data-slot="field-label"
-      className={cn(
-        "flex w-fit items-center gap-2 text-sm font-medium group-data-[disabled=true]/field:opacity-50",
-        className,
-      )}
+      {...styleProps([styles.title, xstyle], className, style)}
       {...props}
     />
   );
 }
 
 /** 展示字段帮助信息，可通过 aria-describedby 关联控件。 */
-function FieldDescription({ className, ...props }: React.ComponentProps<"p">) {
+function FieldDescription({
+  className,
+  xstyle,
+  style,
+  ...props
+}: StyledProps<React.ComponentProps<"p">>) {
   return (
     <p
       data-slot="field-description"
-      className={cn(
-        "text-left text-sm leading-normal font-normal text-muted-foreground group-has-data-horizontal/field:text-balance [[data-variant=legend]+&]:-mt-1.5",
-        "last:mt-0 nth-last-2:-mt-1",
-        "[&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary",
-        className,
-      )}
+      {...styleProps([styles.description, xstyle], className, style)}
       {...props}
     />
   );
@@ -155,22 +154,21 @@ function FieldDescription({ className, ...props }: React.ComponentProps<"p">) {
 function FieldSeparator({
   children,
   className,
+  xstyle,
+  style,
   ...props
-}: React.ComponentProps<"div">) {
+}: StyledProps<React.ComponentProps<"div">>) {
   return (
     <div
       data-slot="field-separator"
       data-content={!!children}
-      className={cn(
-        "relative -my-2 h-5 text-sm group-data-[variant=outline]/field-group:-mb-2",
-        className,
-      )}
+      {...styleProps([styles.separator, xstyle], className, style)}
       {...props}
     >
-      <Separator className="absolute inset-0 top-1/2" />
+      <Separator xstyle={styles.separatorLine} />
       {children && (
         <span
-          className="relative mx-auto block w-fit bg-background px-2 text-muted-foreground"
+          {...styleProps(styles.separatorContent)}
           data-slot="field-separator-content"
         >
           {children}
@@ -183,10 +181,12 @@ function FieldSeparator({
 /** 去重并播报字段错误，也支持直接传入校验消息。 */
 function FieldError({
   className,
+  xstyle,
+  style,
   children,
   errors,
   ...props
-}: FieldErrorProps) {
+}: StyledProps<FieldErrorProps>) {
   const content = useMemo(() => {
     if (children) {
       return children;
@@ -205,7 +205,7 @@ function FieldError({
     }
 
     return (
-      <ul className="ml-4 flex list-disc flex-col gap-1">
+      <ul {...styleProps(styles.errorList)}>
         {uniqueErrors.map(
           (error, index) =>
             error?.message && <li key={index}>{error.message}</li>,
@@ -214,15 +214,13 @@ function FieldError({
     );
   }, [children, errors]);
 
-  if (!content) {
-    return null;
-  }
-
   return (
     <div
-      role="alert"
+      role={content ? "alert" : undefined}
+      aria-hidden={!content || undefined}
+      tabIndex={content ? 0 : undefined}
       data-slot="field-error"
-      className={cn("text-sm font-normal text-destructive", className)}
+      {...styleProps([styles.error, xstyle], className, style)}
       {...props}
     >
       {content}

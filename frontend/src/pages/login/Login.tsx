@@ -1,3 +1,4 @@
+import { iconStyles } from "@/components/ui/icon.styles";
 import { ApiError, login } from "@/auth/api";
 import {
   queryClient,
@@ -8,12 +9,8 @@ import { useQuery } from "@tanstack/react-query";
 import { getLoginTarget, validateLoginForm } from "@/auth/loginForm";
 import { toast } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Field,
   FieldError,
@@ -29,11 +26,14 @@ import {
 import { Item, ItemContent, ItemMedia, ItemTitle } from "@/components/ui/item";
 import { Spinner } from "@/components/ui/spinner";
 import type { LoginFormErrors, LoginFormValues } from "@/types/auth.type";
-import { Eye, EyeOff, X } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import { useRef, useState } from "react";
 import type { ChangeEvent, FocusEvent, FormEvent } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router";
-import "./Login.scss";
+import { styleProps } from "@/lib/styleProps";
+import { styles as dialogStyles } from "@/components/ui/dialog.styles";
+import { styles as fieldStyles } from "@/components/ui/field.styles";
+import { styles } from "./Login.styles";
 import { LoginBackground } from "./LoginBackground";
 
 /** 渲染公开登录表单；认证与令牌存储交给 API 客户端，页面负责反馈和安全回跳。 */
@@ -73,13 +73,6 @@ export function LoginPage() {
     }));
   }
 
-  /** 清空账号后将焦点交还输入框，方便立即重新输入。 */
-  function clearUsername() {
-    setValues({ ...values, username: "" });
-    setErrors({ ...errors, username: undefined });
-    usernameRef.current?.focus();
-  }
-
   /** 提交前读取实际表单值以兼容密码管理器，并在请求期间阻止重复提交。 */
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -114,7 +107,8 @@ export function LoginPage() {
     } catch (error) {
       toast.add({
         id: "login-error",
-        title: error instanceof ApiError ? error.message : "登录失败，请稍后重试",
+        title:
+          error instanceof ApiError ? error.message : "登录失败，请稍后重试",
         description:
           error instanceof ApiError && error.requestId
             ? `请求编号：${error.requestId}`
@@ -129,81 +123,86 @@ export function LoginPage() {
 
   if (setupStatus.data?.setupRequired) return <Navigate to="/setup" replace />;
   return (
-    <main className="login-page">
+    <main {...styleProps(styles.page, "login-page")}>
       <LoginBackground />
-      <header className="login-page__header">
-        <Item className="w-auto gap-3 p-0">
+      <header {...styleProps(styles.header)}>
+        <Item xstyle={styles.brand}>
           <ItemMedia variant="image">
-            <img src="/icons/android-chrome-192x192.png" width={40} height={40} alt="" />
+            <img
+              src="/icons/android-chrome-192x192.png"
+              width={40}
+              height={40}
+              alt=""
+            />
           </ItemMedia>
           <ItemContent>
             <ItemTitle>ZX PANEL</ItemTitle>
           </ItemContent>
         </Item>
       </header>
-      <div className="login-page__body">
-        <section className="login-page__panel" aria-labelledby="login-title">
-          <Card>
-            <CardHeader>
+      <div {...styleProps(styles.body)}>
+        <section
+          {...styleProps(styles.panel)}
+          data-slot="login-panel"
+          aria-labelledby="login-title"
+        >
+          <Card size="lg" variant="glass" xstyle={styles.card}>
+            <CardHeader xstyle={styles.cardHeader}>
+              <ItemMedia variant="image" aria-hidden="true">
+                <img
+                  src="/icons/android-chrome-192x192.png"
+                  width={40}
+                  height={40}
+                  alt=""
+                />
+              </ItemMedia>
               <CardTitle id="login-title" role="heading" aria-level={1}>
                 欢迎回来
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent xstyle={styles.cardContent}>
               <form onSubmit={handleSubmit} noValidate aria-busy={submitting}>
-                <FieldGroup>
+                <FieldGroup xstyle={styles.fields}>
                   <Field
+                    xstyle={styles.field}
                     data-invalid={Boolean(errors.username)}
                     data-disabled={submitting}
                   >
                     <FieldLabel htmlFor="username">账号</FieldLabel>
-                    <InputGroup className="h-12">
-                      <InputGroupInput
-                        className="h-full"
-                        ref={usernameRef}
-                        id="username"
-                        name="username"
-                        value={values.username}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        autoComplete="username"
-                        autoCapitalize="none"
-                        spellCheck={false}
-                        required
-                        disabled={submitting}
-                        aria-invalid={Boolean(errors.username)}
-                        aria-describedby={
-                          errors.username ? "username-error" : undefined
-                        }
-                      />
-                      <InputGroupAddon align="inline-end" className="w-12">
-                        {values.username && (
-                          <InputGroupButton
-                            size="icon-sm"
-                            className="size-11"
-                            onClick={clearUsername}
-                            disabled={submitting}
-                            aria-label="清空账号"
-                          >
-                            <X aria-hidden="true" />
-                          </InputGroupButton>
-                        )}
-                      </InputGroupAddon>
-                    </InputGroup>
-                    {errors.username && (
-                      <FieldError id="username-error">
-                        {errors.username}
-                      </FieldError>
-                    )}
+                    <Input
+                      xstyle={styles.control}
+                      ref={usernameRef}
+                      id="username"
+                      name="username"
+                      value={values.username}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      autoComplete="username"
+                      autoCapitalize="none"
+                      spellCheck={false}
+                      required
+                      disabled={submitting}
+                      aria-invalid={Boolean(errors.username)}
+                      aria-describedby={
+                        errors.username ? "username-error" : undefined
+                      }
+                    />
+                    <FieldError
+                      id="username-error"
+                      xstyle={fieldStyles.errorCompact}
+                    >
+                      {errors.username}
+                    </FieldError>
                   </Field>
                   <Field
+                    xstyle={styles.field}
                     data-invalid={Boolean(errors.password)}
                     data-disabled={submitting}
                   >
                     <FieldLabel htmlFor="password">密码</FieldLabel>
-                    <InputGroup className="h-12">
+                    <InputGroup xstyle={styles.control}>
                       <InputGroupInput
-                        className="h-full"
+                        xstyle={styles.password}
                         ref={passwordRef}
                         id="password"
                         name="password"
@@ -222,28 +221,35 @@ export function LoginPage() {
                       <InputGroupAddon align="inline-end">
                         <InputGroupButton
                           size="icon-sm"
-                          className="size-11"
+                          xstyle={styles.reveal}
                           onClick={() => setShowPassword(!showPassword)}
                           disabled={submitting}
                           aria-label={showPassword ? "隐藏密码" : "显示密码"}
                           aria-pressed={showPassword}
                         >
                           {showPassword ? (
-                            <EyeOff aria-hidden="true" />
+                            <EyeOff
+                              {...styleProps(iconStyles.root)}
+                              aria-hidden="true"
+                            />
                           ) : (
-                            <Eye aria-hidden="true" />
+                            <Eye
+                              {...styleProps(iconStyles.root)}
+                              aria-hidden="true"
+                            />
                           )}
                         </InputGroupButton>
                       </InputGroupAddon>
                     </InputGroup>
-                    {errors.password && (
-                      <FieldError id="password-error">
-                        {errors.password}
-                      </FieldError>
-                    )}
+                    <FieldError
+                      id="password-error"
+                      xstyle={fieldStyles.errorCompact}
+                    >
+                      {errors.password}
+                    </FieldError>
                   </Field>
                   <Button
-                    className="h-12 w-full"
+                    xstyle={styles.submit}
                     type="submit"
                     disabled={submitting}
                   >
@@ -253,7 +259,7 @@ export function LoginPage() {
                     {submitting ? "正在登录…" : "登录控制台"}
                   </Button>
                 </FieldGroup>
-                <span className="sr-only" role="status">
+                <span {...styleProps(dialogStyles.hidden)} role="status">
                   {submitting ? "正在登录，请稍候" : ""}
                 </span>
               </form>

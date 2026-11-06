@@ -1,23 +1,26 @@
-"use client"
+import { iconStyles } from "@/components/ui/icon.styles";
+import { motion } from "@/styles/motion.styles";
 
-import * as React from "react"
-import { Menu as MenuPrimitive } from "@base-ui/react/menu"
-import { cn } from "@/lib/utils"
-import { ChevronRightIcon, CheckIcon } from "lucide-react"
+import * as React from "react";
+import { Menu as MenuPrimitive } from "@base-ui/react/menu";
+import { styleProps } from "@/lib/styleProps";
+import type { StyledProps } from "@/types/style.type";
+import { styles } from "./dropdown-menu.styles";
+import { ChevronRightIcon, CheckIcon } from "lucide-react";
 
 /** DropdownMenu 组合官方组件的焦点、键盘与语义样式，页面通过属性扩展。 */
 function DropdownMenu({ ...props }: MenuPrimitive.Root.Props) {
-  return <MenuPrimitive.Root data-slot="dropdown-menu" {...props} />
+  return <MenuPrimitive.Root data-slot="dropdown-menu" {...props} />;
 }
 
 /** DropdownMenuPortal 组合官方组件的焦点、键盘与语义样式，页面通过属性扩展。 */
 function DropdownMenuPortal({ ...props }: MenuPrimitive.Portal.Props) {
-  return <MenuPrimitive.Portal data-slot="dropdown-menu-portal" {...props} />
+  return <MenuPrimitive.Portal data-slot="dropdown-menu-portal" {...props} />;
 }
 
 /** DropdownMenuTrigger 组合官方组件的焦点、键盘与语义样式，页面通过属性扩展。 */
 function DropdownMenuTrigger({ ...props }: MenuPrimitive.Trigger.Props) {
-  return <MenuPrimitive.Trigger data-slot="dropdown-menu-trigger" {...props} />
+  return <MenuPrimitive.Trigger data-slot="dropdown-menu-trigger" {...props} />;
 }
 
 /** DropdownMenuContent 组合官方组件的焦点、键盘与语义样式，页面通过属性扩展。 */
@@ -27,16 +30,20 @@ function DropdownMenuContent({
   side = "bottom",
   sideOffset = 4,
   className,
+  xstyle,
+  style,
   ...props
-}: MenuPrimitive.Popup.Props &
-  Pick<
-    MenuPrimitive.Positioner.Props,
-    "align" | "alignOffset" | "side" | "sideOffset"
-  >) {
+}: StyledProps<
+  MenuPrimitive.Popup.Props &
+    Pick<
+      MenuPrimitive.Positioner.Props,
+      "align" | "alignOffset" | "side" | "sideOffset"
+    >
+>) {
   return (
     <MenuPrimitive.Portal>
       <MenuPrimitive.Positioner
-        className="isolate z-50 outline-none"
+        {...styleProps(styles.positioner)}
         align={align}
         alignOffset={alignOffset}
         side={side}
@@ -44,92 +51,99 @@ function DropdownMenuContent({
       >
         <MenuPrimitive.Popup
           data-slot="dropdown-menu-content"
-          className={cn("z-50 max-h-(--available-height) w-(--anchor-width) min-w-32 motion-popup origin-(--transform-origin) overflow-x-hidden overflow-y-auto rounded-lg bg-popover p-1 text-popover-foreground shadow-md ring-1 ring-foreground/10 duration-100 outline-none data-closed:overflow-hidden ", className )}
+          {...styleProps(
+            [motion.popup, styles.popup, xstyle],
+            className,
+            style,
+          )}
           {...props}
         />
       </MenuPrimitive.Positioner>
     </MenuPrimitive.Portal>
-  )
+  );
 }
 
 /** DropdownMenuGroup 组合官方组件的焦点、键盘与语义样式，页面通过属性扩展。 */
 function DropdownMenuGroup({ ...props }: MenuPrimitive.Group.Props) {
-  return <MenuPrimitive.Group data-slot="dropdown-menu-group" {...props} />
+  return <MenuPrimitive.Group data-slot="dropdown-menu-group" {...props} />;
 }
 
 /** DropdownMenuLabel 组合官方组件的焦点、键盘与语义样式，页面通过属性扩展。 */
 function DropdownMenuLabel({
   className,
+  xstyle,
+  style,
   inset,
   ...props
-}: MenuPrimitive.GroupLabel.Props & {
-  inset?: boolean
-}) {
+}: StyledProps<
+  MenuPrimitive.GroupLabel.Props & {
+    inset?: boolean;
+  }
+>) {
   return (
     <MenuPrimitive.GroupLabel
       data-slot="dropdown-menu-label"
       data-inset={inset}
-      className={cn(
-        "px-1.5 py-1 text-xs font-medium text-muted-foreground data-inset:pl-7",
-        className
-      )}
+      {...styleProps([styles.label, xstyle], className, style)}
       {...props}
     />
-  )
+  );
 }
 
 /** DropdownMenuItem 组合官方组件的焦点、键盘与语义样式，页面通过属性扩展。 */
 function DropdownMenuItem({
   className,
+  xstyle,
+  style,
   inset,
   variant = "default",
   ...props
-}: MenuPrimitive.Item.Props & {
-  inset?: boolean
-  variant?: "default" | "destructive"
-}) {
+}: StyledProps<
+  MenuPrimitive.Item.Props & {
+    inset?: boolean;
+    variant?: "default" | "destructive";
+  }
+>) {
   return (
     <MenuPrimitive.Item
       data-slot="dropdown-menu-item"
       data-inset={inset}
       data-variant={variant}
-      className={cn(
-        "group/dropdown-menu-item relative flex cursor-default items-center gap-1.5 rounded-md px-1.5 py-1 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground data-inset:pl-7 data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 data-[variant=destructive]:focus:text-destructive dark:data-[variant=destructive]:focus:bg-destructive/20 data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 data-[variant=destructive]:*:[svg]:text-destructive",
-        className
-      )}
+      {...styleProps([styles.item, xstyle], className, style)}
       {...props}
     />
-  )
+  );
 }
 
 /** DropdownMenuSub 组合官方组件的焦点、键盘与语义样式，页面通过属性扩展。 */
 function DropdownMenuSub({ ...props }: MenuPrimitive.SubmenuRoot.Props) {
-  return <MenuPrimitive.SubmenuRoot data-slot="dropdown-menu-sub" {...props} />
+  return <MenuPrimitive.SubmenuRoot data-slot="dropdown-menu-sub" {...props} />;
 }
 
 /** DropdownMenuSubTrigger 组合官方组件的焦点、键盘与语义样式，页面通过属性扩展。 */
 function DropdownMenuSubTrigger({
   className,
+  xstyle,
+  style,
   inset,
   children,
   ...props
-}: MenuPrimitive.SubmenuTrigger.Props & {
-  inset?: boolean
-}) {
+}: StyledProps<
+  MenuPrimitive.SubmenuTrigger.Props & {
+    inset?: boolean;
+  }
+>) {
   return (
     <MenuPrimitive.SubmenuTrigger
       data-slot="dropdown-menu-sub-trigger"
       data-inset={inset}
-      className={cn(
-        "flex cursor-default items-center gap-1.5 rounded-md px-1.5 py-1 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground data-inset:pl-7 data-popup-open:bg-accent data-popup-open:text-accent-foreground data-open:bg-accent data-open:text-accent-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-        className
-      )}
+      {...styleProps([styles.item, xstyle], className, style)}
       {...props}
     >
       {children}
-      <ChevronRightIcon className="ml-auto" />
+      <ChevronRightIcon {...styleProps([iconStyles.root, styles.chevron])} />
     </MenuPrimitive.SubmenuTrigger>
-  )
+  );
 }
 
 /** DropdownMenuSubContent 组合官方组件的焦点、键盘与语义样式，页面通过属性扩展。 */
@@ -139,54 +153,58 @@ function DropdownMenuSubContent({
   side = "right",
   sideOffset = 0,
   className,
+  xstyle,
+  style,
   ...props
-}: React.ComponentProps<typeof DropdownMenuContent>) {
+}: StyledProps<React.ComponentProps<typeof DropdownMenuContent>>) {
   return (
     <DropdownMenuContent
       data-slot="dropdown-menu-sub-content"
-      className={cn("motion-popup w-auto min-w-[96px] rounded-lg bg-popover p-1 text-popover-foreground shadow-lg ring-1 ring-foreground/10 duration-100 ", className )}
+      xstyle={[styles.subPopup, xstyle]}
+      className={className}
+      style={style}
       align={align}
       alignOffset={alignOffset}
       side={side}
       sideOffset={sideOffset}
       {...props}
     />
-  )
+  );
 }
 
 /** DropdownMenuCheckboxItem 组合官方组件的焦点、键盘与语义样式，页面通过属性扩展。 */
 function DropdownMenuCheckboxItem({
   className,
+  xstyle,
+  style,
   children,
   checked,
   inset,
   ...props
-}: MenuPrimitive.CheckboxItem.Props & {
-  inset?: boolean
-}) {
+}: StyledProps<
+  MenuPrimitive.CheckboxItem.Props & {
+    inset?: boolean;
+  }
+>) {
   return (
     <MenuPrimitive.CheckboxItem
       data-slot="dropdown-menu-checkbox-item"
       data-inset={inset}
-      className={cn(
-        "relative flex cursor-default items-center gap-1.5 rounded-md py-1 pr-8 pl-1.5 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground focus:**:text-accent-foreground data-inset:pl-7 data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-        className
-      )}
+      {...styleProps([styles.item, styles.choice, xstyle], className, style)}
       checked={checked}
       {...props}
     >
       <span
-        className="pointer-events-none absolute right-2 flex items-center justify-center"
+        {...styleProps(styles.indicator)}
         data-slot="dropdown-menu-checkbox-item-indicator"
       >
         <MenuPrimitive.CheckboxItemIndicator>
-          <CheckIcon
-          />
+          <CheckIcon {...styleProps(iconStyles.root)} />
         </MenuPrimitive.CheckboxItemIndicator>
       </span>
       {children}
     </MenuPrimitive.CheckboxItem>
-  )
+  );
 }
 
 /** DropdownMenuRadioGroup 组合官方组件的焦点、键盘与语义样式，页面通过属性扩展。 */
@@ -196,71 +214,72 @@ function DropdownMenuRadioGroup({ ...props }: MenuPrimitive.RadioGroup.Props) {
       data-slot="dropdown-menu-radio-group"
       {...props}
     />
-  )
+  );
 }
 
 /** DropdownMenuRadioItem 组合官方组件的焦点、键盘与语义样式，页面通过属性扩展。 */
 function DropdownMenuRadioItem({
   className,
+  xstyle,
+  style,
   children,
   inset,
   ...props
-}: MenuPrimitive.RadioItem.Props & {
-  inset?: boolean
-}) {
+}: StyledProps<
+  MenuPrimitive.RadioItem.Props & {
+    inset?: boolean;
+  }
+>) {
   return (
     <MenuPrimitive.RadioItem
       data-slot="dropdown-menu-radio-item"
       data-inset={inset}
-      className={cn(
-        "relative flex cursor-default items-center gap-1.5 rounded-md py-1 pr-8 pl-1.5 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground focus:**:text-accent-foreground data-inset:pl-7 data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-        className
-      )}
+      {...styleProps([styles.item, styles.choice, xstyle], className, style)}
       {...props}
     >
       <span
-        className="pointer-events-none absolute right-2 flex items-center justify-center"
+        {...styleProps(styles.indicator)}
         data-slot="dropdown-menu-radio-item-indicator"
       >
         <MenuPrimitive.RadioItemIndicator>
-          <CheckIcon
-          />
+          <CheckIcon {...styleProps(iconStyles.root)} />
         </MenuPrimitive.RadioItemIndicator>
       </span>
       {children}
     </MenuPrimitive.RadioItem>
-  )
+  );
 }
 
 /** DropdownMenuSeparator 组合官方组件的焦点、键盘与语义样式，页面通过属性扩展。 */
 function DropdownMenuSeparator({
   className,
+  xstyle,
+  style,
   ...props
-}: MenuPrimitive.Separator.Props) {
+}: StyledProps<MenuPrimitive.Separator.Props>) {
   return (
     <MenuPrimitive.Separator
       data-slot="dropdown-menu-separator"
-      className={cn("-mx-1 my-1 h-px bg-border", className)}
+      {...styleProps([styles.separator, xstyle], className, style)}
       {...props}
     />
-  )
+  );
 }
 
 /** DropdownMenuShortcut 组合官方组件的焦点、键盘与语义样式，页面通过属性扩展。 */
 function DropdownMenuShortcut({
   className,
+  xstyle,
+  style,
   ...props
-}: React.ComponentProps<"span">) {
+}: StyledProps<React.ComponentProps<"span">>) {
   return (
     <span
       data-slot="dropdown-menu-shortcut"
-      className={cn(
-        "ml-auto text-xs tracking-widest text-muted-foreground group-focus/dropdown-menu-item:text-accent-foreground",
-        className
-      )}
+      {...styleProps([styles.shortcut, xstyle], className, style)}
       {...props}
     />
-  )
+  );
 }
 
 export {
@@ -279,4 +298,4 @@ export {
   DropdownMenuSub,
   DropdownMenuSubTrigger,
   DropdownMenuSubContent,
-}
+};

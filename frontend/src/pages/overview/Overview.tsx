@@ -1,3 +1,6 @@
+import { iconStyles } from "@/components/ui/icon.styles";
+import { styleProps } from "@/lib/styleProps";
+import { styles } from "./Overview.styles";
 import { actionLabels } from "@/features/panel/navigation";
 import { useDisplayTimezone } from "@/features/panel/display";
 import { lazy, Suspense } from "react";
@@ -112,15 +115,15 @@ export function OverviewPage() {
     });
   }
   return (
-    <div className="page-stack">
+    <div {...styleProps(styles.pageStack)}>
       <PageHeading
         title="概览"
         description={<>当前服务器 · {system?.hostname ?? "读取本机信息…"}</>}
         action={
           sample && (
-            <div className="flex flex-wrap items-center gap-2">
+            <div {...styleProps(styles.status)}>
               <Status status={freshness(sample.sampledAt, now)} />
-              <span className="text-xs text-muted-foreground">
+              <span {...styleProps(styles.caption)}>
                 {formatTime(sample.sampledAt, timeZone)}
               </span>
             </div>
@@ -142,7 +145,7 @@ export function OverviewPage() {
         retry={() => void metrics.refetch()}
       >
         {sample && (
-          <div className="metric-grid">
+          <div {...styleProps(styles.metricGrid)}>
             <MetricCard
               title="CPU 使用率"
               icon={Cpu}
@@ -183,7 +186,7 @@ export function OverviewPage() {
           </div>
         )}
       </QueryState>
-      <div className="overview-grid">
+      <div {...styleProps(styles.overviewGrid)}>
         <Card>
           <CardHeader>
             <CardTitle role="heading" aria-level={2}>
@@ -191,8 +194,8 @@ export function OverviewPage() {
             </CardTitle>
             <CardDescription>真实采样 · 百分比与吞吐分开呈现</CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-col gap-4">
-            <div className="flex flex-wrap items-center justify-between gap-3">
+          <CardContent xstyle={styles.cardContent}>
+            <div {...styleProps(styles.toolbar)}>
               <Tabs
                 value={tab}
                 onValueChange={(value) => filter("tab", String(value))}
@@ -237,8 +240,11 @@ export function OverviewPage() {
         <Card>
           <CardHeader>
             <CardTitle role="heading" aria-level={2}>
-              <span className="flex items-center gap-2">
-                <Server aria-hidden="true" className="size-4" />
+              <span {...styleProps(styles.labelRow)}>
+                <Server
+                  aria-hidden="true"
+                  {...styleProps([iconStyles.root, styles.serverIcon])}
+                />
                 本机信息
               </span>
             </CardTitle>
@@ -255,36 +261,48 @@ export function OverviewPage() {
               retry={() => void bootstrap.refetch()}
             >
               {system && (
-                <dl className="detail-grid text-sm">
+                <dl {...styleProps(styles.detailGrid)}>
                   <dt>主机名</dt>
-                  <dd>{system.hostname}</dd>
+                  <dd {...styleProps(styles.detailValue)}>{system.hostname}</dd>
                   <dt>操作系统</dt>
-                  <dd>
+                  <dd {...styleProps(styles.detailValue)}>
                     {system.os.name} {system.os.version}
                   </dd>
                   <dt>内核</dt>
-                  <dd className="font-mono text-xs">
+                  <dd {...styleProps([styles.detailValue, styles.address])}>
                     {system.os.kernel || "不可用"}
                   </dd>
                   <dt>架构</dt>
-                  <dd>{system.architecture}</dd>
+                  <dd {...styleProps(styles.detailValue)}>
+                    {system.architecture}
+                  </dd>
                   <dt>处理器</dt>
-                  <dd>{system.cpuModel || "不可用"}</dd>
+                  <dd {...styleProps(styles.detailValue)}>
+                    {system.cpuModel || "不可用"}
+                  </dd>
                   <dt>逻辑核数</dt>
-                  <dd>{system.logicalCpuCount}</dd>
+                  <dd {...styleProps(styles.detailValue)}>
+                    {system.logicalCpuCount}
+                  </dd>
                   <dt>内存</dt>
-                  <dd>{formatBytes(system.memoryTotalBytes)}</dd>
+                  <dd {...styleProps(styles.detailValue)}>
+                    {formatBytes(system.memoryTotalBytes)}
+                  </dd>
                   <dt>启动时间</dt>
-                  <dd>{formatTime(system.bootedAt, timeZone)}</dd>
+                  <dd {...styleProps(styles.detailValue)}>
+                    {formatTime(system.bootedAt, timeZone)}
+                  </dd>
                   <dt>运行时长</dt>
-                  <dd>{formatDuration(system.uptimeSeconds)}</dd>
+                  <dd {...styleProps(styles.detailValue)}>
+                    {formatDuration(system.uptimeSeconds)}
+                  </dd>
                 </dl>
               )}
             </QueryState>
           </CardContent>
         </Card>
       </div>
-      <div className="overview-grid">
+      <div {...styleProps(styles.overviewGrid)}>
         <Card>
           <CardHeader>
             <CardTitle role="heading" aria-level={2}>
@@ -321,9 +339,12 @@ export function OverviewPage() {
                           : ""}
                       </ItemDescription>
                     </ItemContent>
-                    <span className="flex items-center gap-2 text-sm">
+                    <span {...styleProps(styles.linkLabel)}>
                       管理版本
-                      <ArrowRight className="size-4" aria-hidden="true" />
+                      <ArrowRight
+                        {...styleProps([iconStyles.root, styles.serverIcon])}
+                        aria-hidden="true"
+                      />
                     </span>
                   </Item>
                 ))}
@@ -368,7 +389,7 @@ export function OverviewPage() {
                   </Item>
                 ))}
                 {tasks.data?.items.length === 0 && (
-                  <p className="text-sm text-muted-foreground">
+                  <p {...styleProps(styles.description)}>
                     暂无任务。操作记录将在受理后出现。
                   </p>
                 )}

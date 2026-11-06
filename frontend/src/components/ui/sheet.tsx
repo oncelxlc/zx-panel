@@ -1,7 +1,12 @@
+import { iconStyles } from "@/components/ui/icon.styles";
+import { styles as dialogStyles } from "./dialog.styles";
+import { motion } from "@/styles/motion.styles";
 import type { SheetContentProps } from "@/types/ui.type";
 import * as React from "react";
 import { Dialog as SheetPrimitive } from "@base-ui/react/dialog";
-import { cn } from "@/lib/utils";
+import { styleProps } from "@/lib/styleProps";
+import type { StyledProps } from "@/types/style.type";
+import { styles } from "./sheet.styles";
 
 import { Button } from "@/components/ui/button";
 import { XIcon } from "lucide-react";
@@ -27,13 +32,19 @@ function SheetPortal({ ...props }: SheetPrimitive.Portal.Props) {
 }
 
 /** 为打开的抽屉提供背景遮罩。 */
-function SheetOverlay({ className, ...props }: SheetPrimitive.Backdrop.Props) {
+function SheetOverlay({
+  className,
+  xstyle,
+  style,
+  ...props
+}: StyledProps<SheetPrimitive.Backdrop.Props>) {
   return (
     <SheetPrimitive.Backdrop
       data-slot="sheet-overlay"
-      className={cn(
-        "fixed inset-0 z-50 bg-black/10 motion-overlay supports-backdrop-filter:backdrop-blur-xs",
+      {...styleProps(
+        [motion.overlay, dialogStyles.overlay, xstyle],
         className,
+        style,
       )}
       {...props}
     />
@@ -43,20 +54,23 @@ function SheetOverlay({ className, ...props }: SheetPrimitive.Backdrop.Props) {
 /** 组合抽屉内容、遮罩和可访问关闭入口。 */
 function SheetContent({
   className,
+  xstyle,
+  style,
   children,
   side = "right",
   showCloseButton = true,
   ...props
-}: SheetContentProps) {
+}: StyledProps<SheetContentProps>) {
   return (
     <SheetPortal>
       <SheetOverlay />
       <SheetPrimitive.Popup
         data-slot="sheet-content"
         data-side={side}
-        className={cn(
-          "fixed z-50 flex flex-col gap-4 bg-popover bg-clip-padding text-sm text-popover-foreground shadow-lg motion-sheet data-ending-style:opacity-0 data-starting-style:opacity-0 data-[side=bottom]:inset-x-0 data-[side=bottom]:bottom-0 data-[side=bottom]:h-auto data-[side=bottom]:border-t data-[side=bottom]:data-ending-style:translate-y-[2.5rem] data-[side=bottom]:data-starting-style:translate-y-[2.5rem] data-[side=left]:inset-y-0 data-[side=left]:left-0 data-[side=left]:h-full data-[side=left]:w-3/4 data-[side=left]:border-r data-[side=left]:data-ending-style:translate-x-[-2.5rem] data-[side=left]:data-starting-style:translate-x-[-2.5rem] data-[side=right]:inset-y-0 data-[side=right]:right-0 data-[side=right]:h-full data-[side=right]:w-3/4 data-[side=right]:border-l data-[side=right]:data-ending-style:translate-x-[2.5rem] data-[side=right]:data-starting-style:translate-x-[2.5rem] data-[side=top]:inset-x-0 data-[side=top]:top-0 data-[side=top]:h-auto data-[side=top]:border-b data-[side=top]:data-ending-style:translate-y-[-2.5rem] data-[side=top]:data-starting-style:translate-y-[-2.5rem] data-[side=left]:sm:max-w-sm data-[side=right]:sm:max-w-sm",
+        {...styleProps(
+          [motion.sheet, styles.content, styles[side], xstyle],
           className,
+          style,
         )}
         {...props}
       >
@@ -65,15 +79,11 @@ function SheetContent({
           <SheetPrimitive.Close
             data-slot="sheet-close"
             render={
-              <Button
-                variant="ghost"
-                className="absolute top-3 right-3"
-                size="icon-sm"
-              />
+              <Button variant="ghost" xstyle={styles.close} size="icon-sm" />
             }
           >
-            <XIcon />
-            <span className="sr-only">关闭</span>
+            <XIcon {...styleProps(iconStyles.root)} />
+            <span {...styleProps(dialogStyles.hidden)}>关闭</span>
           </SheetPrimitive.Close>
         )}
       </SheetPrimitive.Popup>
@@ -82,36 +92,48 @@ function SheetContent({
 }
 
 /** 组织抽屉标题与说明。 */
-function SheetHeader({ className, ...props }: React.ComponentProps<"div">) {
+function SheetHeader({
+  className,
+  xstyle,
+  style,
+  ...props
+}: StyledProps<React.ComponentProps<"div">>) {
   return (
     <div
       data-slot="sheet-header"
-      className={cn("flex flex-col gap-0.5 p-4", className)}
+      {...styleProps([styles.header, xstyle], className, style)}
       {...props}
     />
   );
 }
 
 /** 排列抽屉底部操作。 */
-function SheetFooter({ className, ...props }: React.ComponentProps<"div">) {
+function SheetFooter({
+  className,
+  xstyle,
+  style,
+  ...props
+}: StyledProps<React.ComponentProps<"div">>) {
   return (
     <div
       data-slot="sheet-footer"
-      className={cn("mt-auto flex flex-col gap-2 p-4", className)}
+      {...styleProps([styles.footer, xstyle], className, style)}
       {...props}
     />
   );
 }
 
 /** 为抽屉提供辅助技术可识别的名称。 */
-function SheetTitle({ className, ...props }: SheetPrimitive.Title.Props) {
+function SheetTitle({
+  className,
+  xstyle,
+  style,
+  ...props
+}: StyledProps<SheetPrimitive.Title.Props>) {
   return (
     <SheetPrimitive.Title
       data-slot="sheet-title"
-      className={cn(
-        "font-heading text-base font-medium text-foreground",
-        className,
-      )}
+      {...styleProps([styles.title, xstyle], className, style)}
       {...props}
     />
   );
@@ -120,12 +142,14 @@ function SheetTitle({ className, ...props }: SheetPrimitive.Title.Props) {
 /** 为抽屉提供辅助技术可读取的用途说明。 */
 function SheetDescription({
   className,
+  xstyle,
+  style,
   ...props
-}: SheetPrimitive.Description.Props) {
+}: StyledProps<SheetPrimitive.Description.Props>) {
   return (
     <SheetPrimitive.Description
       data-slot="sheet-description"
-      className={cn("text-sm text-muted-foreground", className)}
+      {...styleProps([styles.description, xstyle], className, style)}
       {...props}
     />
   );

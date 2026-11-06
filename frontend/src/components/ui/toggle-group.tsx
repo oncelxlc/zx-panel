@@ -1,40 +1,45 @@
-"use client"
+import { styles as toggleStyles } from "./toggle.styles";
 
-import * as React from "react"
-import { Toggle as TogglePrimitive } from "@base-ui/react/toggle"
-import { ToggleGroup as ToggleGroupPrimitive } from "@base-ui/react/toggle-group"
-import { type VariantProps } from "class-variance-authority"
-import { cn } from "@/lib/utils"
+import * as React from "react";
+import { Toggle as TogglePrimitive } from "@base-ui/react/toggle";
+import { ToggleGroup as ToggleGroupPrimitive } from "@base-ui/react/toggle-group";
+import { styleProps } from "@/lib/styleProps";
+import type { StyledProps } from "@/types/style.type";
+import { styles } from "./toggle-group.styles";
 
-import { toggleVariants } from "@/lib/toggleVariants"
+import type { ToggleOptions } from "@/types/ui.type";
 
 /** ToggleGroupContext 在同一组件内共享配置与状态，避免页面重复维护交互规则。 */
 const ToggleGroupContext = React.createContext<
-  VariantProps<typeof toggleVariants> & {
-    spacing?: number
-    orientation?: "horizontal" | "vertical"
+  ToggleOptions & {
+    spacing?: number;
+    orientation?: "horizontal" | "vertical";
   }
 >({
   size: "default",
   variant: "default",
   spacing: 2,
   orientation: "horizontal",
-})
+});
 
 /** ToggleGroup 组合官方组件的焦点、键盘与语义样式，页面通过属性扩展。 */
 function ToggleGroup({
   className,
+  xstyle,
+  style,
   variant,
   size,
   spacing = 2,
   orientation = "horizontal",
   children,
   ...props
-}: ToggleGroupPrimitive.Props &
-  VariantProps<typeof toggleVariants> & {
-    spacing?: number
-    orientation?: "horizontal" | "vertical"
-  }) {
+}: StyledProps<
+  ToggleGroupPrimitive.Props &
+    ToggleOptions & {
+      spacing?: number;
+      orientation?: "horizontal" | "vertical";
+    }
+>) {
   return (
     <ToggleGroupPrimitive
       data-slot="toggle-group"
@@ -42,10 +47,10 @@ function ToggleGroup({
       data-size={size}
       data-spacing={spacing}
       data-orientation={orientation}
-      style={{ "--gap": spacing } as React.CSSProperties}
-      className={cn(
-        "group/toggle-group flex w-fit flex-row items-center gap-[--spacing(var(--gap))] rounded-lg data-[size=sm]:rounded-[min(var(--radius-md),10px)] data-vertical:flex-col data-vertical:items-stretch",
-        className
+      {...styleProps(
+        [styles.root, styles.spacing(spacing), xstyle],
+        className,
+        style,
       )}
       {...props}
     >
@@ -55,18 +60,20 @@ function ToggleGroup({
         {children}
       </ToggleGroupContext.Provider>
     </ToggleGroupPrimitive>
-  )
+  );
 }
 
 /** ToggleGroupItem 组合官方组件的焦点、键盘与语义样式，页面通过属性扩展。 */
 function ToggleGroupItem({
   className,
+  xstyle,
+  style,
   children,
   variant = "default",
   size = "default",
   ...props
-}: TogglePrimitive.Props & VariantProps<typeof toggleVariants>) {
-  const context = React.useContext(ToggleGroupContext)
+}: StyledProps<TogglePrimitive.Props & ToggleOptions>) {
+  const context = React.useContext(ToggleGroupContext);
 
   return (
     <TogglePrimitive
@@ -74,19 +81,22 @@ function ToggleGroupItem({
       data-variant={context.variant || variant}
       data-size={context.size || size}
       data-spacing={context.spacing}
-      className={cn(
-        "shrink-0 group-data-[spacing=0]/toggle-group:rounded-none group-data-[spacing=0]/toggle-group:px-2 focus:z-10 focus-visible:z-10 group-data-[spacing=0]/toggle-group:has-data-[icon=inline-end]:pr-1.5 group-data-[spacing=0]/toggle-group:has-data-[icon=inline-start]:pl-1.5 group-data-horizontal/toggle-group:data-[spacing=0]:first:rounded-l-lg group-data-vertical/toggle-group:data-[spacing=0]:first:rounded-t-lg group-data-horizontal/toggle-group:data-[spacing=0]:last:rounded-r-lg group-data-vertical/toggle-group:data-[spacing=0]:last:rounded-b-lg group-data-horizontal/toggle-group:data-[spacing=0]:data-[variant=outline]:border-l-0 group-data-vertical/toggle-group:data-[spacing=0]:data-[variant=outline]:border-t-0 group-data-horizontal/toggle-group:data-[spacing=0]:data-[variant=outline]:first:border-l group-data-vertical/toggle-group:data-[spacing=0]:data-[variant=outline]:first:border-t",
-        toggleVariants({
-          variant: context.variant || variant,
-          size: context.size || size,
-        }),
-        className
+      {...styleProps(
+        [
+          toggleStyles.root,
+          toggleStyles[context.size || size],
+          (context.variant || variant) === "outline" && toggleStyles.outline,
+          styles.item,
+          xstyle,
+        ],
+        className,
+        style,
       )}
       {...props}
     >
       {children}
     </TogglePrimitive>
-  )
+  );
 }
 
-export { ToggleGroup, ToggleGroupItem }
+export { ToggleGroup, ToggleGroupItem };

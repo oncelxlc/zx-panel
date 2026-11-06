@@ -1,3 +1,5 @@
+import { styleProps } from "@/lib/styleProps";
+import { styles } from "./OperationSheet.styles";
 import { useEffect, useRef, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useSearchParams } from "react-router";
@@ -78,7 +80,9 @@ export function OperationSheet({ operation, onClose }: OperationSheetProps) {
   const accepted = !!plan && acceptedPlan === plan.id;
   const needsPreview =
     submit.error instanceof ApiError &&
-    ["PLAN_EXPIRED", "PLAN_BLOCKED", "REVISION_CONFLICT"].includes(submit.error.code);
+    ["PLAN_EXPIRED", "PLAN_BLOCKED", "REVISION_CONFLICT"].includes(
+      submit.error.code,
+    );
   /** 重新预检意味着新的确认流程，不能沿用旧的文本和幂等键。 */
   function recheck() {
     key.current = crypto.randomUUID();
@@ -94,14 +98,14 @@ export function OperationSheet({ operation, onClose }: OperationSheetProps) {
         if (!open && !submit.isPending) onClose();
       }}
     >
-      <SheetContent className="w-full sm:max-w-[560px]">
+      <SheetContent xstyle={styles.sheetContent}>
         <SheetHeader>
           <SheetTitle>核对操作计划</SheetTitle>
           <SheetDescription>
             确认前由服务器检查权限、平台、路径与引用。受理后任务在服务器继续执行。
           </SheetDescription>
         </SheetHeader>
-        <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-auto px-4">
+        <div {...styleProps(styles.body)}>
           <QueryState
             pending={preview.isPending}
             error={preview.error}
@@ -115,11 +119,17 @@ export function OperationSheet({ operation, onClose }: OperationSheetProps) {
                     预检有效至 {formatTime(plan.expiresAt, timeZone)}
                   </AlertDescription>
                 </Alert>
-                <dl className="detail-grid text-sm">
+                <dl {...styleProps(styles.detailGrid)}>
                   {plan.details.map((detail) => (
-                    <div className="contents" key={detail.label}>
-                      <dt className="text-muted-foreground">{detail.label}</dt>
-                      <dd className="break-all">{detail.value}</dd>
+                    <div {...styleProps(styles.detailRow)} key={detail.label}>
+                      <dt {...styleProps(styles.detailLabel)}>
+                        {detail.label}
+                      </dt>
+                      <dd
+                        {...styleProps([styles.detailValue, styles.detailText])}
+                      >
+                        {detail.value}
+                      </dd>
                     </div>
                   ))}
                 </dl>
@@ -183,7 +193,9 @@ export function OperationSheet({ operation, onClose }: OperationSheetProps) {
                 submit.error instanceof ApiError && submit.error.requestId
                   ? `请求编号：${submit.error.requestId}`
                   : "",
-              ].filter(Boolean).join(" ")}
+              ]
+                .filter(Boolean)
+                .join(" ")}
             />
           )}
         </div>

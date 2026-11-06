@@ -1,0 +1,65 @@
+import * as stylex from "@stylexjs/stylex";
+
+/** 空状态使用标准内容宽度和语义颜色，页面只负责提供操作。 */
+export const styles = stylex.create({
+  root: {
+    display: "flex",
+    width: "100%",
+    minWidth: 0,
+    flex: 1,
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 16,
+    borderRadius: 16,
+    borderStyle: "dashed",
+    padding: 24,
+    textAlign: "center",
+    textWrap: "balance",
+  },
+  header: {
+    display: "flex",
+    maxWidth: 384,
+    flexDirection: "column",
+    alignItems: "center",
+    gap: 8,
+  },
+  media: {
+    marginBottom: 8,
+    display: "flex",
+    flexShrink: 0,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "transparent",
+    "--icon-size": "16px",
+  },
+  icon: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    backgroundColor: "var(--muted)",
+    color: "var(--foreground)",
+  },
+  title: {
+    fontFamily: "var(--font-sans)",
+    fontSize: 14,
+    fontWeight: 500,
+    letterSpacing: "-0.025em",
+  },
+  description: {
+    fontSize: 14,
+    lineHeight: 1.625,
+    color: "var(--muted-foreground)",
+  },
+  content: {
+    display: "flex",
+    width: "100%",
+    maxWidth: 384,
+    minWidth: 0,
+    flexDirection: "column",
+    alignItems: "center",
+    gap: 10,
+    fontSize: 14,
+    textWrap: "balance",
+  },
+});

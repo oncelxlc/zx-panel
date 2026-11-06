@@ -1,3 +1,6 @@
+import { iconStyles } from "@/components/ui/icon.styles";
+import { styleProps } from "@/lib/styleProps";
+import { styles } from "./MainSider.styles";
 import { Link, NavLink, useLocation } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Server } from "lucide-react";
@@ -34,16 +37,17 @@ export function MainSider() {
       <SidebarHeader>
         <Item
           size="sm"
-          className="sidebar-brand flex-nowrap px-2"
+          xstyle={styles.sidebarBrand}
+          className="sidebar-brand"
           render={<Link to="/overview" onClick={() => setOpenMobile(false)} />}
         >
-          <ItemMedia>
+          <ItemMedia xstyle={styles.brandMedia}>
             <Avatar>
               <AvatarImage src="/icons/android-chrome-192x192.png" alt="" />
               <AvatarFallback>zx</AvatarFallback>
             </Avatar>
           </ItemMedia>
-          <ItemContent className="sidebar-label min-w-0">
+          <ItemContent xstyle={styles.sidebarLabel} className="sidebar-label">
             <ItemTitle>zx-panel</ItemTitle>
             <ItemDescription>本机管理控制台</ItemDescription>
           </ItemContent>
@@ -52,12 +56,12 @@ export function MainSider() {
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu aria-label="主导航" className="gap-2">
+            <SidebarMenu aria-label="主导航" xstyle={styles.sidebarMenu}>
               {navigation.map(({ path, label, icon: Icon }) => (
                 <SidebarMenuItem key={path}>
                   <SidebarMenuButton
                     size="lg"
-                    className="h-10 px-4 max-lg:h-11 pointer-coarse:h-11"
+                    xstyle={styles.sidebarMenuButton}
                     isActive={
                       pathname === path || pathname.startsWith(path + "/")
                     }
@@ -66,8 +70,8 @@ export function MainSider() {
                       <NavLink to={path} onClick={() => setOpenMobile(false)} />
                     }
                   >
-                    <Icon aria-hidden="true" />
-                    <span className="sidebar-label shrink-0">
+                    <Icon {...styleProps(iconStyles.root)} aria-hidden="true" />
+                    <span {...styleProps(styles.menuLabel, "sidebar-label")}>
                       {label}
                     </span>
                   </SidebarMenuButton>
@@ -81,19 +85,23 @@ export function MainSider() {
         <Item
           variant="outline"
           size="sm"
-          className="sidebar-brand flex-nowrap"
+          xstyle={styles.serverBrand}
+          className="sidebar-brand"
         >
-          <ItemMedia>
-            <Server aria-hidden="true" />
+          <ItemMedia xstyle={styles.brandMedia}>
+            <Server {...styleProps(iconStyles.root)} aria-hidden="true" />
           </ItemMedia>
-          <ItemContent className="sidebar-label min-w-0">
+          <ItemContent xstyle={styles.sidebarLabel} className="sidebar-label">
             <ItemDescription>当前服务器</ItemDescription>
-            <ItemTitle className="block w-full truncate" title={bootstrap.data?.system.hostname}>
+            <ItemTitle
+              xstyle={styles.serverName}
+              title={bootstrap.data?.system.hostname}
+            >
               {bootstrap.data?.system.hostname || "读取本机信息…"}
             </ItemTitle>
           </ItemContent>
         </Item>
-        <p className="sidebar-label whitespace-nowrap p-2 text-xs text-muted-foreground">
+        <p {...styleProps(styles.footerLabel, "sidebar-label")}>
           zx-panel · 本机专属
         </p>
       </SidebarFooter>

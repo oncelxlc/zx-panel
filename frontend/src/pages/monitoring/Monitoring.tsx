@@ -1,3 +1,6 @@
+import { iconStyles } from "@/components/ui/icon.styles";
+import { styleProps } from "@/lib/styleProps";
+import { styles } from "./Monitoring.styles";
 import { useDisplayTimezone } from "@/features/panel/display";
 import { lazy, Suspense, useState } from "react";
 import { useSearchParams } from "react-router";
@@ -116,7 +119,7 @@ export function MonitoringPage() {
     });
   }
   return (
-    <div className="page-stack">
+    <div {...styleProps(styles.pageStack)}>
       <PageHeading
         title="监控"
         description={
@@ -142,9 +145,15 @@ export function MonitoringPage() {
               disabled={!query.data}
             >
               {frozen ? (
-                <Play data-icon="inline-start" />
+                <Play
+                  {...styleProps(iconStyles.root)}
+                  data-icon="inline-start"
+                />
               ) : (
-                <Pause data-icon="inline-start" />
+                <Pause
+                  {...styleProps(iconStyles.root)}
+                  data-icon="inline-start"
+                />
               )}
               {frozen ? "恢复显示" : "暂停显示"}
             </Button>
@@ -167,10 +176,10 @@ export function MonitoringPage() {
       >
         {sample && (
           <>
-            <div className="flex flex-wrap justify-between gap-3">
-              <div className="flex items-center gap-2">
+            <div {...styleProps(styles.toolbar)}>
+              <div {...styleProps(styles.status)}>
                 <Status status={freshness(sample.sampledAt, now)} />
-                <span className="text-xs text-muted-foreground">
+                <span {...styleProps(styles.caption)}>
                   采样于 {formatTime(sample.sampledAt, timeZone)}
                 </span>
               </div>
@@ -226,12 +235,14 @@ export function MonitoringPage() {
                     （不是百分比）
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+                <CardContent xstyle={styles.cores}>
                   {sample.cpuPerCorePercent.map((core, i) => (
-                    <div key={i} className="flex flex-col gap-2">
-                      <div className="flex justify-between text-sm">
+                    <div key={i} {...styleProps(styles.core)}>
+                      <div {...styleProps(styles.coreLabel)}>
                         <span>CPU {i}</span>
-                        <span className="font-mono">{formatPercent(core)}</span>
+                        <span {...styleProps(styles.value)}>
+                          {formatPercent(core)}
+                        </span>
                       </div>
                       <Progress
                         value={core.value}
@@ -251,17 +262,25 @@ export function MonitoringPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <dl className="detail-grid text-sm">
+                  <dl {...styleProps(styles.detailGrid)}>
                     <dt>总量</dt>
-                    <dd>{formatBytes(sample.memory.totalBytes)}</dd>
+                    <dd {...styleProps(styles.detailValue)}>
+                      {formatBytes(sample.memory.totalBytes)}
+                    </dd>
                     <dt>已用</dt>
-                    <dd>{formatBytes(sample.memory.usedBytes)}</dd>
+                    <dd {...styleProps(styles.detailValue)}>
+                      {formatBytes(sample.memory.usedBytes)}
+                    </dd>
                     <dt>可用</dt>
-                    <dd>{formatBytes(sample.memory.availableBytes)}</dd>
+                    <dd {...styleProps(styles.detailValue)}>
+                      {formatBytes(sample.memory.availableBytes)}
+                    </dd>
                     <dt>缓存</dt>
-                    <dd>{formatBytes(sample.memory.cachedBytes)}</dd>
+                    <dd {...styleProps(styles.detailValue)}>
+                      {formatBytes(sample.memory.cachedBytes)}
+                    </dd>
                     <dt>Swap</dt>
-                    <dd>
+                    <dd {...styleProps(styles.detailValue)}>
                       {sample.memory.swapTotalBytes === 0
                         ? "未配置"
                         : `${formatBytes(sample.memory.swapUsedBytes)} / ${formatBytes(sample.memory.swapTotalBytes)}`}
@@ -334,7 +353,7 @@ export function MonitoringPage() {
                   </CardContent>
                 </Card>
                 {ioDevice && (
-                  <div className="grid gap-4 xl:grid-cols-2">
+                  <div {...styleProps(styles.chartGrid)}>
                     {[
                       { query: diskRead, label: "磁盘读取" },
                       { query: diskWrite, label: "磁盘写入" },
@@ -353,9 +372,7 @@ export function MonitoringPage() {
                             error={query.error}
                           >
                             {query.data && (
-                              <Suspense
-                                fallback={<ChartSkeleton />}
-                              >
+                              <Suspense fallback={<ChartSkeleton />}>
                                 <ResourceChart
                                   history={query.data}
                                   label={label}
