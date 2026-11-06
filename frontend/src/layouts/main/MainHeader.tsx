@@ -4,17 +4,7 @@ import { styles } from "./MainHeader.styles";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
-import {
-  CircleUserRound,
-  ClipboardList,
-  LogOut,
-  Monitor,
-  Moon,
-  Search,
-  Sun,
-} from "lucide-react";
-import { logout } from "@/auth/api";
-import { useAuthenticatedUser } from "@/auth/authContext";
+import { ClipboardList, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -26,34 +16,20 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { toast } from "@/lib/toast";
-import { useThemeMode } from "@/theme/themeContext";
 import {
   appsQuery,
-  queryClient,
   runtimesQuery,
   tasksQuery,
 } from "@/features/panel/queries";
 import { navigation } from "@/features/panel/navigation";
 
-/** MainHeader 提供页面搜索、真实任务数、三态主题与账号操作。 */
+/** MainHeader 提供导航折叠、当前页面、资源搜索和真实任务数。 */
 export function MainHeader() {
-  const user = useAuthenticatedUser();
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const [, setParams] = useSearchParams();
-  const { preference, setPreference } = useThemeMode();
   const [search, setSearch] = useState(false);
-  const [leaving, setLeaving] = useState(false);
   const tasks = useQuery(tasksQuery);
   const apps = useQuery({ ...appsQuery, enabled: search });
   const runtimes = useQuery({ ...runtimesQuery, enabled: search });
@@ -73,22 +49,6 @@ export function MainHeader() {
     window.addEventListener("keydown", shortcut);
     return () => window.removeEventListener("keydown", shortcut);
   }, []);
-  /** 只有服务器确认会话撤销后才显示退出成功。 */
-  async function leave() {
-    setLeaving(true);
-    try {
-      await logout();
-      queryClient.clear();
-      navigate("/login", { replace: true });
-    } catch (error) {
-      toast.add({
-        title: error instanceof Error ? error.message : "退出失败，请重试",
-        type: "error",
-      });
-    } finally {
-      setLeaving(false);
-    }
-  }
   /** 完成搜索导航后恢复页面焦点，由路由壳层处理。 */
   function go(path: string) {
     setSearch(false);
@@ -136,73 +96,6 @@ export function MainHeader() {
           <ClipboardList {...styleProps(iconStyles.root)} aria-hidden="true" />
           {active > 0 && <Badge xstyle={styles.taskCount}>{active}</Badge>}
         </Button>
-        <div {...styleProps(styles.desktopOnly)}>
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  xstyle={styles.sidebarTrigger}
-                  aria-label="选择主题"
-                />
-              }
-            >
-              {preference === "system" ? (
-                <Monitor {...styleProps(iconStyles.root)} aria-hidden="true" />
-              ) : preference === "dark" ? (
-                <Moon {...styleProps(iconStyles.root)} aria-hidden="true" />
-              ) : (
-                <Sun {...styleProps(iconStyles.root)} aria-hidden="true" />
-              )}
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuGroup>
-                <DropdownMenuLabel>外观</DropdownMenuLabel>
-                <DropdownMenuItem onClick={() => setPreference("light")}>
-                  亮色
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setPreference("dark")}>
-                  暗色
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setPreference("system")}>
-                  跟随系统
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            render={
-              <Button
-                variant="ghost"
-                size="icon"
-                xstyle={styles.sidebarTrigger}
-                aria-label="账号菜单"
-              />
-            }
-          >
-            <CircleUserRound
-              {...styleProps(iconStyles.root)}
-              aria-hidden="true"
-            />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuGroup>
-              <DropdownMenuLabel>
-                {user.displayName || user.username}
-              </DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => navigate("/settings")}>
-                账号与设置
-              </DropdownMenuItem>
-              <DropdownMenuItem disabled={leaving} onClick={() => void leave()}>
-                <LogOut {...styleProps(iconStyles.root)} aria-hidden="true" />
-                {leaving ? "正在退出…" : "退出登录"}
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
       </div>
       <CommandDialog
         open={search}

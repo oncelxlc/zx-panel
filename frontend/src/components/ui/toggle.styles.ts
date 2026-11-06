@@ -37,4 +37,21 @@ export const styles = stylex.create({
   },
   lg: { height: 36, minWidth: 36, paddingInline: 10 },
   outline: { border: "1px solid var(--input)" },
+  segmented: {
+    borderRadius: "var(--radius-md)",
+    color: {
+      default: "var(--muted-foreground)",
+      ":hover": "var(--foreground)",
+      ':is([aria-pressed="true"])': "var(--foreground)",
+    },
+    backgroundColor: {
+      default: "transparent",
+      ":hover": "var(--accent)",
+      ':is([aria-pressed="true"])': "var(--popover)",
+    },
+    boxShadow: {
+      default: "none",
+      ':is([aria-pressed="true"])': "0 0 0 1px var(--border)",
+    },
+  },
 });

@@ -52,6 +52,10 @@ export const styles = stylex.create({
       ":is(.dark)":
         "0 32px 72px -16px rgb(0 0 0 / 85%), 0 12px 24px -8px rgb(0 0 0 / 55%)",
     },
+    "--shadow-island": {
+      default: "0 0 0 1px var(--border), 0 2px 8px rgb(0 0 0 / 3%)",
+      ":is(.dark)": "0 0 0 1px var(--border), 0 2px 8px rgb(0 0 0 / 16%)",
+    },
     "--radius-sm": "0.375rem",
     "--radius-md": "0.5rem",
     "--radius-lg": "0.75rem",

@@ -15,7 +15,7 @@
   - `frontend/src/routes/router.tsx` is the active React Router configuration and wraps routes with `ThemeProvider` so theme policy follows navigation.
   - Public `/login` and `/setup`; `/` redirects to `/overview`, with `/runtimes`, `/apps`, `/monitoring`, `/logs`, `/settings` and details.
   - `frontend/src/auth/*` contains HttpOnly Cookie session handling, memory-only CSRF state, and the authentication guard; no Bearer/sessionStorage auth.
-  - `frontend/src/theme/*` contains theme preference, system-theme listeners, and the shared theme toggle.
+  - `frontend/src/theme/*` contains theme preference, system-theme listeners, and the shared appearance popover in the sidebar footer. Color mode (`zx-panel-theme`) and shell style (`zx-panel-theme-style`, default or Islands) persist independently and sync across tabs. Both styles share identical layout geometry; Islands uses non-layout decorative surfaces. Collapsed desktop footer popovers open to the right with bottom alignment, clear of the sidebar.
   - `frontend/src/components/ui/*` contains official shadcn/ui source components (Base UI + Nova, neutral colors, Lucide icons).
   - `frontend/src/styles/theme.styles.ts` is the source of truth for semantic light/dark tokens and motion timing; `main.tsx` applies its compiled classes before asynchronous startup.
   - Component and page styles live in adjacent `*.styles.ts` files, compiled by the official StyleX Vite plugin. `styles/reset.css` only normalizes browser defaults and reduced-motion behavior; there are no Tailwind or Sass dependencies.

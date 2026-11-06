@@ -104,7 +104,7 @@ test("sidebar reveals labels after expansion and keeps icons and row heights sta
   expect((await link.boundingBox())?.height).toBe(initialRow?.height);
   expect((await icon.boundingBox())?.x).toBe(initialIcon?.x);
   const footer = await page
-    .locator('[data-slot="sidebar-footer"] [data-slot="item"]')
+    .getByRole("button", { name: "选择主题", exact: true })
     .boundingBox();
   expect(footer?.x).toBe(8);
   expect((footer?.x ?? 0) + (footer?.width ?? Infinity)).toBeLessThanOrEqual(

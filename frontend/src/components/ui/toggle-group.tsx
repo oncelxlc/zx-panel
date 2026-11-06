@@ -48,7 +48,12 @@ function ToggleGroup({
       data-spacing={spacing}
       data-orientation={orientation}
       {...styleProps(
-        [styles.root, styles.spacing(spacing), xstyle],
+        [
+          styles.root,
+          styles.spacing(spacing),
+          variant === "segmented" && styles.segmented,
+          xstyle,
+        ],
         className,
         style,
       )}
@@ -87,6 +92,7 @@ function ToggleGroupItem({
           toggleStyles[context.size || size],
           (context.variant || variant) === "outline" && toggleStyles.outline,
           styles.item,
+          (context.variant || variant) === "segmented" && toggleStyles.segmented,
           xstyle,
         ],
         className,

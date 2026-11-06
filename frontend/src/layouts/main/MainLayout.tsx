@@ -12,10 +12,13 @@ import { TaskSheet } from "@/features/panel/TaskSheet";
 import { useRealtime } from "@/features/panel/realtime";
 import { ToastNotice } from "@/features/panel/ToastNotice";
 import { RuntimeAccessNotice } from "@/features/panel/RuntimeAccessNotice";
+import { useThemeMode } from "@/theme/themeContext";
 
 /** MainLayout 共享一条主实时流并按断点安排侧栏和内容焦点。 */
 export default function MainLayout() {
   const { pathname } = useLocation();
+  const { themeStyle } = useThemeMode();
+  const islands = themeStyle === "islands";
   const realtime = useRealtime();
   const [open, setOpen] = useState(
     () =>
@@ -72,12 +75,21 @@ export default function MainLayout() {
       </Button>
       <MainSider />
       <SidebarInset xstyle={styles.sidebarInset}>
-        <header {...styleProps(styles.header)}>
+        <header
+          {...styleProps([
+            styles.header,
+            islands && styles.islandSurface,
+            islands && styles.islandHeader,
+          ])}
+        >
           <MainHeader />
         </header>
         <div
           id="main-content"
-          {...styleProps(styles.panelContent)}
+          {...styleProps([
+            styles.panelContent,
+            islands && styles.islandSurface,
+          ])}
           tabIndex={-1}
         >
           {import.meta.env.VITE_DATA_MODE === "mock" && (

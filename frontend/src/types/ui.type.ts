@@ -8,10 +8,11 @@ import type { Tooltip as TooltipPrimitive } from "@base-ui/react/tooltip";
 import type { useRender } from "@base-ui/react/use-render";
 import type { CSSProperties } from "react";
 import type { Tabs as TabsPrimitive } from "@base-ui/react/tabs";
+import type { Popover as PopoverPrimitive } from "@base-ui/react/popover";
 
 /** 单个开关和分组共享的视觉选项。 */
 export type ToggleOptions = {
-  variant?: "default" | "outline";
+  variant?: "default" | "outline" | "segmented";
   size?: "default" | "sm" | "lg";
 };
 
@@ -123,6 +124,13 @@ export type TooltipContentProps = TooltipPrimitive.Popup.Props &
   Pick<
     TooltipPrimitive.Positioner.Props,
     "align" | "alignOffset" | "side" | "sideOffset"
+  >;
+
+/** 弹出设置面板保留 Base UI 的焦点管理与碰撞定位属性。 */
+export type PopoverContentProps = PopoverPrimitive.Popup.Props &
+  Pick<
+    PopoverPrimitive.Positioner.Props,
+    "align" | "alignOffset" | "side" | "sideOffset" | "positionMethod"
   >;
 
 /** 侧栏内部共享桌面展开、移动抽屉与统一切换操作。 */

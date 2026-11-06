@@ -5,5 +5,10 @@ export const styles = stylex.create({
   button: {
     width: 44,
     height: 44,
+    flexShrink: 0,
   },
+  content: { width: 260, gap: 12 },
+  field: { gap: 0 },
+  options: { width: "100%" },
+  option: { flex: 1 },
 });

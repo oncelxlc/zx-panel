@@ -10,6 +10,8 @@ it("keeps series colors scoped to each chart in both themes without style inject
         value={{
           preference: "system",
           resolvedMode,
+          themeStyle: "default",
+          setThemeStyle: vi.fn(),
           setPreference: vi.fn(),
           toggleTheme: vi.fn(),
         }}

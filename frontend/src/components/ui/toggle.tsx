@@ -22,6 +22,7 @@ function Toggle({
           styles.root,
           styles[size],
           variant === "outline" && styles.outline,
+          variant === "segmented" && styles.segmented,
           xstyle,
         ],
         className,

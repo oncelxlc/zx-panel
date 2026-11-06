@@ -73,7 +73,7 @@ export const styles = stylex.create({
       default: "var(--sidebar-width)",
       ':is([data-collapsible="icon"] *)': "var(--sidebar-width-icon)",
       ':is([data-collapsible="icon"][data-variant="floating"] *, [data-collapsible="icon"][data-variant="inset"] *)':
-        "calc(var(--sidebar-width-icon) + 18px)",
+        "calc(var(--sidebar-width-icon) + 16px)",
     },
     overflow: "clip",
     left: { default: null, ':is([data-side="left"])': 0 },
@@ -97,21 +97,45 @@ export const styles = stylex.create({
       ':is([data-variant="sidebar"] [data-side="right"])':
         "1px solid var(--sidebar-border)",
     },
+    borderInlineColor: {
+      default: null,
+      ':is([data-theme-style="islands"] *)': "transparent",
+    },
   },
   inner: {
+    position: "relative",
+    isolation: "isolate",
+    "--sidebar-surface-content": {
+      default: "none",
+      ':is([data-theme-style="islands"] [data-variant="sidebar"] *)': '""',
+    },
     display: "flex",
     width: "100%",
     height: "100%",
     flexDirection: "column",
-    backgroundColor: "var(--sidebar)",
+    backgroundColor: {
+      default: "var(--sidebar)",
+      ':is([data-theme-style="islands"] [data-variant="sidebar"] *)': "transparent",
+    },
     borderRadius: {
       default: null,
-      ':is([data-variant="floating"] *)': "var(--radius-lg)",
+      ':is([data-variant="floating"] *)': "var(--radius-xl)",
     },
     boxShadow: {
       default: null,
       ':is([data-variant="floating"] *)':
-        "0 0 0 1px var(--sidebar-border), 0 1px 2px #0000000d",
+        "var(--shadow-island)",
+    },
+    // Islands 只绘制内缩表面，不切换浮动布局或改变侧栏占位宽度。
+    "::before": {
+      content: "var(--sidebar-surface-content)",
+      position: "absolute",
+      inset: 4,
+      zIndex: -1,
+      pointerEvents: "none",
+      borderRadius: "var(--radius-xl)",
+      backgroundColor: "var(--sidebar)",
+      boxShadow: "var(--shadow-island)",
     },
   },
   rail: {

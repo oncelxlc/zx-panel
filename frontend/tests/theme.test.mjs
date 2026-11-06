@@ -57,6 +57,32 @@ test("登录首屏固定暗色、初始化跟随系统，后台继续读取历�
   assert.equal(getSystemTheme(), "dark");
 });
 
+test("首屏外壳风格独立读取，公共页面和不可用存储保留默认风格", () => {
+  const script = readFileSync(new URL("../public/theme-init.js", import.meta.url), "utf8");
+  for (const pathname of ["/overview", "/login", "/setup"]) {
+    for (const stored of ["islands", "default", "invalid", null, "blocked"]) {
+      const root = { dataset: {}, classList: { toggle() {} } };
+      runInNewContext(script, {
+        document: { documentElement: root },
+        window: {
+          location: { pathname },
+          matchMedia: () => ({ matches: true }),
+          localStorage: {
+            getItem(key) {
+              if (stored === "blocked") throw new Error("Storage disabled");
+              return key === "zx-panel-theme" ? "dark" : stored;
+            },
+          },
+        },
+      });
+      assert.equal(root.dataset.themeStyle,
+        pathname === "/overview" && stored === "islands" ? "islands" : "default");
+      assert.equal(root.dataset.theme,
+        pathname === "/setup" || (pathname === "/overview" && stored === "blocked") ? "light" : "dark");
+    }
+  }
+});
+
 test("主题切换支持动画、快速取消、减少动态效果和无 API 回退", async (t) => {
   t.after(() => {
     delete globalThis.window;

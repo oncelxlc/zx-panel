@@ -8,6 +8,15 @@ export type ThemeMode = "light" | "dark";
  */
 export type ThemePreference = ThemeMode | "system";
 
+/** ThemeStyle 只控制后台外壳的表面分隔，不改变页面内容布局。 */
+export type ThemeStyle = "default" | "islands";
+
+/** 由入口所在布局指定弹层方向和对齐，主题控件不依赖侧栏状态。 */
+export type ThemeToggleProps = Pick<
+  PopoverContentProps,
+  "side" | "align" | "sideOffset" | "positionMethod"
+>;
+
 /**
  * ThemeContextValue 描述主题上下文对组件暴露的状态和操作。
  * preference 保留用户选择，resolvedMode 表示实际生效模式。
@@ -15,7 +24,9 @@ export type ThemePreference = ThemeMode | "system";
 export type ThemeContextValue = {
   preference: ThemePreference;
   resolvedMode: ThemeMode;
+  themeStyle: ThemeStyle;
   setPreference: (preference: ThemePreference) => void;
+  setThemeStyle: (style: ThemeStyle) => void;
   toggleTheme: () => void;
 };
 
@@ -27,3 +38,4 @@ export type ThemeProviderProps = {
   children: ReactNode;
 };
 import type { ReactNode } from "react";
+import type { PopoverContentProps } from "./ui.type";

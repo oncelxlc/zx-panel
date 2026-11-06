@@ -74,10 +74,4 @@ export const styles = stylex.create({
     right: 0,
     top: 0,
   },
-  desktopOnly: {
-    display: {
-      default: "none",
-      "@media (min-width: 768px)": "block",
-    },
-  },
 });

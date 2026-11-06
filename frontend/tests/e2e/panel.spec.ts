@@ -340,11 +340,13 @@ test("mobile Sheet navigation and cross-tab theme preference", async ({
     second.getByRole("heading", { name: "概览", exact: true }),
   ).toBeVisible();
   await page.getByRole("button", { name: "选择主题" }).click();
-  await page.getByRole("menuitem", { name: "暗色", exact: true }).click();
+  await page.getByRole("button", { name: "暗色", exact: true }).click();
   await expect(second.locator("html")).toHaveAttribute("data-theme", "dark");
-  await page.getByRole("button", { name: "选择主题" }).click();
-  await page.getByRole("menuitem", { name: "亮色", exact: true }).click();
+  await page.getByRole("button", { name: "亮色", exact: true }).click();
   await expect(second.locator("html")).toHaveAttribute("data-theme", "light");
+  await page.getByRole("button", { name: "Islands", exact: true }).click();
+  await expect(second.locator("html")).toHaveAttribute("data-theme-style", "islands");
+  await page.keyboard.press("Escape");
   await page.setViewportSize({ width: 390, height: 844 });
   await page.getByRole("button", { name: "切换导航" }).click();
   await page.getByRole("link", { name: "日志", exact: true }).click();

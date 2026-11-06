@@ -52,35 +52,14 @@ export const styles = stylex.create({
     },
     flexShrink: 0,
   },
-  serverBrand: {
-    minWidth: 0,
-    overflow: "hidden",
-    flexWrap: "nowrap",
-  },
-  serverName: {
-    display: "block",
-    width: "100%",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
-  },
-  footerLabel: {
-    whiteSpace: "nowrap",
-    opacity: {
-      default: 1,
-      ':is([data-slot="sidebar"][data-collapsible="icon"] *)': 0,
+  footer: {
+    flexDirection: {
+      default: "row",
+      ':is([data-slot="sidebar"][data-collapsible="icon"] *)': "column",
     },
-    transitionProperty: "opacity",
-    transitionDuration: "var(--motion-fast)",
-    transitionTimingFunction: "ease-out",
-    transitionDelay: {
-      default: "var(--motion-panel)",
-      ':is([data-slot="sidebar"][data-collapsible="icon"] *)': "0s",
-      "@media (prefers-reduced-motion: reduce)": "0s",
-    },
-    padding: 8,
-    fontSize: 12,
-    lineHeight: "16px",
-    color: "var(--muted-foreground)",
+    alignItems: "flex-start",
+    gap: 8,
   },
+  footerButton: { width: 44, height: 44, flexShrink: 0 },
+  accountMenu: { width: 200 },
 });

@@ -1,4 +1,4 @@
-import { THEME_STORAGE_KEY } from "@/theme/constants";
+import { THEME_STORAGE_KEY, THEME_STYLE_STORAGE_KEY } from "@/theme/constants";
 import {
   getSystemTheme,
   isDarkThemePath,
@@ -10,6 +10,7 @@ import type {
   ThemeMode,
   ThemePreference,
   ThemeProviderProps,
+  ThemeStyle,
 } from "@/types/theme.type";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router";
@@ -49,6 +50,18 @@ function getStoredPreference(): ThemePreference {
   }
 }
 
+/** 读取外壳风格；旧用户、无窗口或存储不可用时保留默认布局。 */
+function getStoredStyle(): ThemeStyle {
+  if (typeof window === "undefined") return "default";
+  try {
+    return window.localStorage.getItem(THEME_STYLE_STORAGE_KEY) === "islands"
+      ? "islands"
+      : "default";
+  } catch {
+    return "default";
+  }
+}
+
 /**
  * ThemeProvider 在路由内管理主题；登录页固定深色，初始化页跟随系统，后台使用已保存偏好。
  * 系统变化与站内导航统一同步根节点主题，并清理尚未完成的切换动画。
@@ -58,6 +71,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   const [preference, setPreferenceState] =
     useState<ThemePreference>(getStoredPreference);
   const [systemMode, setSystemMode] = useState<ThemeMode>(getSystemTheme);
+  const [themeStyle, setThemeStyleState] = useState<ThemeStyle>(getStoredStyle);
 
   const resolvedMode = isDarkThemePath(pathname)
     ? "dark"
@@ -80,6 +94,17 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     }
   }, []);
 
+  /** 风格只保存到浏览器；写入失败仍允许在当前会话切换。 */
+  const setThemeStyle = useCallback((nextStyle: ThemeStyle) => {
+    setThemeStyleState(nextStyle);
+    if (typeof window === "undefined") return;
+    try {
+      window.localStorage.setItem(THEME_STYLE_STORAGE_KEY, nextStyle);
+    } catch {
+      // 隐私模式等存储限制不阻断外观设置。
+    }
+  }, []);
+
   const toggleTheme = useCallback(() => {
     setPreference(resolvedMode === "dark" ? "light" : "dark");
   }, [resolvedMode, setPreference]);
@@ -87,10 +112,20 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   useEffect(() => syncDocumentTheme(resolvedMode), [resolvedMode]);
 
   useEffect(() => {
+    document.documentElement.dataset.themeStyle =
+      isDarkThemePath(pathname) || isSystemThemePath(pathname)
+        ? "default"
+        : themeStyle;
+  }, [pathname, themeStyle]);
+
+  useEffect(() => {
     /** 同步其他标签页的偏好；移除或无效值恢复跟随系统。 */
     function syncPreference(event: StorageEvent) {
       if (event.key === THEME_STORAGE_KEY || event.key === null) {
         setPreferenceState(getStoredPreference());
+      }
+      if (event.key === THEME_STYLE_STORAGE_KEY || event.key === null) {
+        setThemeStyleState(getStoredStyle());
       }
     }
     window.addEventListener("storage", syncPreference);
@@ -117,10 +152,19 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     () => ({
       preference,
       resolvedMode,
+      themeStyle,
       setPreference,
+      setThemeStyle,
       toggleTheme,
     }),
-    [preference, resolvedMode, setPreference, toggleTheme],
+    [
+      preference,
+      resolvedMode,
+      themeStyle,
+      setPreference,
+      setThemeStyle,
+      toggleTheme,
+    ],
   );
 
   return (

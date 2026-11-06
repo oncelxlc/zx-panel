@@ -8,6 +8,8 @@
 
 登录页使用固定深色极简表单与静态线稿背景（`frontend/public/login/login-bg-lines.webp`），不随系统切换背景；初始化页仍跟随系统，后台保留 `zx-panel-theme` 主题偏好。
 
+后台侧栏底部集中提供外观与账号图标按钮。外观弹层支持“亮 / 暗 / 自动”与“默认 / Islands”；两种风格共用布局尺寸，Islands 通过不占空间的内缩背景层、圆角和阴影分隔导航栏、Header、内容区，切换时不改变区域宽高、间距或内容位置。侧栏折叠后，外观与账号弹层向右弹出并底部对齐，避开导航按钮。风格单独保存在 `zx-panel-theme-style`，默认沿用原风格，支持刷新恢复与跨标签页同步。
+
 已实现六个主页面、Cookie/CSRF 认证、共享监控采集、持久任务、Node.js / Go 安装、systemd 托管应用和有界日志。Ubuntu 24.04 WSL2 x86_64 及 WSL 内 QEMU ARM64 系统模拟已实测官方安装、应用生命周期、权限边界、SSE 恢复，以及正式 helper 模板下的完整引用检查和卸载；x86_64 另通过 Linux race、PostgreSQL 恢复、30 分钟稳定性和实际导出上限。**M0–M5 已完成本次约定的本地与 WSL/QEMU 验收。** 正式 helper 模板已按明确授权完成双架构复验，实验配置已恢复、服务及虚拟机已停止，旧版本和应用保留。最新实测、模拟环境边界和限制见 [验证记录](docs/verification.md) 与 [Linux 验收清单](docs/linux-acceptance.md)。
 
 ## 项目结构

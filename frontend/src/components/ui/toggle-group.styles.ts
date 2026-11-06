@@ -16,6 +16,10 @@ export const styles = stylex.create({
     borderRadius: "var(--radius-lg)",
   },
   spacing: (spacing: number) => ({ gap: spacing * 4 }),
+  segmented: {
+    padding: 3,
+    backgroundColor: "var(--muted)",
+  },
   item: {
     flexShrink: 0,
     zIndex: { default: null, ":focus-visible": 10 },

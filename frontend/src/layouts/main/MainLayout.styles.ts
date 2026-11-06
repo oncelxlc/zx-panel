@@ -18,6 +18,22 @@ export const styles = stylex.create({
   sidebarInset: {
     minWidth: 0,
   },
+  islandSurface: {
+    isolation: "isolate",
+    backgroundColor: "transparent",
+    // 装饰层不参与盒模型，切换风格时保留内容坐标和可用宽度。
+    "::before": {
+      content: '""',
+      position: "absolute",
+      inset: 4,
+      zIndex: -1,
+      pointerEvents: "none",
+      borderRadius: "var(--radius-xl)",
+      backgroundColor: "var(--card)",
+      boxShadow: "var(--shadow-island)",
+    },
+  },
+  islandHeader: { borderBottomColor: "transparent" },
   header: {
     position: "sticky",
     top: 0,
@@ -26,6 +42,7 @@ export const styles = stylex.create({
     backgroundColor: "var(--background)",
   },
   panelContent: {
+    position: "relative",
     width: "100%",
     maxWidth: 1600,
     marginInline: "auto",
