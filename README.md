@@ -46,6 +46,8 @@ pnpm dev
 
 后端默认 `127.0.0.1:25000`，Vite 固定 7200。前端环境变量放在 `frontend/.env`，API 模式默认启用；后端及 Compose 使用 `backend/.env`。开发时显式使用 `devassets`；正式 Go 构建先执行 `pnpm build:release`，缺失真实 API 前端资源会构建失败。
 
+在 Linux/WSL 中，以 `devassets` 构建且配置为 `mode: development` 的 Go 服务每次启动都会先编译 `backend/build/wsl/zx-panel-helper`，日志会打印完整路径，构建失败则停止启动。直接 `go run`、pnpm 后端命令和 GoLand 调试共用此行为；工作目录须为 `backend/`，需要可用的 Linux Go 与仓库源码。生成二进制不会自动启用、提权启动或重启 helper；仍需管理员按现有配置手动执行。CLI 维护命令、正式构建和 Windows 原生预览不执行此构建。
+
 使用 `go build` 生成 WSL 开发二进制、手动运行以及在 GoLand 中设置断点，见 [WSL Go 构建与 GoLand 调试](docs/wsl-go-debug.md)。文档包含运行版与保留调试信息的构建命令、数据库准备步骤、GoLand 原生 WSL 调试及 Delve 连接方式。
 
 Windows 可在仓库目录用一个命令同时启动本机 Vite 和 WSL 中的 Go 后端：

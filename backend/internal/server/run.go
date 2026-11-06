@@ -32,6 +32,11 @@ func Run(cfg config.ServerConfig) error {
 	if err := verifyServerIdentity(panel); err != nil {
 		return err
 	}
+	if panel.Mode == "development" {
+		if err := buildDevelopmentHelper(context.Background()); err != nil {
+			return err
+		}
+	}
 	for _, path := range []string{panel.Paths.DataRoot, panel.Paths.StagingRoot, panel.Paths.ArtifactCacheRoot, panel.Paths.ExportRoot} {
 		if err := os.MkdirAll(path, 0700); err != nil {
 			return err

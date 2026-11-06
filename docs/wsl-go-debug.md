@@ -61,6 +61,8 @@ go build -mod=readonly -tags devassets -gcflags='all=-N -l' -o build/wsl/zx-pane
 
 `zx-panel` 用于普通开发运行，`zx-panel-debug` 关闭优化和内联以便断点与变量查看。两者均为 Linux 二进制，输出目录 `build/` 已被 Git 忽略。调试构建保留源文件路径与符号；不要加入 `-trimpath` 或 `-ldflags='-s -w'`，也不要拿 `pnpm release` 的精简产物调试。每次修改 Go 代码后重新构建对应二进制。
 
+这两份开发二进制每次以 `mode: development` 启动服务时，都会在连接数据库前自动构建 `build/wsl/zx-panel-helper`，GoLand 原生 WSL 调试和 `go run -tags devassets` 也共用此流程。保持工作目录为 `backend/`，保留仓库源码和 Linux Go；构建失败会停止服务启动。启动日志打印 helper 的完整路径，管理员可按已有权限配置手动执行或更新服务使用的二进制；自动构建不提权、不启用或重启 helper。`version`、`check-config`、迁移等维护命令不触发构建。
+
 先做无需数据库连接的检查：
 
 ```bash
