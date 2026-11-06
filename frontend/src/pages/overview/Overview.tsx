@@ -28,7 +28,6 @@ import {
   ItemGroup,
   ItemTitle,
 } from "@/components/ui/item";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ToastNotice } from "@/features/panel/ToastNotice";
 import {
   bootstrapQuery,
@@ -58,13 +57,6 @@ const ResourceChart = lazy(() =>
     default: module.ResourceChart,
   })),
 );
-/** metricNames 只包含文档首发的四个总览指标。 */
-const metricNames = {
-  cpu: "CPU",
-  memory: "内存",
-  disk: "根分区",
-  network: "网络下行",
-};
 /** OverviewPage 按读数、趋势、本机信息和可操作记录组织首屏。 */
 export function OverviewPage() {
   const timeZone = useDisplayTimezone();
@@ -74,13 +66,11 @@ export function OverviewPage() {
   const tasks = useQuery(tasksQuery);
   const now = useNow();
   const [params, setParams] = useSearchParams();
-  const requested = params.get("tab");
-  const tab =
-    requested === "memory" || requested === "disk" || requested === "network"
-      ? requested
-      : "cpu";
   const range = params.get("range") ?? "1h";
-  const anchor = new Date(Math.floor(now / 10_000) * 10_000).toISOString();
+  const anchor =
+    import.meta.env.VITE_DATA_MODE === "mock"
+      ? "2026-09-28T14:24:00Z"
+      : new Date(Math.floor(now / 10_000) * 10_000).toISOString();
   const sample = metrics.data;
   const system = bootstrap.data?.system;
   const disk =
@@ -88,21 +78,36 @@ export function OverviewPage() {
     sample?.filesystems[0];
   const network =
     sample?.networks.find((item) => item.isPrimary) ?? sample?.networks[0];
-  const history = useQuery({
-    ...historyQuery(
-      tab,
-      tab === "disk"
-        ? (disk?.id ?? "")
-        : tab === "network"
-          ? (network?.id ?? "")
-          : "",
-      range,
-      import.meta.env.VITE_DATA_MODE === "mock"
-        ? "2026-09-28T14:24:00Z"
-        : anchor,
-    ),
-    refetchInterval: 10000,
-  });
+  const trends = [
+    {
+      label: "CPU",
+      history: useQuery({
+        ...historyQuery("cpu", "", range, anchor),
+        refetchInterval: 10000,
+      }),
+    },
+    {
+      label: "内存",
+      history: useQuery({
+        ...historyQuery("memory", "", range, anchor),
+        refetchInterval: 10000,
+      }),
+    },
+    {
+      label: "根分区",
+      history: useQuery({
+        ...historyQuery("disk", disk?.id ?? "", range, anchor),
+        refetchInterval: 10000,
+      }),
+    },
+    {
+      label: "网络下行",
+      history: useQuery({
+        ...historyQuery("network", network?.id ?? "", range, anchor),
+        refetchInterval: 10000,
+      }),
+    },
+  ];
   const failed =
     tasks.data?.items.filter((item) =>
       ["failed", "interrupted"].includes(item.status),
@@ -186,7 +191,7 @@ export function OverviewPage() {
           </div>
         )}
       </QueryState>
-      <div {...styleProps(styles.overviewGrid)}>
+      <div {...styleProps(styles.pageStack)}>
         <Card>
           <CardHeader>
             <CardTitle role="heading" aria-level={2}>
@@ -196,18 +201,6 @@ export function OverviewPage() {
           </CardHeader>
           <CardContent xstyle={styles.cardContent}>
             <div {...styleProps(styles.toolbar)}>
-              <Tabs
-                value={tab}
-                onValueChange={(value) => filter("tab", String(value))}
-              >
-                <TabsList>
-                  {Object.entries(metricNames).map(([value, label]) => (
-                    <TabsTrigger key={value} value={value}>
-                      {label}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
-              </Tabs>
               <Choice
                 label="范围"
                 value={range}
@@ -219,22 +212,39 @@ export function OverviewPage() {
                 ]}
               />
             </div>
-            <QueryState
-              placeholder={<ChartSkeleton />}
-              pending={history.isPending}
-              error={history.error}
-              retry={() => void history.refetch()}
-            >
-              {history.data && (
-                <Suspense fallback={<ChartSkeleton />}>
-                  <ResourceChart
-                    history={history.data}
-                    label={metricNames[tab]}
-                    timeZone={timeZone}
-                  />
-                </Suspense>
-              )}
-            </QueryState>
+            <div {...styleProps(styles.trendGrid)}>
+              {trends.map(({ label, history }, index) => (
+                <section
+                  key={label}
+                  aria-labelledby={`resource-trend-${index}`}
+                  {...styleProps(styles.trend)}
+                >
+                  <CardTitle
+                    id={`resource-trend-${index}`}
+                    role="heading"
+                    aria-level={3}
+                  >
+                    {label}
+                  </CardTitle>
+                  <QueryState
+                    placeholder={<ChartSkeleton />}
+                    pending={history.isPending}
+                    error={history.error}
+                    retry={() => void history.refetch()}
+                  >
+                    {history.data && (
+                      <Suspense fallback={<ChartSkeleton />}>
+                        <ResourceChart
+                          history={history.data}
+                          label={label}
+                          timeZone={timeZone}
+                        />
+                      </Suspense>
+                    )}
+                  </QueryState>
+                </section>
+              ))}
+            </div>
           </CardContent>
         </Card>
         <Card>
@@ -254,7 +264,7 @@ export function OverviewPage() {
                 : "仅展示已探测范围"}
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent xstyle={styles.cardContent}>
             <QueryState
               pending={bootstrap.isPending}
               error={bootstrap.error}
@@ -262,40 +272,36 @@ export function OverviewPage() {
             >
               {system && (
                 <dl {...styleProps(styles.detailGrid)}>
-                  <dt>主机名</dt>
-                  <dd {...styleProps(styles.detailValue)}>{system.hostname}</dd>
-                  <dt>操作系统</dt>
-                  <dd {...styleProps(styles.detailValue)}>
-                    {system.os.name} {system.os.version}
-                  </dd>
-                  <dt>内核</dt>
-                  <dd {...styleProps([styles.detailValue, styles.address])}>
-                    {system.os.kernel || "不可用"}
-                  </dd>
-                  <dt>架构</dt>
-                  <dd {...styleProps(styles.detailValue)}>
-                    {system.architecture}
-                  </dd>
-                  <dt>处理器</dt>
-                  <dd {...styleProps(styles.detailValue)}>
-                    {system.cpuModel || "不可用"}
-                  </dd>
-                  <dt>逻辑核数</dt>
-                  <dd {...styleProps(styles.detailValue)}>
-                    {system.logicalCpuCount}
-                  </dd>
-                  <dt>内存</dt>
-                  <dd {...styleProps(styles.detailValue)}>
-                    {formatBytes(system.memoryTotalBytes)}
-                  </dd>
-                  <dt>启动时间</dt>
-                  <dd {...styleProps(styles.detailValue)}>
-                    {formatTime(system.bootedAt, timeZone)}
-                  </dd>
-                  <dt>运行时长</dt>
-                  <dd {...styleProps(styles.detailValue)}>
-                    {formatDuration(system.uptimeSeconds)}
-                  </dd>
+                  {[
+                    { label: "主机名", value: system.hostname },
+                    {
+                      label: "操作系统",
+                      value: `${system.os.name} ${system.os.version}`,
+                    },
+                    { label: "内核", value: system.os.kernel || "不可用" },
+                    { label: "架构", value: system.architecture },
+                    { label: "处理器", value: system.cpuModel || "不可用" },
+                    { label: "逻辑核数", value: system.logicalCpuCount },
+                    {
+                      label: "内存",
+                      value: formatBytes(system.memoryTotalBytes),
+                    },
+                    {
+                      label: "启动时间",
+                      value: formatTime(system.bootedAt, timeZone),
+                    },
+                    {
+                      label: "运行时长",
+                      value: formatDuration(system.uptimeSeconds),
+                    },
+                  ].map(({ label, value }) => (
+                    <div key={label} {...styleProps(styles.detailItem)}>
+                      <dt>
+                        <CardDescription>{label}</CardDescription>
+                      </dt>
+                      <dd {...styleProps(styles.detailValue)}>{value}</dd>
+                    </div>
+                  ))}
                 </dl>
               )}
             </QueryState>

@@ -42,12 +42,28 @@ export const styles = stylex.create({
     display: "flex",
     flexDirection: "column",
     gap: 16,
+    containerType: "inline-size",
+  },
+  trendGrid: {
+    display: "grid",
+    gridTemplateColumns: {
+      default: "minmax(0, 1fr)",
+      "@container (min-width: 600px)": "repeat(2, minmax(0, 1fr))",
+    },
+    gap: 24,
+    alignItems: "start",
+  },
+  trend: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 12,
+    minWidth: 0,
   },
   toolbar: {
     display: "flex",
     flexWrap: "wrap",
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "flex-end",
     gap: 12,
   },
   labelRow: {
@@ -61,16 +77,18 @@ export const styles = stylex.create({
   },
   detailGrid: {
     display: "grid",
-    gridTemplateColumns: "minmax(90px, auto) minmax(0, 1fr)",
-    columnGap: 16,
-    rowGap: 12,
-    fontSize: 14,
-    lineHeight: "20px",
+    gridTemplateColumns: {
+      default: "minmax(0, 1fr)",
+      "@container (min-width: 600px)": "repeat(2, minmax(0, 1fr))",
+      "@container (min-width: 900px)": "repeat(3, minmax(0, 1fr))",
+    },
+    gap: 24,
   },
-  address: {
-    fontFamily: "var(--font-mono)",
-    fontSize: 12,
-    lineHeight: "16px",
+  detailItem: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 8,
+    minWidth: 0,
   },
   linkLabel: {
     display: "flex",

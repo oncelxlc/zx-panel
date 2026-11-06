@@ -157,13 +157,15 @@ test("all primary routes, navigation, confirmation and task deep links", async (
   expect(errors).toEqual([]);
 });
 
-test("two themes and five layout breakpoints", async ({ page }, testInfo) => {
+test("overview trends in both themes across layout breakpoints", async ({
+  page,
+}, testInfo) => {
   for (const theme of ["light", "dark"]) {
     await page.addInitScript(
       (value) => localStorage.setItem("zx-panel-theme", value),
       theme,
     );
-    for (const width of [1440, 1280, 1024, 768, 390]) {
+    for (const width of [1440, 1280, 1024, 768, 390, 375]) {
       await page.setViewportSize({ width, height: 1000 });
       await page.goto("/overview");
       await expect(
@@ -171,6 +173,67 @@ test("two themes and five layout breakpoints", async ({ page }, testInfo) => {
       ).toBeVisible();
       await expect(page.getByText("18.4%", { exact: true })).toBeVisible();
       await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+      await expect(page.getByRole("tablist")).toHaveCount(0);
+      for (const label of ["CPU", "内存", "根分区", "网络下行"]) {
+        await expect(
+          page
+            .getByRole("region", { name: label, exact: true })
+            .getByRole("application"),
+        ).toBeVisible();
+      }
+      const cpu = await page
+        .getByRole("region", { name: "CPU", exact: true })
+        .boundingBox();
+      const memory = await page
+        .getByRole("region", { name: "内存", exact: true })
+        .boundingBox();
+      const disk = await page
+        .getByRole("region", { name: "根分区", exact: true })
+        .boundingBox();
+      const trendCard = page.locator('[data-slot="card"]').filter({
+        has: page.getByRole("heading", { name: "资源趋势", exact: true }),
+      });
+      const systemCard = page.locator('[data-slot="card"]').filter({
+        has: page.getByRole("heading", { name: "本机信息", exact: true }),
+      });
+      const contentBounds = await trendCard.locator("..").boundingBox();
+      const trendBounds = await trendCard.boundingBox();
+      const systemBounds = await systemCard.boundingBox();
+      expect(trendBounds?.width).toBe(contentBounds?.width);
+      expect(systemBounds?.width).toBe(contentBounds?.width);
+      expect(systemBounds?.x).toBe(trendBounds?.x);
+      expect(systemBounds?.y).toBeGreaterThanOrEqual(
+        (trendBounds?.y ?? 0) + (trendBounds?.height ?? 0),
+      );
+      await expect(systemCard.getByRole("term")).toHaveText([
+        "主机名",
+        "操作系统",
+        "内核",
+        "架构",
+        "处理器",
+        "逻辑核数",
+        "内存",
+        "启动时间",
+        "运行时长",
+      ]);
+      await expect(systemCard.getByRole("definition")).toHaveCount(9);
+      const detailColumns = await systemCard.locator("dl").evaluate(
+        (element) =>
+          getComputedStyle(element).gridTemplateColumns.split(" ").length,
+      );
+      if (width === 1440) {
+        expect(detailColumns).toBe(3);
+        expect(memory?.y).toBe(cpu?.y);
+        expect(memory?.x).toBeGreaterThan(cpu?.x ?? 0);
+        expect(disk?.x).toBe(cpu?.x);
+        expect(disk?.y).toBeGreaterThan(cpu?.y ?? 0);
+      } else if (width <= 390) {
+        expect(detailColumns).toBe(1);
+        expect(memory?.x).toBe(cpu?.x);
+        expect(memory?.y).toBeGreaterThan(cpu?.y ?? 0);
+      } else if (width === 1024) {
+        expect(detailColumns).toBe(2);
+      }
       const fits = await page.evaluate(
         () => document.documentElement.scrollWidth <= window.innerWidth,
       );
@@ -181,6 +244,35 @@ test("two themes and five layout breakpoints", async ({ page }, testInfo) => {
       });
     }
   }
+});
+
+test("overview trends share the range and keep independent data tables", async ({
+  page,
+}) => {
+  await page.goto("/overview?tab=network&range=1h");
+  await expect(page.getByRole("application")).toHaveCount(4);
+  await expect(page.getByRole("tablist")).toHaveCount(0);
+  await page.getByRole("combobox", { name: "范围", exact: true }).click();
+  await page.getByRole("option", { name: "15 分钟", exact: true }).click();
+  await expect(page).toHaveURL(/range=15m/);
+  for (const label of ["CPU", "内存", "根分区", "网络下行"]) {
+    const trend = page.getByRole("region", { name: label, exact: true });
+    await expect(trend.getByText(/450 个时间点/)).toHaveCount(1);
+    await trend.getByRole("button", { name: "查看数据表" }).click();
+    await expect(trend.getByRole("table")).toBeVisible();
+    await expect(
+      trend.getByRole("button", { name: "收起数据表" }),
+    ).toHaveAttribute("aria-expanded", "true");
+  }
+  await expect(page.getByRole("table")).toHaveCount(4);
+  const cpu = page.getByRole("region", { name: "CPU", exact: true });
+  await cpu.getByRole("button", { name: "收起数据表" }).click();
+  await expect(page.getByRole("table")).toHaveCount(3);
+  await expect(cpu.getByRole("table")).toHaveCount(0);
+  const memory = page.getByRole("region", { name: "内存", exact: true });
+  await expect(memory.getByRole("row").nth(1)).toContainText("42.5%");
+  const network = page.getByRole("region", { name: "网络下行", exact: true });
+  await expect(network.getByRole("row").nth(1)).toContainText("MiB/s");
 });
 
 test("six pages in both themes on desktop and mobile", async ({
