@@ -9,17 +9,24 @@ export const styles = stylex.create({
     flexWrap: "nowrap",
     paddingInline: 8,
   },
-  sidebarLabel: {
+  label: {
     whiteSpace: "nowrap",
     opacity: {
       default: 1,
       ':is([data-slot="sidebar"][data-collapsible="icon"] *)': 0,
     },
-    transitionProperty: "opacity",
-    transitionDuration: "var(--motion-fast)",
-    transitionTimingFunction: "ease-out",
+    translate: {
+      default: "0 0",
+      ':is([data-slot="sidebar"][data-collapsible="icon"] *)': "-4px 0",
+    },
+    transitionProperty: "opacity, translate",
+    transitionDuration: {
+      default: "var(--motion-content)",
+      ':is([data-slot="sidebar"][data-collapsible="icon"] *)': "var(--motion-fast)",
+    },
+    transitionTimingFunction: "var(--motion-ease)",
     transitionDelay: {
-      default: "var(--motion-panel)",
+      default: "var(--motion-fast)",
       ':is([data-slot="sidebar"][data-collapsible="icon"] *)': "0s",
       "@media (prefers-reduced-motion: reduce)": "0s",
     },
@@ -37,28 +44,34 @@ export const styles = stylex.create({
     paddingInline: 16,
   },
   menuLabel: {
-    whiteSpace: "nowrap",
-    opacity: {
-      default: 1,
-      ':is([data-slot="sidebar"][data-collapsible="icon"] *)': 0,
-    },
-    transitionProperty: "opacity",
-    transitionDuration: "var(--motion-fast)",
-    transitionTimingFunction: "ease-out",
-    transitionDelay: {
-      default: "var(--motion-panel)",
-      ':is([data-slot="sidebar"][data-collapsible="icon"] *)': "0s",
-      "@media (prefers-reduced-motion: reduce)": "0s",
-    },
     flexShrink: 0,
   },
   footer: {
-    flexDirection: {
-      default: "row",
-      ':is([data-slot="sidebar"][data-collapsible="icon"] *)': "column",
-    },
-    alignItems: "flex-start",
+    // 桌面预留两行空间，按钮只平移，避免切换排列方向导致瞬移和内容区跳动。
+    height: { default: 112, "@media (max-width: 1023px)": 60 },
+    flexShrink: 0,
+    flexDirection: "row",
+    alignItems: "flex-end",
     gap: 8,
+  },
+  footerMotion: {
+    display: "flex",
+    flexShrink: 0,
+    transitionProperty: "translate",
+    transitionDuration: "var(--sidebar-motion-duration, var(--motion-layout))",
+    transitionTimingFunction: "var(--motion-ease-layout)",
+  },
+  footerTheme: {
+    translate: {
+      default: "0 0",
+      ':is([data-slot="sidebar"][data-collapsible="icon"] *)': "0 -52px",
+    },
+  },
+  footerAccount: {
+    translate: {
+      default: "0 0",
+      ':is([data-slot="sidebar"][data-collapsible="icon"] *)': "-52px 0",
+    },
   },
   footerButton: { width: 44, height: 44, flexShrink: 0 },
   accountMenu: { width: 200 },

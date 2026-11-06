@@ -93,7 +93,7 @@ export function MainSider() {
               <AvatarFallback>zx</AvatarFallback>
             </Avatar>
           </ItemMedia>
-          <ItemContent xstyle={styles.sidebarLabel} className="sidebar-label">
+          <ItemContent xstyle={styles.label} className="sidebar-label">
             <ItemTitle>zx-panel</ItemTitle>
             <ItemDescription>本机管理控制台</ItemDescription>
           </ItemContent>
@@ -117,7 +117,12 @@ export function MainSider() {
                     }
                   >
                     <Icon {...styleProps(iconStyles.root)} aria-hidden="true" />
-                    <span {...styleProps(styles.menuLabel, "sidebar-label")}>
+                    <span
+                      {...styleProps(
+                        [styles.label, styles.menuLabel],
+                        "sidebar-label",
+                      )}
+                    >
                       {label}
                     </span>
                   </SidebarMenuButton>
@@ -128,61 +133,65 @@ export function MainSider() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter xstyle={styles.footer}>
-        <ThemeToggle {...footerPopupPosition} />
-        <DropdownMenu>
-          <Tooltip>
-            <TooltipTrigger
-              render={
-                <DropdownMenuTrigger
-                  render={
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      xstyle={styles.footerButton}
-                      aria-label="账号菜单"
-                    />
-                  }
-                />
-              }
-            >
-              <CircleUserRound
-                {...styleProps(iconStyles.root)}
-                aria-hidden="true"
-              />
-            </TooltipTrigger>
-            <TooltipContent
-              side={footerPopupPosition.side}
-              sideOffset={footerPopupPosition.sideOffset}
-            >
-              账号菜单
-            </TooltipContent>
-          </Tooltip>
-          <DropdownMenuContent
-            {...footerPopupPosition}
-            xstyle={styles.accountMenu}
-          >
-            <DropdownMenuGroup>
-              <DropdownMenuLabel>
-                {user.displayName || user.username}
-              </DropdownMenuLabel>
-              <DropdownMenuItem
-                onClick={() => {
-                  setOpenMobile(false);
-                  navigate("/settings");
-                }}
+        <div {...styleProps([styles.footerMotion, styles.footerTheme])}>
+          <ThemeToggle {...footerPopupPosition} />
+        </div>
+        <div {...styleProps([styles.footerMotion, styles.footerAccount])}>
+          <DropdownMenu>
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <DropdownMenuTrigger
+                    render={
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        xstyle={styles.footerButton}
+                        aria-label="账号菜单"
+                      />
+                    }
+                  />
+                }
               >
-                账号与设置
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem disabled={leaving} onClick={() => void leave()}>
-                <LogOut {...styleProps(iconStyles.root)} aria-hidden="true" />
-                {leaving ? "正在退出…" : "退出登录"}
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
+                <CircleUserRound
+                  {...styleProps(iconStyles.root)}
+                  aria-hidden="true"
+                />
+              </TooltipTrigger>
+              <TooltipContent
+                side={footerPopupPosition.side}
+                sideOffset={footerPopupPosition.sideOffset}
+              >
+                账号菜单
+              </TooltipContent>
+            </Tooltip>
+            <DropdownMenuContent
+              {...footerPopupPosition}
+              xstyle={styles.accountMenu}
+            >
+              <DropdownMenuGroup>
+                <DropdownMenuLabel>
+                  {user.displayName || user.username}
+                </DropdownMenuLabel>
+                <DropdownMenuItem
+                  onClick={() => {
+                    setOpenMobile(false);
+                    navigate("/settings");
+                  }}
+                >
+                  账号与设置
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <DropdownMenuItem disabled={leaving} onClick={() => void leave()}>
+                  <LogOut {...styleProps(iconStyles.root)} aria-hidden="true" />
+                  {leaving ? "正在退出…" : "退出登录"}
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </SidebarFooter>
     </Sidebar>
   );

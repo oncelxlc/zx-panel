@@ -37,20 +37,18 @@ export const styles = stylex.create({
   desktop: {
     display: { default: "block", "@media (max-width: 1023px)": "none" },
     color: "var(--sidebar-foreground)",
+    "--sidebar-motion-duration": {
+      default: "var(--motion-layout)",
+      ':is([data-state="collapsed"])': "var(--motion-layout-exit)",
+    },
   },
   transition: {
     transitionProperty: "width, translate",
     transitionDuration: {
-      default: "var(--motion-panel)",
+      default: "var(--sidebar-motion-duration)",
       "@media (prefers-reduced-motion: reduce)": "0s",
     },
-    transitionTimingFunction: "var(--motion-ease)",
-    transitionDelay: {
-      default: "0s",
-      ':is([data-slot="sidebar"][data-collapsible="icon"] *)':
-        "var(--motion-fast)",
-      "@media (prefers-reduced-motion: reduce)": "0s",
-    },
+    transitionTimingFunction: "var(--motion-ease-layout)",
   },
   gap: {
     position: "relative",

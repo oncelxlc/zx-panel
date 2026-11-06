@@ -46,7 +46,16 @@ export const styles = stylex.create({
       default: "140ms",
       "@media (prefers-reduced-motion: reduce)": "0ms",
     },
+    "--motion-layout": {
+      default: "300ms",
+      "@media (prefers-reduced-motion: reduce)": "0ms",
+    },
+    "--motion-layout-exit": {
+      default: "240ms",
+      "@media (prefers-reduced-motion: reduce)": "0ms",
+    },
     "--motion-ease": "cubic-bezier(0.2, 0.8, 0.2, 1)",
+    "--motion-ease-layout": "cubic-bezier(0.4, 0, 0.2, 1)",
     "--shadow-glass": {
       default: "0 16px 48px -16px rgb(0 0 0 / 20%)",
       ":is(.dark)":

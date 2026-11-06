@@ -11,10 +11,15 @@ test("sidebar keeps header and content edges continuous while collapsing and exp
   await expect(page.getByRole("application").first()).toBeVisible();
   const trigger = page.getByRole("button", { name: "切换导航", exact: true });
   const content = page.locator('[data-slot="sidebar-inset"]');
+  const theme = page.getByRole("button", { name: "选择主题", exact: true });
+  const account = page.getByRole("button", { name: "账号菜单", exact: true });
 
   for (const expanded of [false, true]) {
     const before = await content.boundingBox();
-    expect(before).not.toBeNull();
+    const themeBefore = await theme.boundingBox();
+    const accountBefore = await account.boundingBox();
+    if (!before || !themeBefore || !accountBefore)
+      throw new Error("缺少侧栏或底部按钮布局");
     await trigger.evaluate((button: HTMLButtonElement) => button.click());
     const frames = await page.evaluate(async () => {
       await new Promise(requestAnimationFrame);
@@ -23,12 +28,21 @@ test("sidebar keeps header and content edges continuous while collapsing and exp
       const inset = document.querySelector('[data-slot="sidebar-inset"]');
       const header = inset?.querySelector("header");
       const body = document.getElementById("main-content");
-      if (!sidebar || !inset || !header || !body)
+      const footer = sidebar?.querySelector('[data-slot="sidebar-footer"]');
+      const theme = footer?.querySelector('[aria-label="选择主题"]');
+      const account = footer?.querySelector('[aria-label="账号菜单"]');
+      const label = sidebar?.querySelector(
+        'a[href="/runtimes"] .sidebar-label',
+      );
+      if (
+        !sidebar || !inset || !header || !body || !footer || !theme ||
+        !account || !label
+      )
         throw new Error("缺少侧栏布局元素");
-      /** 只记录边缘与宽度，避免 DOMRect 序列化丢失类型信息。 */
+      /** 只记录坐标与宽度，避免 DOMRect 序列化丢失类型信息。 */
       function bounds(element: Element) {
-        const { x, right, width } = element.getBoundingClientRect();
-        return { x, right, width };
+        const { x, y, right, width } = element.getBoundingClientRect();
+        return { x, y, right, width };
       }
       const animations = document.getAnimations().filter((animation) => {
         const target =
@@ -48,14 +62,20 @@ test("sidebar keeps header and content edges continuous while collapsing and exp
           content: bounds(inset),
           header: bounds(header),
           body: bounds(body),
+          theme: bounds(theme),
+          account: bounds(account),
+          footerHeight: footer.getBoundingClientRect().height,
+          labelOpacity: Number(getComputedStyle(label).opacity),
           viewportWidth: document.documentElement.clientWidth,
         };
       });
       animations.forEach((animation) => animation.finish());
       return samples;
     });
-    expect(frames[0].content.x).toBeCloseTo(before?.x ?? -1, 0);
-    expect(frames[0].content.width).toBeCloseTo(before?.width ?? -1, 0);
+    expect(frames[0].content.x).toBeCloseTo(before.x, 0);
+    expect(frames[0].content.width).toBeCloseTo(before.width, 0);
+    expect(frames[0].theme.y).toBeCloseTo(themeBefore.y, 0);
+    expect(frames[0].account.x).toBeCloseTo(accountBefore.x, 0);
     for (const frame of frames) {
       expect(frame.content.x, `侧栏边缘，${frame.time}ms`).toBeCloseTo(
         frame.sidebarRight,
@@ -69,16 +89,39 @@ test("sidebar keeps header and content edges continuous while collapsing and exp
       );
       expect(frame.header.right).toBeCloseTo(frame.viewportWidth, 0);
       expect(frame.body.right).toBeCloseTo(frame.viewportWidth, 0);
+      expect(frame.theme.x).toBe(themeBefore.x);
+      expect(frame.account.y).toBe(accountBefore.y);
+      expect(frame.footerHeight).toBe(112);
     }
-    expect(
-      frames.some((frame) => frame.content.x > 64 && frame.content.x < 224),
-    ).toBe(true);
+    // 点击后立即开始布局变化，文字与展开重叠，底部按钮也从原坐标连续移动。
+    expect(frames[1].content.x).toBeGreaterThan(64);
+    expect(frames[1].content.x).toBeLessThan(224);
+    const themeEnd = themeBefore.y + (expanded ? 52 : -52);
+    const accountEnd = accountBefore.x + (expanded ? 52 : -52);
+    expect(frames[1].theme.y).toBeGreaterThan(
+      Math.min(themeBefore.y, themeEnd),
+    );
+    expect(frames[1].theme.y).toBeLessThan(Math.max(themeBefore.y, themeEnd));
+    expect(frames[1].account.x).toBeGreaterThan(
+      Math.min(accountBefore.x, accountEnd),
+    );
+    expect(frames[1].account.x).toBeLessThan(
+      Math.max(accountBefore.x, accountEnd),
+    );
+    expect(frames.at(-1)?.theme.y).toBe(themeEnd);
+    expect(frames.at(-1)?.account.x).toBe(accountEnd);
+    if (expanded) {
+      expect(frames[1].labelOpacity).toBe(0);
+      expect(frames[3].labelOpacity).toBeGreaterThan(0);
+      expect(frames[3].labelOpacity).toBeLessThan(1);
+      expect(frames[3].content.x).toBeLessThan(224);
+    }
     expect(frames.at(-1)?.content.x).toBe(expanded ? 224 : 64);
     await expect(trigger).toHaveAttribute("aria-expanded", String(expanded));
   }
 });
 
-test("sidebar reveals labels after expansion and keeps icons and row heights stable", async ({
+test("sidebar overlaps label reveal with expansion and keeps icons and row heights stable", async ({
   page,
 }, testInfo) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
@@ -130,11 +173,14 @@ test("sidebar reveals labels after expansion and keeps icons and row heights sta
   });
   await expect(label).toHaveCSS("opacity", "0");
   expect((await link.boundingBox())?.height).toBe(initialRow?.height);
-  const chart = page.locator('[data-slot="chart"]');
-  expect(
-    (await chart.locator("svg.recharts-surface").boundingBox())?.width ??
-      Infinity,
-  ).toBeLessThanOrEqual(((await chart.boundingBox())?.width ?? 0) + 1);
+  const charts = await page.locator('[data-slot="chart"]').all();
+  expect(charts.length).toBeGreaterThan(0);
+  for (const chart of charts) {
+    expect(
+      (await chart.locator("svg.recharts-surface").boundingBox())?.width ??
+        Infinity,
+    ).toBeLessThanOrEqual(((await chart.boundingBox())?.width ?? 0) + 1);
+  }
   await page.screenshot({ path: testInfo.outputPath("sidebar-expanding.png") });
   const sidebarEdge = await page
     .locator('[data-slot="sidebar-container"]')
@@ -152,7 +198,50 @@ test("sidebar reveals labels after expansion and keeps icons and row heights sta
   );
   await expect(label).toHaveCSS("opacity", "1");
   for (const interval of [35, 35, 140, 60, 140, 60]) {
-    await trigger.evaluate((button: HTMLButtonElement) => button.click());
+    const reversal = await trigger.evaluate(async (button: HTMLButtonElement) => {
+      const sidebar = document.querySelector(
+        '[data-slot="sidebar-container"]',
+      );
+      const theme = sidebar?.querySelector('[aria-label="选择主题"]');
+      const account = sidebar?.querySelector('[aria-label="账号菜单"]');
+      if (!sidebar || !theme || !account) throw new Error("缺少侧栏布局元素");
+      /** 冻结布局过渡，以确定反向切换是否从当前坐标继续而非跳到端点。 */
+      function geometryAnimations() {
+        return document.getAnimations().filter((animation) => {
+          const target =
+            animation.effect instanceof KeyframeEffect
+              ? animation.effect.target
+              : null;
+          return target?.matches(
+            '[data-slot="sidebar-container"], [data-slot="sidebar-gap"]',
+          ) || target?.closest('[data-slot="sidebar-footer"]');
+        });
+      }
+      geometryAnimations().forEach((animation) => animation.pause());
+      const before = [
+        sidebar.getBoundingClientRect().width,
+        theme.getBoundingClientRect().y,
+        account.getBoundingClientRect().x,
+      ];
+      button.click();
+      await new Promise(requestAnimationFrame);
+      await new Promise(requestAnimationFrame);
+      const animations = geometryAnimations();
+      animations.forEach((animation) => {
+        animation.pause();
+        animation.currentTime = 0;
+      });
+      const after = [
+        sidebar.getBoundingClientRect().width,
+        theme.getBoundingClientRect().y,
+        account.getBoundingClientRect().x,
+      ];
+      animations.forEach((animation) => animation.play());
+      return { before, after };
+    });
+    reversal.after.forEach((coordinate, index) =>
+      expect(coordinate).toBeCloseTo(reversal.before[index], 0),
+    );
     await page.waitForTimeout(interval);
     const alignment = await page.evaluate(() => {
       const sidebar = document
@@ -179,17 +268,35 @@ test("sidebar reveals labels after expansion and keeps icons and row heights sta
     ),
   ).toBe(true);
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await trigger.click();
-  await expect(label).toHaveCSS("transition-delay", "0s");
-  await expect(label).toHaveCSS("opacity", "0");
-  await trigger.click();
-  await expect(label).toHaveCSS("transition-delay", "0s");
-  await expect(label).toHaveCSS("opacity", "1");
+  for (const expanded of [false, true]) {
+    await trigger.click();
+    await expect(label).toHaveCSS("transition-delay", "0s");
+    await expect(label).toHaveCSS("opacity", expanded ? "1" : "0");
+    await expect(page.locator('[data-slot="sidebar-container"]')).toHaveCSS(
+      "width",
+      expanded ? "224px" : "64px",
+    );
+    const theme = await page
+      .getByRole("button", { name: "选择主题", exact: true })
+      .boundingBox();
+    const account = await page
+      .getByRole("button", { name: "账号菜单", exact: true })
+      .boundingBox();
+    if (!theme || !account) throw new Error("缺少侧栏底部按钮");
+    expect(account.x).toBe(expanded ? 60 : 8);
+    expect(account.y - theme.y).toBe(expanded ? 0 : 52);
+    expect(
+      await label.evaluate((element) =>
+        parseFloat(getComputedStyle(element).transitionDuration),
+      ),
+    ).toBeLessThanOrEqual(0.001);
+  }
 });
 
 test("viewport resizing settles once at the breakpoint and preserves usable navigation", async ({
   page,
 }, testInfo) => {
+  await page.clock.install();
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto("/overview");
   await expect(page.getByRole("application").first()).toBeVisible();
@@ -205,12 +312,17 @@ test("viewport resizing settles once at the breakpoint and preserves usable navi
   const trigger = page.getByRole("button", { name: "切换导航", exact: true });
   const sidebar = page.locator('[data-slot="sidebar-container"]');
   const content = page.locator('[data-slot="sidebar-inset"]');
+  // 冻结防抖计时，避免协议调用或并行构建耗时让一次短暂缩放意外超过 160ms。
+  await page.clock.pauseAt((await page.evaluate(() => Date.now())) + 60_000);
   for (const width of [1279, 1281, 1278, 1282, 1279, 1280]) {
     await page.setViewportSize({ width, height: 1000 });
-    await page.waitForTimeout(25);
+    await page.clock.runFor(25);
     await expect(trigger).toHaveAttribute("aria-expanded", "true");
     await expect(sidebar).toHaveCSS("width", "224px");
   }
+  await page.clock.runFor(160);
+  await expect(trigger).toHaveAttribute("aria-expanded", "true");
+  await page.clock.resume();
   await page.setViewportSize({ width: 1200, height: 1000 });
   await expect(trigger).toHaveAttribute("aria-expanded", "false");
   await expect(sidebar).toHaveCSS("width", "64px");
