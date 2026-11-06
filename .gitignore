@@ -1,7 +1,7 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-/node_modules
+node_modules/
 /.pnp
 .pnp.*
 .yarn/*
@@ -12,17 +12,21 @@
 
 # testing
 /coverage
-
-# next.js
-/.next/
-/out/
+/frontend/coverage/
 
 # production
 /build
+/dist
+/frontend/dist/
+/backend/build/
 
 # misc
 .DS_Store
 *.pem
+/system.sqlite
+/system.sqlite-*
+/backend/system.sqlite
+/backend/system.sqlite-*
 
 # debug
 npm-debug.log*
@@ -32,6 +36,8 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
+!.env.mock
 
 # vercel
 .vercel
@@ -41,4 +47,23 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
-next-env.d.ts
+
+findings.md
+progress.md
+task_plan.md
+/var/
+/local-secrets/
+/backend/var/
+/backend/local-secrets/
+/backend/configs/dev.json
+/backend/internal/web/ui/dist/
+/playwright-report/
+/test-results/
+/test-results-api/
+/frontend/playwright-report/
+/frontend/test-results/
+/frontend/test-results-api/
+
+release/
+scripts/contract/.schema-*.mjs
+__pycache__/

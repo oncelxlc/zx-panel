@@ -1,0 +1,147 @@
+{
+  "uninstall": {
+    "environment": "x86_64 / 6.18.33.2-microsoft-standard-WSL2",
+    "checks": [
+      "new official installation preserves existing default and app bindings",
+      "default runtime uninstall denied",
+      "stopped app configuration reference denies uninstall",
+      "complete cross-user process references",
+      "process-only reference denies preflight and helper removal",
+      "new process after preview denies durable acceptance",
+      "successful uninstall removes only tested runtime directory and registration"
+    ],
+    "temporaryCapability": "CAP_SYS_PTRACE",
+    "persistentUnitChanged": false,
+    "installation": {
+      "id": "a2d59e12dee688063776e9b1b6e18f58",
+      "version": "26.9.0"
+    },
+    "observedPids": [
+      806650
+    ],
+    "uninstallTaskId": "9bab53cde03aeeea9d68a41bde0b1e7a",
+    "passed": true,
+    "temporaryCapabilityRemoved": true,
+    "servicesStopped": true
+  },
+  "export": {
+    "environment": "x86_64 / 6.18.33.2-microsoft-standard-WSL2",
+    "checks": [
+      "real journald producer exceeds 50 MiB",
+      "filtered small export succeeds",
+      "oversize export fails with EXPORT_TOO_LARGE",
+      "failed export file removed and download denied"
+    ],
+    "temporaryCapability": null,
+    "persistentUnitChanged": false,
+    "appId": "c7de87379167185c220705ef25a4cb1f",
+    "producerMinimumBytes": 60000000,
+    "limitBytes": 52428800,
+    "smallExportBytes": 55,
+    "failedTaskId": "aef608c01b6c186282be29fc547df1a3",
+    "failureCode": "EXPORT_TOO_LARGE",
+    "passed": true,
+    "temporaryCapabilityRemoved": true,
+    "servicesStopped": true
+  },
+  "arm64Uninstall": {
+    "environment": "aarch64 / 6.8.0-139-generic",
+    "checks": [
+      "new official installation preserves existing default and app bindings",
+      "default runtime uninstall denied",
+      "stopped app configuration reference denies uninstall",
+      "complete cross-user process references",
+      "process-only reference denies preflight and helper removal",
+      "new process after preview denies durable acceptance",
+      "successful uninstall removes only tested runtime directory and registration"
+    ],
+    "temporaryCapability": "CAP_SYS_PTRACE",
+    "persistentUnitChanged": false,
+    "installationResumedFromFailedCheck": true,
+    "installation": {
+      "id": "57be8eb6072acb7ab5ed3ba9c8b4200a",
+      "version": "26.9.0"
+    },
+    "temporaryHelper": {
+      "firstObservation": {
+        "executable": "/usr/lib/systemd/systemd-executor",
+        "capEffective": "000001ffffffffff",
+        "seccomp": 0
+      },
+      "readyObservation": {
+        "executable": "/opt/zx-panel-lab/bin/zx-panel-helper",
+        "capEffective": "00000000000800ef",
+        "seccomp": 2
+      },
+      "observations": 3
+    },
+    "observedPids": [
+      3038
+    ],
+    "uninstallTaskId": "74f1a74eba31556a1b3e4bad92e14bf0",
+    "passed": true,
+    "temporaryCapabilityRemoved": true,
+    "servicesStopped": true,
+    "restoredCapabilities": [
+      "cap_chown",
+      "cap_dac_override",
+      "cap_dac_read_search",
+      "cap_fowner",
+      "cap_kill",
+      "cap_setgid",
+      "cap_setuid"
+    ],
+    "runningManagedAppsAfterCleanup": 0,
+    "artifactPreparation": {
+      "url": "https://nodejs.org/dist/v26.9.0/node-v26.9.0-linux-arm64.tar.gz",
+      "manifest": "https://nodejs.org/dist/v26.9.0/SHASUMS256.txt",
+      "sha256": "d5077591aa38b48d90bf9b3ac10da8d2f40dce289b20294913c58c19f153eb12",
+      "bytes": 62309305,
+      "architecture": "arm64",
+      "method": "Official HTTPS archive and SHA256 manifest fetched on WSL host, copied into guest digest cache, revalidated by production installer and helper."
+    }
+  },
+  "arm64UninstallFirstAttempt": {
+    "environment": "aarch64 / 6.8.0-139-generic",
+    "checks": [],
+    "temporaryCapability": "CAP_SYS_PTRACE",
+    "persistentUnitChanged": false,
+    "temporaryCapabilityRemoved": true,
+    "servicesStopped": true,
+    "failure": "Acceptance harness 900-second task wait expired during download; no temporary capability had been granted.",
+    "temporaryCapabilityGranted": false
+  },
+  "arm64UninstallSecondAttempt": {
+    "environment": "aarch64 / 6.8.0-139-generic",
+    "checks": [
+      "new official installation preserves existing default and app bindings"
+    ],
+    "temporaryCapability": "CAP_SYS_PTRACE",
+    "persistentUnitChanged": false,
+    "installation": {
+      "id": "57be8eb6072acb7ab5ed3ba9c8b4200a",
+      "version": "26.9.0"
+    },
+    "temporaryCapabilityRemoved": true,
+    "servicesStopped": true,
+    "failure": "Immediate CapEff/Seccomp assertion after Type=simple restart failed before executable/socket readiness was checked; observed state was not captured."
+  },
+  "finalCleanup": {
+    "dedicatedServices": {
+      "zx-panel-lab": "inactive",
+      "zx-panel-lab-helper": "inactive",
+      "zx-panel-lab-postgres": "inactive",
+      "zx-panel-lab-nginx": "inactive",
+      "zx-panel-arm64-vm": "inactive"
+    },
+    "temporaryCapabilityRemoved": true,
+    "dedicatedPortsClosed": [
+      25001,
+      25433,
+      27443,
+      27222
+    ],
+    "arm64GracefulPowerDown": true,
+    "existingDockerActive": true
+  }
+}

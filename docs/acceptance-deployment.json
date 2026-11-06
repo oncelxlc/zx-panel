@@ -1,0 +1,135 @@
+{
+  "verifiedAt": "2026-09-29T11:33:09.112862+00:00",
+  "scope": "User-authorized production helper template exercised in isolated WSL x86_64 and QEMU ARM64; persistentUnitChanged refers to laboratory units, which were restored. No existing business deployment modified.",
+  "version": "1.1.0",
+  "template": "deploy/zx-panel-helper.service",
+  "templateSHA256": "5986f022dcb7ae81adcf901a0e67b187571510fba84f0183cff845034cfc53c0",
+  "amd64": {
+    "environment": "x86_64 / 6.18.33.2-microsoft-standard-WSL2",
+    "checks": [
+      "new official installation preserves existing default and app bindings",
+      "default runtime uninstall denied",
+      "stopped app configuration reference denies uninstall",
+      "complete cross-user process references",
+      "process-only reference denies preflight and helper removal",
+      "new process after preview denies durable acceptance",
+      "successful uninstall removes only tested runtime directory and registration"
+    ],
+    "temporaryCapability": null,
+    "persistentUnitChanged": false,
+    "deploymentTemplateApplied": true,
+    "deploymentTemplateSha256": "5986f022dcb7ae81adcf901a0e67b187571510fba84f0183cff845034cfc53c0",
+    "binariesSha256": {
+      "zx-panel": "d2a91b783f2aa48624b06124e12b75c6c2af95aba7168b53fbf73c40283d6bea",
+      "zx-panel-helper": "79f2a4e61ba85088bc2c7993e8be85fcc428b1e50c47116f4bf243b670c55e88"
+    },
+    "installation": {
+      "id": "9c91103e6a193a14be2fea3d446089c1",
+      "version": "26.9.0"
+    },
+    "helper": {
+      "firstObservation": {
+        "executable": "/opt/zx-panel-lab/bin/zx-panel-helper",
+        "capEffective": "00000000000800ef",
+        "seccomp": 2
+      },
+      "readyObservation": {
+        "executable": "/opt/zx-panel-lab/bin/zx-panel-helper",
+        "capEffective": "00000000000800ef",
+        "seccomp": 2
+      },
+      "observations": 1
+    },
+    "observedPids": [
+      886486
+    ],
+    "uninstallTaskId": "d8493cdd05d90c2a0ec8c6381b0d071e",
+    "passed": true,
+    "labUnitsRestored": true,
+    "restoredCapabilities": [
+      "cap_chown",
+      "cap_dac_override",
+      "cap_dac_read_search",
+      "cap_fowner",
+      "cap_kill",
+      "cap_setgid",
+      "cap_setuid"
+    ],
+    "temporaryCapabilityRemoved": true,
+    "servicesStopped": true
+  },
+  "arm64": {
+    "environment": "aarch64 / 6.8.0-139-generic",
+    "checks": [
+      "new official installation preserves existing default and app bindings",
+      "default runtime uninstall denied",
+      "stopped app configuration reference denies uninstall",
+      "complete cross-user process references",
+      "process-only reference denies preflight and helper removal",
+      "new process after preview denies durable acceptance",
+      "successful uninstall removes only tested runtime directory and registration"
+    ],
+    "temporaryCapability": null,
+    "persistentUnitChanged": false,
+    "deploymentTemplateApplied": true,
+    "deploymentTemplateSha256": "5986f022dcb7ae81adcf901a0e67b187571510fba84f0183cff845034cfc53c0",
+    "binariesSha256": {
+      "zx-panel": "05d3e89cfad1881488c1d31dfbba563b15869cd859be0eb45264505dc363ba52",
+      "zx-panel-helper": "1f743c77ac69bb9f0ee18319c4b2bff562e9782384063e7912631c6a638d4f3c"
+    },
+    "installation": {
+      "id": "da048731ec816687974344dddbaa860f",
+      "version": "26.9.0"
+    },
+    "helper": {
+      "firstObservation": {
+        "executable": "/opt/zx-panel-lab/bin/zx-panel-helper",
+        "capEffective": "00000000000800ef",
+        "seccomp": 2
+      },
+      "readyObservation": {
+        "executable": "/opt/zx-panel-lab/bin/zx-panel-helper",
+        "capEffective": "00000000000800ef",
+        "seccomp": 2
+      },
+      "observations": 1
+    },
+    "observedPids": [
+      1434
+    ],
+    "uninstallTaskId": "778ae7fdc446a6276291a74cd09d18b6",
+    "passed": true,
+    "labUnitsRestored": true,
+    "restoredCapabilities": [
+      "cap_chown",
+      "cap_dac_override",
+      "cap_dac_read_search",
+      "cap_fowner",
+      "cap_kill",
+      "cap_setgid",
+      "cap_setuid"
+    ],
+    "temporaryCapabilityRemoved": true,
+    "servicesStopped": true,
+    "runningManagedAppsAfterCleanup": 0
+  },
+  "finalCleanup": {
+    "dedicatedServices": {
+      "zx-panel-lab": "inactive",
+      "zx-panel-lab-helper": "inactive",
+      "zx-panel-lab-postgres": "inactive",
+      "zx-panel-lab-nginx": "inactive",
+      "zx-panel-arm64-vm": "inactive"
+    },
+    "temporaryCapabilityRemoved": true,
+    "dedicatedPortsClosed": [
+      25001,
+      25433,
+      27443,
+      27222
+    ],
+    "arm64GracefulPowerDown": true,
+    "existingDockerActive": true
+  },
+  "completedAt": "2026-09-29T11:34:53.160821+00:00"
+}

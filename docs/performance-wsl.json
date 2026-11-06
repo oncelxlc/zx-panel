@@ -1,0 +1,1736 @@
+{
+  "environment": "Chromium on Windows → Nginx HTTPS → Ubuntu 24.04 WSL2 x86_64",
+  "requestedMinutes": 30,
+  "logProducerLinesPerSecond": 100,
+  "samples": [
+    {
+      "elapsedSeconds": 0,
+      "clients": 1,
+      "latencyMs": [
+        4.5,
+        3.4000000059604645,
+        2.4000000059604645,
+        2.4000000059604645,
+        2.0999999940395355,
+        2.5,
+        2.2999999821186066,
+        2.2000000178813934,
+        2.4000000059604645,
+        2.199999988079071
+      ],
+      "logState": {
+        "renderedRows": 34,
+        "bufferedText": "505 条显示",
+        "droppedText": "",
+        "heapBytes": 21700000
+      },
+      "at": "2026-09-29T00:30:59.122325+00:00",
+      "zx-panel-lab": {
+        "pid": 526076,
+        "rssKiB": 26664,
+        "threads": 13,
+        "fds": 15,
+        "cpuSeconds": 0.29
+      },
+      "zx-panel-lab-helper": {
+        "pid": 526075,
+        "rssKiB": 14260,
+        "threads": 11,
+        "fds": 7,
+        "cpuSeconds": 0.06
+      },
+      "zx-panel-lab-postgres": {
+        "pid": 468539,
+        "rssKiB": 26480,
+        "threads": 1,
+        "fds": 9,
+        "cpuSeconds": 0.13
+      },
+      "goroutines": 10,
+      "databaseBytes": 12450839,
+      "metricsBytes": 1957888
+    },
+    {
+      "elapsedSeconds": 61,
+      "clients": 1,
+      "latencyMs": [
+        7,
+        4.199999988079071,
+        2.5999999940395355,
+        2.600000023841858,
+        2.2999999821186066,
+        2.300000011920929,
+        2.0999999940395355,
+        2.0999999940395355,
+        2.300000011920929,
+        2.0999999940395355
+      ],
+      "logState": {
+        "renderedRows": 47,
+        "bufferedText": "5000 条显示",
+        "droppedText": "缓冲已裁剪 1653 条记录",
+        "heapBytes": 21700000
+      },
+      "at": "2026-09-29T00:32:00.078160+00:00",
+      "zx-panel-lab": {
+        "pid": 526076,
+        "rssKiB": 27708,
+        "threads": 13,
+        "fds": 15,
+        "cpuSeconds": 0.47
+      },
+      "zx-panel-lab-helper": {
+        "pid": 526075,
+        "rssKiB": 14544,
+        "threads": 11,
+        "fds": 7,
+        "cpuSeconds": 0.12
+      },
+      "zx-panel-lab-postgres": {
+        "pid": 468539,
+        "rssKiB": 26480,
+        "threads": 1,
+        "fds": 9,
+        "cpuSeconds": 0.13
+      },
+      "goroutines": 14,
+      "databaseBytes": 12508183,
+      "metricsBytes": 2015232
+    },
+    {
+      "elapsedSeconds": 122,
+      "clients": 1,
+      "latencyMs": [
+        6.5,
+        3.2000000178813934,
+        2.5,
+        2.399999976158142,
+        2.4000000059604645,
+        2.800000011920929,
+        3.0999999940395355,
+        2.199999988079071,
+        2.2000000178813934,
+        2.4000000059604645
+      ],
+      "logState": {
+        "renderedRows": 47,
+        "bufferedText": "5000 条显示",
+        "droppedText": "缓冲已裁剪 7794 条记录",
+        "heapBytes": 21700000
+      },
+      "at": "2026-09-29T00:33:01.338459+00:00",
+      "zx-panel-lab": {
+        "pid": 526076,
+        "rssKiB": 28348,
+        "threads": 13,
+        "fds": 15,
+        "cpuSeconds": 0.66
+      },
+      "zx-panel-lab-helper": {
+        "pid": 526075,
+        "rssKiB": 14608,
+        "threads": 11,
+        "fds": 7,
+        "cpuSeconds": 0.19
+      },
+      "zx-panel-lab-postgres": {
+        "pid": 468539,
+        "rssKiB": 26480,
+        "threads": 1,
+        "fds": 9,
+        "cpuSeconds": 0.13
+      },
+      "goroutines": 14,
+      "databaseBytes": 12622871,
+      "metricsBytes": 2113536
+    },
+    {
+      "elapsedSeconds": 183,
+      "clients": 1,
+      "latencyMs": [
+        6.5,
+        3,
+        2.4000000059604645,
+        2.0999999940395355,
+        2.0999999940395355,
+        2,
+        2.7000000178813934,
+        2.5,
+        2,
+        2
+      ],
+      "logState": {
+        "renderedRows": 47,
+        "bufferedText": "5000 条显示",
+        "droppedText": "缓冲已裁剪 13945 条记录",
+        "heapBytes": 21700000
+      },
+      "at": "2026-09-29T00:34:02.282211+00:00",
+      "zx-panel-lab": {
+        "pid": 526076,
+        "rssKiB": 30168,
+        "threads": 13,
+        "fds": 15,
+        "cpuSeconds": 0.85,
+        "cgroupCPUSeconds": 0.859341,
+        "cgroupMemoryBytes": 15507456,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-helper": {
+        "pid": 526075,
+        "rssKiB": 14564,
+        "threads": 11,
+        "fds": 7,
+        "cpuSeconds": 0.27,
+        "cgroupCPUSeconds": 1.994196,
+        "cgroupMemoryBytes": 8462336,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-postgres": {
+        "pid": 468539,
+        "rssKiB": 26480,
+        "threads": 1,
+        "fds": 9,
+        "cpuSeconds": 0.14,
+        "cgroupCPUSeconds": 8.139467,
+        "cgroupMemoryBytes": 118677504,
+        "cgroupProcesses": 11
+      },
+      "goroutines": 14,
+      "databaseBytes": 12680215,
+      "metricsBytes": 2162688
+    },
+    {
+      "elapsedSeconds": 244,
+      "clients": 1,
+      "latencyMs": [
+        6.0999999940395355,
+        2.699999988079071,
+        2.4000000059604645,
+        2.0999999940395355,
+        2.0999999940395355,
+        2.300000011920929,
+        2.0999999940395355,
+        2.300000011920929,
+        2,
+        2.199999988079071
+      ],
+      "logState": {
+        "renderedRows": 47,
+        "bufferedText": "5000 条显示",
+        "droppedText": "缓冲已裁剪 20099 条记录",
+        "heapBytes": 21700000
+      },
+      "at": "2026-09-29T00:35:03.347614+00:00",
+      "zx-panel-lab": {
+        "pid": 526076,
+        "rssKiB": 30564,
+        "threads": 13,
+        "fds": 15,
+        "cpuSeconds": 1.03,
+        "cgroupCPUSeconds": 1.044231,
+        "cgroupMemoryBytes": 15937536,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-helper": {
+        "pid": 526075,
+        "rssKiB": 14680,
+        "threads": 11,
+        "fds": 7,
+        "cpuSeconds": 0.34,
+        "cgroupCPUSeconds": 2.593684,
+        "cgroupMemoryBytes": 8404992,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-postgres": {
+        "pid": 468539,
+        "rssKiB": 26480,
+        "threads": 1,
+        "fds": 9,
+        "cpuSeconds": 0.14,
+        "cgroupCPUSeconds": 8.221565,
+        "cgroupMemoryBytes": 119590912,
+        "cgroupProcesses": 11
+      },
+      "goroutines": 14,
+      "databaseBytes": 12712983,
+      "metricsBytes": 2195456
+    },
+    {
+      "elapsedSeconds": 305,
+      "clients": 1,
+      "latencyMs": [
+        6.799999982118607,
+        3.2000000178813934,
+        2.2999999821186066,
+        2.2000000178813934,
+        2,
+        2,
+        2.2999999821186066,
+        2,
+        2.2000000178813934,
+        2
+      ],
+      "logState": {
+        "renderedRows": 47,
+        "bufferedText": "5000 条显示",
+        "droppedText": "缓冲已裁剪 26243 条记录",
+        "heapBytes": 21700000
+      },
+      "at": "2026-09-29T00:36:04.248835+00:00",
+      "zx-panel-lab": {
+        "pid": 526076,
+        "rssKiB": 32404,
+        "threads": 13,
+        "fds": 16,
+        "cpuSeconds": 1.21,
+        "cgroupCPUSeconds": 1.224916,
+        "cgroupMemoryBytes": 18239488,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-helper": {
+        "pid": 526075,
+        "rssKiB": 14676,
+        "threads": 11,
+        "fds": 7,
+        "cpuSeconds": 0.41,
+        "cgroupCPUSeconds": 3.198971,
+        "cgroupMemoryBytes": 8208384,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-postgres": {
+        "pid": 468539,
+        "rssKiB": 26480,
+        "threads": 1,
+        "fds": 9,
+        "cpuSeconds": 0.14,
+        "cgroupCPUSeconds": 8.311321,
+        "cgroupMemoryBytes": 120963072,
+        "cgroupProcesses": 12
+      },
+      "goroutines": 14,
+      "databaseBytes": 12786711,
+      "metricsBytes": 2269184
+    },
+    {
+      "elapsedSeconds": 366,
+      "clients": 1,
+      "latencyMs": [
+        6.5,
+        3.5999999940395355,
+        3.0999999940395355,
+        2.300000011920929,
+        2.2999999821186066,
+        2,
+        2.300000011920929,
+        2.2999999821186066,
+        2.100000023841858,
+        2
+      ],
+      "logState": {
+        "renderedRows": 47,
+        "bufferedText": "5000 条显示",
+        "droppedText": "缓冲已裁剪 32387 条记录",
+        "heapBytes": 21700000
+      },
+      "at": "2026-09-29T00:37:05.306699+00:00",
+      "zx-panel-lab": {
+        "pid": 526076,
+        "rssKiB": 32920,
+        "threads": 13,
+        "fds": 16,
+        "cpuSeconds": 1.4,
+        "cgroupCPUSeconds": 1.408382,
+        "cgroupMemoryBytes": 17899520,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-helper": {
+        "pid": 526075,
+        "rssKiB": 15148,
+        "threads": 11,
+        "fds": 7,
+        "cpuSeconds": 0.49,
+        "cgroupCPUSeconds": 3.811036,
+        "cgroupMemoryBytes": 9338880,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-postgres": {
+        "pid": 468539,
+        "rssKiB": 26480,
+        "threads": 1,
+        "fds": 9,
+        "cpuSeconds": 0.14,
+        "cgroupCPUSeconds": 8.389755,
+        "cgroupMemoryBytes": 121434112,
+        "cgroupProcesses": 12
+      },
+      "goroutines": 14,
+      "databaseBytes": 12860439,
+      "metricsBytes": 2342912
+    },
+    {
+      "elapsedSeconds": 427,
+      "clients": 1,
+      "latencyMs": [
+        7.700000017881393,
+        3.0999999940395355,
+        2.5,
+        2.4000000059604645,
+        2,
+        2.0999999940395355,
+        2,
+        2.2999999821186066,
+        2.100000023841858,
+        2.0999999940395355
+      ],
+      "logState": {
+        "renderedRows": 47,
+        "bufferedText": "5000 条显示",
+        "droppedText": "缓冲已裁剪 38526 条记录",
+        "heapBytes": 21700000
+      },
+      "at": "2026-09-29T00:38:06.360164+00:00",
+      "zx-panel-lab": {
+        "pid": 526076,
+        "rssKiB": 34592,
+        "threads": 13,
+        "fds": 16,
+        "cpuSeconds": 1.58,
+        "cgroupCPUSeconds": 1.587583,
+        "cgroupMemoryBytes": 20385792,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-helper": {
+        "pid": 526075,
+        "rssKiB": 15092,
+        "threads": 11,
+        "fds": 7,
+        "cpuSeconds": 0.56,
+        "cgroupCPUSeconds": 4.429504,
+        "cgroupMemoryBytes": 8962048,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-postgres": {
+        "pid": 468539,
+        "rssKiB": 26480,
+        "threads": 1,
+        "fds": 9,
+        "cpuSeconds": 0.14,
+        "cgroupCPUSeconds": 8.48024,
+        "cgroupMemoryBytes": 122552320,
+        "cgroupProcesses": 12
+      },
+      "goroutines": 14,
+      "databaseBytes": 12909591,
+      "metricsBytes": 2383872
+    },
+    {
+      "elapsedSeconds": 488,
+      "clients": 1,
+      "latencyMs": [
+        8.100000023841858,
+        3.0999999940395355,
+        2.5,
+        2.0999999940395355,
+        2,
+        2.0999999940395355,
+        2.0999999940395355,
+        2.100000023841858,
+        2.199999988079071,
+        2.300000011920929
+      ],
+      "logState": {
+        "renderedRows": 47,
+        "bufferedText": "5000 条显示",
+        "droppedText": "缓冲已裁剪 44672 条记录",
+        "heapBytes": 21700000
+      },
+      "at": "2026-09-29T00:39:07.480142+00:00",
+      "zx-panel-lab": {
+        "pid": 526076,
+        "rssKiB": 35780,
+        "threads": 13,
+        "fds": 16,
+        "cpuSeconds": 1.75,
+        "cgroupCPUSeconds": 1.766723,
+        "cgroupMemoryBytes": 20729856,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-helper": {
+        "pid": 526075,
+        "rssKiB": 14748,
+        "threads": 11,
+        "fds": 7,
+        "cpuSeconds": 0.64,
+        "cgroupCPUSeconds": 5.047634,
+        "cgroupMemoryBytes": 9175040,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-postgres": {
+        "pid": 468539,
+        "rssKiB": 26480,
+        "threads": 1,
+        "fds": 9,
+        "cpuSeconds": 0.14,
+        "cgroupCPUSeconds": 8.55627,
+        "cgroupMemoryBytes": 122077184,
+        "cgroupProcesses": 12
+      },
+      "goroutines": 14,
+      "databaseBytes": 12934167,
+      "metricsBytes": 2408448
+    },
+    {
+      "elapsedSeconds": 548,
+      "clients": 1,
+      "latencyMs": [
+        4.9000000059604645,
+        3,
+        3.2000000178813934,
+        2.5999999940395355,
+        2.2999999821186066,
+        2.2000000178813934,
+        2,
+        2.2999999821186066,
+        2.2000000178813934,
+        2.0999999940395355
+      ],
+      "logState": {
+        "renderedRows": 47,
+        "bufferedText": "5000 条显示",
+        "droppedText": "缓冲已裁剪 50808 条记录",
+        "heapBytes": 21700000
+      },
+      "at": "2026-09-29T00:40:08.492121+00:00",
+      "zx-panel-lab": {
+        "pid": 526076,
+        "rssKiB": 36724,
+        "threads": 13,
+        "fds": 16,
+        "cpuSeconds": 1.92,
+        "cgroupCPUSeconds": 1.938293,
+        "cgroupMemoryBytes": 21925888,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-helper": {
+        "pid": 526075,
+        "rssKiB": 14884,
+        "threads": 11,
+        "fds": 7,
+        "cpuSeconds": 0.71,
+        "cgroupCPUSeconds": 5.804134,
+        "cgroupMemoryBytes": 831258624,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-postgres": {
+        "pid": 468539,
+        "rssKiB": 26480,
+        "threads": 1,
+        "fds": 9,
+        "cpuSeconds": 0.14,
+        "cgroupCPUSeconds": 8.641792,
+        "cgroupMemoryBytes": 83898368,
+        "cgroupProcesses": 12
+      },
+      "goroutines": 14,
+      "databaseBytes": 13024279,
+      "metricsBytes": 2498560
+    },
+    {
+      "elapsedSeconds": 609,
+      "clients": 5,
+      "latencyMs": [
+        4.5,
+        3.5999999940395355,
+        3,
+        2.4000000059604645,
+        2.0999999940395355,
+        2.2000000178813934,
+        2.199999988079071,
+        2.2000000178813934,
+        2,
+        2
+      ],
+      "logState": {
+        "renderedRows": 47,
+        "bufferedText": "5000 条显示",
+        "droppedText": "缓冲已裁剪 56938 条记录",
+        "heapBytes": 21700000
+      },
+      "at": "2026-09-29T00:41:09.383765+00:00",
+      "zx-panel-lab": {
+        "pid": 526076,
+        "rssKiB": 37924,
+        "threads": 13,
+        "fds": 22,
+        "cpuSeconds": 2.16,
+        "cgroupCPUSeconds": 2.182333,
+        "cgroupMemoryBytes": 23801856,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-helper": {
+        "pid": 526075,
+        "rssKiB": 14832,
+        "threads": 11,
+        "fds": 7,
+        "cpuSeconds": 0.78,
+        "cgroupCPUSeconds": 6.402492,
+        "cgroupMemoryBytes": 813961216,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-postgres": {
+        "pid": 468539,
+        "rssKiB": 26480,
+        "threads": 1,
+        "fds": 9,
+        "cpuSeconds": 0.14,
+        "cgroupCPUSeconds": 8.756045,
+        "cgroupMemoryBytes": 89649152,
+        "cgroupProcesses": 14
+      },
+      "goroutines": 14,
+      "databaseBytes": 13048855,
+      "metricsBytes": 2523136
+    },
+    {
+      "elapsedSeconds": 670,
+      "clients": 5,
+      "latencyMs": [
+        3.699999988079071,
+        4,
+        2.5,
+        2.4000000059604645,
+        2.199999988079071,
+        2.4000000059604645,
+        2.0999999940395355,
+        2.100000023841858,
+        2.199999988079071,
+        2.199999988079071
+      ],
+      "logState": {
+        "renderedRows": 47,
+        "bufferedText": "5000 条显示",
+        "droppedText": "缓冲已裁剪 63081 条记录",
+        "heapBytes": 21700000
+      },
+      "at": "2026-09-29T00:42:10.325095+00:00",
+      "zx-panel-lab": {
+        "pid": 526076,
+        "rssKiB": 39392,
+        "threads": 13,
+        "fds": 22,
+        "cpuSeconds": 2.4,
+        "cgroupCPUSeconds": 2.417676,
+        "cgroupMemoryBytes": 24748032,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-helper": {
+        "pid": 526075,
+        "rssKiB": 14816,
+        "threads": 11,
+        "fds": 7,
+        "cpuSeconds": 0.86,
+        "cgroupCPUSeconds": 7.015333,
+        "cgroupMemoryBytes": 798015488,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-postgres": {
+        "pid": 468539,
+        "rssKiB": 26480,
+        "threads": 1,
+        "fds": 9,
+        "cpuSeconds": 0.15,
+        "cgroupCPUSeconds": 8.882197,
+        "cgroupMemoryBytes": 90836992,
+        "cgroupProcesses": 14
+      },
+      "goroutines": 22,
+      "databaseBytes": 13081623,
+      "metricsBytes": 2555904
+    },
+    {
+      "elapsedSeconds": 731,
+      "clients": 5,
+      "latencyMs": [
+        3.899999976158142,
+        3.7000000178813934,
+        2.5999999940395355,
+        2.4000000059604645,
+        2.4000000059604645,
+        2.0999999940395355,
+        2.0999999940395355,
+        2.0999999940395355,
+        2.0999999940395355,
+        2.100000023841858
+      ],
+      "logState": {
+        "renderedRows": 47,
+        "bufferedText": "5000 条显示",
+        "droppedText": "缓冲已裁剪 69223 条记录",
+        "heapBytes": 21700000
+      },
+      "at": "2026-09-29T00:43:11.272340+00:00",
+      "zx-panel-lab": {
+        "pid": 526076,
+        "rssKiB": 39828,
+        "threads": 13,
+        "fds": 22,
+        "cpuSeconds": 2.64,
+        "cgroupCPUSeconds": 2.660985,
+        "cgroupMemoryBytes": 25255936,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-helper": {
+        "pid": 526075,
+        "rssKiB": 14520,
+        "threads": 11,
+        "fds": 7,
+        "cpuSeconds": 0.94,
+        "cgroupCPUSeconds": 7.628096,
+        "cgroupMemoryBytes": 780447744,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-postgres": {
+        "pid": 468539,
+        "rssKiB": 26480,
+        "threads": 1,
+        "fds": 9,
+        "cpuSeconds": 0.15,
+        "cgroupCPUSeconds": 8.999948,
+        "cgroupMemoryBytes": 91222016,
+        "cgroupProcesses": 14
+      },
+      "goroutines": 22,
+      "databaseBytes": 13081623,
+      "metricsBytes": 2555904
+    },
+    {
+      "elapsedSeconds": 792,
+      "clients": 5,
+      "latencyMs": [
+        3.2999999821186066,
+        3.0999999940395355,
+        3.5999999940395355,
+        3.0999999940395355,
+        2.5,
+        2.7000000178813934,
+        2.199999988079071,
+        2.199999988079071,
+        2,
+        2.2000000178813934
+      ],
+      "logState": {
+        "renderedRows": 47,
+        "bufferedText": "5000 条显示",
+        "droppedText": "缓冲已裁剪 75368 条记录",
+        "heapBytes": 21700000
+      },
+      "at": "2026-09-29T00:44:12.310062+00:00",
+      "zx-panel-lab": {
+        "pid": 526076,
+        "rssKiB": 41000,
+        "threads": 13,
+        "fds": 22,
+        "cpuSeconds": 2.89,
+        "cgroupCPUSeconds": 2.902653,
+        "cgroupMemoryBytes": 26046464,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-helper": {
+        "pid": 526075,
+        "rssKiB": 14500,
+        "threads": 11,
+        "fds": 7,
+        "cpuSeconds": 1.02,
+        "cgroupCPUSeconds": 8.253311,
+        "cgroupMemoryBytes": 763621376,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-postgres": {
+        "pid": 468539,
+        "rssKiB": 26480,
+        "threads": 1,
+        "fds": 9,
+        "cpuSeconds": 0.15,
+        "cgroupCPUSeconds": 9.137843,
+        "cgroupMemoryBytes": 91967488,
+        "cgroupProcesses": 14
+      },
+      "goroutines": 22,
+      "databaseBytes": 13122583,
+      "metricsBytes": 2564096
+    },
+    {
+      "elapsedSeconds": 853,
+      "clients": 5,
+      "latencyMs": [
+        3.699999988079071,
+        3.9000000059604645,
+        3.0999999940395355,
+        2.2000000178813934,
+        2.0999999940395355,
+        2.0999999940395355,
+        2.199999988079071,
+        2.100000023841858,
+        2.199999988079071,
+        2.0999999940395355
+      ],
+      "logState": {
+        "renderedRows": 47,
+        "bufferedText": "5000 条显示",
+        "droppedText": "缓冲已裁剪 81508 条记录",
+        "heapBytes": 21700000
+      },
+      "at": "2026-09-29T00:45:13.249534+00:00",
+      "zx-panel-lab": {
+        "pid": 526076,
+        "rssKiB": 41632,
+        "threads": 13,
+        "fds": 22,
+        "cpuSeconds": 3.14,
+        "cgroupCPUSeconds": 3.154155,
+        "cgroupMemoryBytes": 26865664,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-helper": {
+        "pid": 526075,
+        "rssKiB": 14468,
+        "threads": 11,
+        "fds": 7,
+        "cpuSeconds": 1.09,
+        "cgroupCPUSeconds": 9.010573,
+        "cgroupMemoryBytes": 839172096,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-postgres": {
+        "pid": 468539,
+        "rssKiB": 26480,
+        "threads": 1,
+        "fds": 9,
+        "cpuSeconds": 0.15,
+        "cgroupCPUSeconds": 9.270307,
+        "cgroupMemoryBytes": 91590656,
+        "cgroupProcesses": 14
+      },
+      "goroutines": 22,
+      "databaseBytes": 13212695,
+      "metricsBytes": 2654208
+    },
+    {
+      "elapsedSeconds": 914,
+      "clients": 5,
+      "latencyMs": [
+        5.5,
+        4.300000011920929,
+        3.7999999821186066,
+        2.9000000059604645,
+        2.2000000178813934,
+        1.899999976158142,
+        2.100000023841858,
+        2.0999999940395355,
+        1.9000000059604645,
+        2
+      ],
+      "logState": {
+        "renderedRows": 47,
+        "bufferedText": "5000 条显示",
+        "droppedText": "缓冲已裁剪 87650 条记录",
+        "heapBytes": 21700000
+      },
+      "at": "2026-09-29T00:46:14.273719+00:00",
+      "zx-panel-lab": {
+        "pid": 526076,
+        "rssKiB": 41552,
+        "threads": 13,
+        "fds": 22,
+        "cpuSeconds": 3.4,
+        "cgroupCPUSeconds": 3.41299,
+        "cgroupMemoryBytes": 26857472,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-helper": {
+        "pid": 526075,
+        "rssKiB": 14628,
+        "threads": 11,
+        "fds": 7,
+        "cpuSeconds": 1.17,
+        "cgroupCPUSeconds": 9.628153,
+        "cgroupMemoryBytes": 823517184,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-postgres": {
+        "pid": 468539,
+        "rssKiB": 26480,
+        "threads": 1,
+        "fds": 9,
+        "cpuSeconds": 0.15,
+        "cgroupCPUSeconds": 9.394666,
+        "cgroupMemoryBytes": 92811264,
+        "cgroupProcesses": 14
+      },
+      "goroutines": 22,
+      "databaseBytes": 13278231,
+      "metricsBytes": 2719744
+    },
+    {
+      "elapsedSeconds": 975,
+      "clients": 5,
+      "latencyMs": [
+        3.699999988079071,
+        3.199999988079071,
+        2.600000023841858,
+        2.5,
+        2.199999988079071,
+        2.0999999940395355,
+        2.0999999940395355,
+        1.9000000059604645,
+        2,
+        2.0999999940395355
+      ],
+      "logState": {
+        "renderedRows": 47,
+        "bufferedText": "5000 条显示",
+        "droppedText": "缓冲已裁剪 93795 条记录",
+        "heapBytes": 21700000
+      },
+      "at": "2026-09-29T00:47:15.318076+00:00",
+      "zx-panel-lab": {
+        "pid": 526076,
+        "rssKiB": 41128,
+        "threads": 13,
+        "fds": 22,
+        "cpuSeconds": 3.64,
+        "cgroupCPUSeconds": 3.657944,
+        "cgroupMemoryBytes": 31006720,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-helper": {
+        "pid": 526075,
+        "rssKiB": 14964,
+        "threads": 11,
+        "fds": 7,
+        "cpuSeconds": 1.26,
+        "cgroupCPUSeconds": 10.272979,
+        "cgroupMemoryBytes": 805564416,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-postgres": {
+        "pid": 468539,
+        "rssKiB": 26480,
+        "threads": 1,
+        "fds": 9,
+        "cpuSeconds": 0.15,
+        "cgroupCPUSeconds": 9.512819,
+        "cgroupMemoryBytes": 92753920,
+        "cgroupProcesses": 14
+      },
+      "goroutines": 22,
+      "databaseBytes": 13351959,
+      "metricsBytes": 2793472
+    },
+    {
+      "elapsedSeconds": 1036,
+      "clients": 5,
+      "latencyMs": [
+        3.7000000178813934,
+        3.4000000059604645,
+        2.899999976158142,
+        2.300000011920929,
+        2.199999988079071,
+        2.2000000178813934,
+        2,
+        2.0999999940395355,
+        2.199999988079071,
+        2.300000011920929
+      ],
+      "logState": {
+        "renderedRows": 47,
+        "bufferedText": "5000 条显示",
+        "droppedText": "缓冲已裁剪 99936 条记录",
+        "heapBytes": 21700000
+      },
+      "at": "2026-09-29T00:48:16.363891+00:00",
+      "zx-panel-lab": {
+        "pid": 526076,
+        "rssKiB": 41140,
+        "threads": 13,
+        "fds": 22,
+        "cpuSeconds": 3.87,
+        "cgroupCPUSeconds": 3.895723,
+        "cgroupMemoryBytes": 30760960,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-helper": {
+        "pid": 526075,
+        "rssKiB": 14804,
+        "threads": 11,
+        "fds": 7,
+        "cpuSeconds": 1.34,
+        "cgroupCPUSeconds": 10.912559,
+        "cgroupMemoryBytes": 789184512,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-postgres": {
+        "pid": 468539,
+        "rssKiB": 26480,
+        "threads": 1,
+        "fds": 9,
+        "cpuSeconds": 0.16,
+        "cgroupCPUSeconds": 9.635897,
+        "cgroupMemoryBytes": 93491200,
+        "cgroupProcesses": 14
+      },
+      "goroutines": 22,
+      "databaseBytes": 13401111,
+      "metricsBytes": 2842624
+    },
+    {
+      "elapsedSeconds": 1097,
+      "clients": 5,
+      "latencyMs": [
+        4.399999976158142,
+        3.2000000178813934,
+        2.7999999821186066,
+        2.5,
+        1.9000000059604645,
+        2.300000011920929,
+        2.300000011920929,
+        2.0999999940395355,
+        2.199999988079071,
+        2.300000011920929
+      ],
+      "logState": {
+        "renderedRows": 47,
+        "bufferedText": "5000 条显示",
+        "droppedText": "缓冲已裁剪 106078 条记录",
+        "heapBytes": 21700000
+      },
+      "at": "2026-09-29T00:49:17.352387+00:00",
+      "zx-panel-lab": {
+        "pid": 526076,
+        "rssKiB": 41392,
+        "threads": 13,
+        "fds": 22,
+        "cpuSeconds": 4.13,
+        "cgroupCPUSeconds": 4.149728,
+        "cgroupMemoryBytes": 31059968,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-helper": {
+        "pid": 526075,
+        "rssKiB": 14648,
+        "threads": 11,
+        "fds": 7,
+        "cpuSeconds": 1.43,
+        "cgroupCPUSeconds": 11.555775,
+        "cgroupMemoryBytes": 772444160,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-postgres": {
+        "pid": 468539,
+        "rssKiB": 26480,
+        "threads": 1,
+        "fds": 9,
+        "cpuSeconds": 0.16,
+        "cgroupCPUSeconds": 9.758073,
+        "cgroupMemoryBytes": 92872704,
+        "cgroupProcesses": 14
+      },
+      "goroutines": 22,
+      "databaseBytes": 13442071,
+      "metricsBytes": 2883584
+    },
+    {
+      "elapsedSeconds": 1157,
+      "clients": 5,
+      "latencyMs": [
+        5.0999999940395355,
+        4.4000000059604645,
+        3.800000011920929,
+        2.399999976158142,
+        2.100000023841858,
+        2.2999999821186066,
+        2.4000000059604645,
+        2,
+        2.0999999940395355,
+        1.9000000059604645
+      ],
+      "logState": {
+        "renderedRows": 47,
+        "bufferedText": "5000 条显示",
+        "droppedText": "缓冲已裁剪 112220 条记录",
+        "heapBytes": 21700000
+      },
+      "at": "2026-09-29T00:50:18.341297+00:00",
+      "zx-panel-lab": {
+        "pid": 526076,
+        "rssKiB": 41532,
+        "threads": 13,
+        "fds": 22,
+        "cpuSeconds": 4.36,
+        "cgroupCPUSeconds": 4.384144,
+        "cgroupMemoryBytes": 27381760,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-helper": {
+        "pid": 526075,
+        "rssKiB": 14764,
+        "threads": 11,
+        "fds": 7,
+        "cpuSeconds": 1.5,
+        "cgroupCPUSeconds": 12.340482,
+        "cgroupMemoryBytes": 832327680,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-postgres": {
+        "pid": 468539,
+        "rssKiB": 26480,
+        "threads": 1,
+        "fds": 9,
+        "cpuSeconds": 0.16,
+        "cgroupCPUSeconds": 9.917583,
+        "cgroupMemoryBytes": 91222016,
+        "cgroupProcesses": 14
+      },
+      "goroutines": 22,
+      "databaseBytes": 13491223,
+      "metricsBytes": 2932736
+    },
+    {
+      "elapsedSeconds": 1218,
+      "clients": 10,
+      "latencyMs": [
+        5.200000017881393,
+        3.399999976158142,
+        2.4000000059604645,
+        2.5,
+        2.2000000178813934,
+        2.0999999940395355,
+        2.199999988079071,
+        2.0999999940395355,
+        2.100000023841858,
+        2.399999976158142
+      ],
+      "logState": {
+        "renderedRows": 47,
+        "bufferedText": "5000 条显示",
+        "droppedText": "缓冲已裁剪 118366 条记录",
+        "heapBytes": 23100000
+      },
+      "at": "2026-09-29T00:51:17.048770+00:00",
+      "zx-panel-lab": {
+        "pid": 526076,
+        "rssKiB": 42428,
+        "threads": 13,
+        "fds": 25,
+        "cpuSeconds": 4.72,
+        "cgroupCPUSeconds": 4.746805,
+        "cgroupMemoryBytes": 31588352,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-helper": {
+        "pid": 526075,
+        "rssKiB": 14800,
+        "threads": 11,
+        "fds": 7,
+        "cpuSeconds": 1.59,
+        "cgroupCPUSeconds": 12.997146,
+        "cgroupMemoryBytes": 805752832,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-postgres": {
+        "pid": 468539,
+        "rssKiB": 26480,
+        "threads": 1,
+        "fds": 9,
+        "cpuSeconds": 0.16,
+        "cgroupCPUSeconds": 10.076468,
+        "cgroupMemoryBytes": 91885568,
+        "cgroupProcesses": 14
+      },
+      "goroutines": 22,
+      "databaseBytes": 13532183,
+      "metricsBytes": 2973696
+    },
+    {
+      "elapsedSeconds": 1279,
+      "clients": 10,
+      "latencyMs": [
+        4.299999982118607,
+        2.800000011920929,
+        2.9000000059604645,
+        2.5999999940395355,
+        2.0999999940395355,
+        2.4000000059604645,
+        2.2999999821186066,
+        2.100000023841858,
+        2,
+        2.199999988079071
+      ],
+      "logState": {
+        "renderedRows": 47,
+        "bufferedText": "5000 条显示",
+        "droppedText": "缓冲已裁剪 124515 条记录",
+        "heapBytes": 23100000
+      },
+      "at": "2026-09-29T00:52:17.993088+00:00",
+      "zx-panel-lab": {
+        "pid": 526076,
+        "rssKiB": 42104,
+        "threads": 13,
+        "fds": 25,
+        "cpuSeconds": 5.07,
+        "cgroupCPUSeconds": 5.089489,
+        "cgroupMemoryBytes": 27983872,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-helper": {
+        "pid": 526075,
+        "rssKiB": 15032,
+        "threads": 11,
+        "fds": 7,
+        "cpuSeconds": 1.67,
+        "cgroupCPUSeconds": 13.804531,
+        "cgroupMemoryBytes": 831819776,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-postgres": {
+        "pid": 468539,
+        "rssKiB": 26480,
+        "threads": 1,
+        "fds": 9,
+        "cpuSeconds": 0.16,
+        "cgroupCPUSeconds": 10.242023,
+        "cgroupMemoryBytes": 88903680,
+        "cgroupProcesses": 14
+      },
+      "goroutines": 28,
+      "databaseBytes": 13622295,
+      "metricsBytes": 3063808
+    },
+    {
+      "elapsedSeconds": 1340,
+      "clients": 10,
+      "latencyMs": [
+        4.5999999940395355,
+        3.699999988079071,
+        2.800000011920929,
+        2.5,
+        2.2999999821186066,
+        2.100000023841858,
+        2.199999988079071,
+        2.0999999940395355,
+        2.0999999940395355,
+        2.300000011920929
+      ],
+      "logState": {
+        "renderedRows": 47,
+        "bufferedText": "5000 条显示",
+        "droppedText": "缓冲已裁剪 130667 条记录",
+        "heapBytes": 23100000
+      },
+      "at": "2026-09-29T00:53:18.980592+00:00",
+      "zx-panel-lab": {
+        "pid": 526076,
+        "rssKiB": 42220,
+        "threads": 13,
+        "fds": 25,
+        "cpuSeconds": 5.4,
+        "cgroupCPUSeconds": 5.431374,
+        "cgroupMemoryBytes": 27545600,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-helper": {
+        "pid": 526075,
+        "rssKiB": 14848,
+        "threads": 11,
+        "fds": 7,
+        "cpuSeconds": 1.76,
+        "cgroupCPUSeconds": 14.459903,
+        "cgroupMemoryBytes": 813867008,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-postgres": {
+        "pid": 468539,
+        "rssKiB": 26480,
+        "threads": 1,
+        "fds": 9,
+        "cpuSeconds": 0.16,
+        "cgroupCPUSeconds": 10.403324,
+        "cgroupMemoryBytes": 89399296,
+        "cgroupProcesses": 14
+      },
+      "goroutines": 28,
+      "databaseBytes": 13679639,
+      "metricsBytes": 3121152
+    },
+    {
+      "elapsedSeconds": 1401,
+      "clients": 10,
+      "latencyMs": [
+        4.5,
+        3.4000000059604645,
+        3,
+        2.300000011920929,
+        2,
+        2.0999999940395355,
+        2.0999999940395355,
+        2,
+        2,
+        2.0999999940395355
+      ],
+      "logState": {
+        "renderedRows": 47,
+        "bufferedText": "5000 条显示",
+        "droppedText": "缓冲已裁剪 136826 条记录",
+        "heapBytes": 23100000
+      },
+      "at": "2026-09-29T00:54:19.920686+00:00",
+      "zx-panel-lab": {
+        "pid": 526076,
+        "rssKiB": 42224,
+        "threads": 13,
+        "fds": 25,
+        "cpuSeconds": 5.76,
+        "cgroupCPUSeconds": 5.785272,
+        "cgroupMemoryBytes": 27922432,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-helper": {
+        "pid": 526075,
+        "rssKiB": 14752,
+        "threads": 11,
+        "fds": 11,
+        "cpuSeconds": 1.85,
+        "cgroupCPUSeconds": 15.127416,
+        "cgroupMemoryBytes": 798470144,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-postgres": {
+        "pid": 468539,
+        "rssKiB": 26480,
+        "threads": 1,
+        "fds": 9,
+        "cpuSeconds": 0.16,
+        "cgroupCPUSeconds": 10.567205,
+        "cgroupMemoryBytes": 90615808,
+        "cgroupProcesses": 14
+      },
+      "goroutines": 28,
+      "databaseBytes": 13769751,
+      "metricsBytes": 3211264
+    },
+    {
+      "elapsedSeconds": 1462,
+      "clients": 10,
+      "latencyMs": [
+        4.700000017881393,
+        3.7999999821186066,
+        3.7000000178813934,
+        2.4000000059604645,
+        2.399999976158142,
+        18.100000023841858,
+        3.399999976158142,
+        2.300000011920929,
+        1.9000000059604645,
+        2
+      ],
+      "logState": {
+        "renderedRows": 47,
+        "bufferedText": "5000 条显示",
+        "droppedText": "缓冲已裁剪 142984 条记录",
+        "heapBytes": 23100000
+      },
+      "at": "2026-09-29T00:55:20.824615+00:00",
+      "zx-panel-lab": {
+        "pid": 526076,
+        "rssKiB": 42380,
+        "threads": 13,
+        "fds": 25,
+        "cpuSeconds": 6.11,
+        "cgroupCPUSeconds": 6.132622,
+        "cgroupMemoryBytes": 27652096,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-helper": {
+        "pid": 526075,
+        "rssKiB": 14672,
+        "threads": 11,
+        "fds": 7,
+        "cpuSeconds": 1.94,
+        "cgroupCPUSeconds": 15.807812,
+        "cgroupMemoryBytes": 780963840,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-postgres": {
+        "pid": 468539,
+        "rssKiB": 26480,
+        "threads": 1,
+        "fds": 9,
+        "cpuSeconds": 0.17,
+        "cgroupCPUSeconds": 10.743998,
+        "cgroupMemoryBytes": 92164096,
+        "cgroupProcesses": 14
+      },
+      "goroutines": 28,
+      "databaseBytes": 13802519,
+      "metricsBytes": 3244032
+    },
+    {
+      "elapsedSeconds": 1523,
+      "clients": 10,
+      "latencyMs": [
+        3.699999988079071,
+        3.199999988079071,
+        3.300000011920929,
+        2.5,
+        2.199999988079071,
+        2.2000000178813934,
+        2.199999988079071,
+        2.0999999940395355,
+        2.100000023841858,
+        2.0999999940395355
+      ],
+      "logState": {
+        "renderedRows": 47,
+        "bufferedText": "5000 条显示",
+        "droppedText": "缓冲已裁剪 149041 条记录",
+        "heapBytes": 23100000
+      },
+      "at": "2026-09-29T00:56:21.778641+00:00",
+      "zx-panel-lab": {
+        "pid": 526076,
+        "rssKiB": 42384,
+        "threads": 13,
+        "fds": 25,
+        "cpuSeconds": 6.45,
+        "cgroupCPUSeconds": 6.475131,
+        "cgroupMemoryBytes": 27598848,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-helper": {
+        "pid": 526075,
+        "rssKiB": 14516,
+        "threads": 11,
+        "fds": 7,
+        "cpuSeconds": 2.03,
+        "cgroupCPUSeconds": 16.611292,
+        "cgroupMemoryBytes": 831389696,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-postgres": {
+        "pid": 468539,
+        "rssKiB": 26480,
+        "threads": 1,
+        "fds": 9,
+        "cpuSeconds": 0.17,
+        "cgroupCPUSeconds": 10.933509,
+        "cgroupMemoryBytes": 89399296,
+        "cgroupProcesses": 14
+      },
+      "goroutines": 28,
+      "databaseBytes": 13843479,
+      "metricsBytes": 3284992
+    },
+    {
+      "elapsedSeconds": 1584,
+      "clients": 10,
+      "latencyMs": [
+        5,
+        3.699999988079071,
+        3,
+        2.199999988079071,
+        1.9000000059604645,
+        2.0999999940395355,
+        1.9000000059604645,
+        2.2000000178813934,
+        2.0999999940395355,
+        2
+      ],
+      "logState": {
+        "renderedRows": 47,
+        "bufferedText": "5000 条显示",
+        "droppedText": "缓冲已裁剪 155185 条记录",
+        "heapBytes": 23100000
+      },
+      "at": "2026-09-29T00:57:22.811402+00:00",
+      "zx-panel-lab": {
+        "pid": 526076,
+        "rssKiB": 42460,
+        "threads": 13,
+        "fds": 25,
+        "cpuSeconds": 6.8,
+        "cgroupCPUSeconds": 6.819553,
+        "cgroupMemoryBytes": 28082176,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-helper": {
+        "pid": 526075,
+        "rssKiB": 14972,
+        "threads": 11,
+        "fds": 7,
+        "cpuSeconds": 2.1,
+        "cgroupCPUSeconds": 17.272954,
+        "cgroupMemoryBytes": 814460928,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-postgres": {
+        "pid": 468539,
+        "rssKiB": 26480,
+        "threads": 1,
+        "fds": 9,
+        "cpuSeconds": 0.17,
+        "cgroupCPUSeconds": 11.095174,
+        "cgroupMemoryBytes": 90030080,
+        "cgroupProcesses": 14
+      },
+      "goroutines": 28,
+      "databaseBytes": 13900823,
+      "metricsBytes": 3342336
+    },
+    {
+      "elapsedSeconds": 1645,
+      "clients": 10,
+      "latencyMs": [
+        3.2999999821186066,
+        2.800000011920929,
+        2.4000000059604645,
+        2.199999988079071,
+        2,
+        2.0999999940395355,
+        2,
+        2.100000023841858,
+        2.0999999940395355,
+        2.0999999940395355
+      ],
+      "logState": {
+        "renderedRows": 47,
+        "bufferedText": "5000 条显示",
+        "droppedText": "缓冲已裁剪 161325 条记录",
+        "heapBytes": 23100000
+      },
+      "at": "2026-09-29T00:58:23.793606+00:00",
+      "zx-panel-lab": {
+        "pid": 526076,
+        "rssKiB": 42808,
+        "threads": 13,
+        "fds": 25,
+        "cpuSeconds": 7.12,
+        "cgroupCPUSeconds": 7.148196,
+        "cgroupMemoryBytes": 28360704,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-helper": {
+        "pid": 526075,
+        "rssKiB": 14900,
+        "threads": 11,
+        "fds": 7,
+        "cpuSeconds": 2.19,
+        "cgroupCPUSeconds": 17.925849,
+        "cgroupMemoryBytes": 797212672,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-postgres": {
+        "pid": 468539,
+        "rssKiB": 26480,
+        "threads": 1,
+        "fds": 9,
+        "cpuSeconds": 0.17,
+        "cgroupCPUSeconds": 11.253504,
+        "cgroupMemoryBytes": 89956352,
+        "cgroupProcesses": 14
+      },
+      "goroutines": 28,
+      "databaseBytes": 13925399,
+      "metricsBytes": 3366912
+    },
+    {
+      "elapsedSeconds": 1705,
+      "clients": 10,
+      "latencyMs": [
+        3.600000023841858,
+        3.7999999821186066,
+        2.5999999940395355,
+        2.5,
+        2.2000000178813934,
+        2,
+        2.199999988079071,
+        2,
+        2,
+        2.2000000178813934
+      ],
+      "logState": {
+        "renderedRows": 47,
+        "bufferedText": "5000 条显示",
+        "droppedText": "缓冲已裁剪 167470 条记录",
+        "heapBytes": 23100000
+      },
+      "at": "2026-09-29T00:59:24.742098+00:00",
+      "zx-panel-lab": {
+        "pid": 526076,
+        "rssKiB": 42952,
+        "threads": 13,
+        "fds": 25,
+        "cpuSeconds": 7.45,
+        "cgroupCPUSeconds": 7.478618,
+        "cgroupMemoryBytes": 29032448,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-helper": {
+        "pid": 526075,
+        "rssKiB": 14880,
+        "threads": 11,
+        "fds": 7,
+        "cpuSeconds": 2.27,
+        "cgroupCPUSeconds": 18.585868,
+        "cgroupMemoryBytes": 780472320,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-postgres": {
+        "pid": 468539,
+        "rssKiB": 26480,
+        "threads": 1,
+        "fds": 9,
+        "cpuSeconds": 0.17,
+        "cgroupCPUSeconds": 11.420404,
+        "cgroupMemoryBytes": 89968640,
+        "cgroupProcesses": 14
+      },
+      "goroutines": 28,
+      "databaseBytes": 13958167,
+      "metricsBytes": 3399680
+    },
+    {
+      "elapsedSeconds": 1766,
+      "clients": 10,
+      "latencyMs": [
+        3.600000023841858,
+        3,
+        2.2999999821186066,
+        2,
+        1.9000000059604645,
+        2.0999999940395355,
+        2.300000011920929,
+        1.7999999821186066,
+        2.300000011920929,
+        2.199999988079071
+      ],
+      "logState": {
+        "renderedRows": 47,
+        "bufferedText": "5000 条显示",
+        "droppedText": "缓冲已裁剪 173614 条记录",
+        "heapBytes": 23100000
+      },
+      "at": "2026-09-29T01:00:25.712192+00:00",
+      "zx-panel-lab": {
+        "pid": 526076,
+        "rssKiB": 43040,
+        "threads": 13,
+        "fds": 25,
+        "cpuSeconds": 7.77,
+        "cgroupCPUSeconds": 7.799372,
+        "cgroupMemoryBytes": 28565504,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-helper": {
+        "pid": 526075,
+        "rssKiB": 15004,
+        "threads": 11,
+        "fds": 7,
+        "cpuSeconds": 2.35,
+        "cgroupCPUSeconds": 19.24577,
+        "cgroupMemoryBytes": 763850752,
+        "cgroupProcesses": 1
+      },
+      "zx-panel-lab-postgres": {
+        "pid": 468539,
+        "rssKiB": 26480,
+        "threads": 1,
+        "fds": 9,
+        "cpuSeconds": 0.17,
+        "cgroupCPUSeconds": 11.586988,
+        "cgroupMemoryBytes": 92680192,
+        "cgroupProcesses": 14
+      },
+      "goroutines": 28,
+      "databaseBytes": 13958167,
+      "metricsBytes": 3399680
+    }
+  ],
+  "pageErrors": [],
+  "apiFailures": {
+    "429 /api/v1/events": 86
+  },
+  "scope": "1/5/10 independent Chromium contexts share one administrator session; server stream limits remain enforced.",
+  "startedAt": "2026-09-29T00:31:01.261Z",
+  "finishedAt": "2026-09-29T01:01:01.376Z",
+  "elapsedSeconds": 1800,
+  "p95Ms": 4.700000017881393,
+  "status": "passed",
+  "summary": [
+    {
+      "clients": 1,
+      "samples": 10,
+      "p50Ms": 2.2999999821186066,
+      "p95Ms": 6.5,
+      "mainRSSRangeMiB": [
+        26.0390625,
+        35.86328125
+      ],
+      "mainFDRange": [
+        15,
+        16
+      ],
+      "mainCPUPercentOfOneCore": 0.2956032876712329,
+      "helperCPUPercentOfOneCore": 1.0438186301369863,
+      "lastGoroutines": 14,
+      "lastLogRows": 47,
+      "lastTrimmed": "缓冲已裁剪 50808 条记录"
+    },
+    {
+      "clients": 5,
+      "samples": 10,
+      "p50Ms": 2.2000000178813934,
+      "p95Ms": 4.399999976158142,
+      "mainRSSRangeMiB": [
+        37.03515625,
+        40.65625
+      ],
+      "mainFDRange": [
+        22,
+        22
+      ],
+      "mainCPUPercentOfOneCore": 0.40179032846715335,
+      "helperCPUPercentOfOneCore": 1.0835748175182482,
+      "lastGoroutines": 22,
+      "lastLogRows": 47,
+      "lastTrimmed": "缓冲已裁剪 112220 条记录"
+    },
+    {
+      "clients": 10,
+      "samples": 10,
+      "p50Ms": 2.2000000178813934,
+      "p95Ms": 4.5999999940395355,
+      "mainRSSRangeMiB": [
+        41.1171875,
+        42.03125
+      ],
+      "mainFDRange": [
+        25,
+        25
+      ],
+      "mainCPUPercentOfOneCore": 0.5570377737226277,
+      "helperCPUPercentOfOneCore": 1.1402598540145985,
+      "lastGoroutines": 28,
+      "lastLogRows": 47,
+      "lastTrimmed": "缓冲已裁剪 173614 条记录"
+    }
+  ],
+  "measurementNotes": [
+    "Sequential 10 metrics/latest requests each minute, same administrator across independent browser contexts.",
+    "429 events responses enforce the eight-stream account limit; remaining contexts use polling.",
+    "RSS/FD are main process measurements. cgroup CPU and memory include service descendants; cgroup readings begin at minute three.",
+    "performance.memory is browser-reported approximate heap, not a heap snapshot or proof of no leaks.",
+    "QEMU and builds were not run during the thirty-minute sampling window. Simulated WSL results do not predict bare-metal throughput."
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "environment": "Ubuntu 24.04 / aarch64 / 6.8.0-139-generic",
+  "checks": [
+    "Cookie HTTPS / HttpOnly / CSRF",
+    "shared real CPU / memory / filesystem metrics",
+    "official Node/Go SHA256 install and verification",
+    "default uninstall blocked",
+    "Node registered stopped",
+    "systemd start/restart and cgroup observation",
+    "saving config preserves running PID",
+    "literal args preserved",
+    "short and 18000-byte secret redaction in API/log/export",
+    "Unix SO_PEERCRED allowed/denied identities",
+    "helper strict JSON",
+    "helper SHA256 rejection",
+    "helper archive traversal rejection",
+    "binary registered stopped / start / stop / delete",
+    "running app deletion blocked",
+    "deletion preserves files and journal",
+    "configured runtime references",
+    "Nginx SSE delivers samples without buffering",
+    "logout closes SSE",
+    "restart changes stream epoch",
+    "old epoch explicitly resets",
+    "download cancellation cleanup",
+    "SIGKILL running-task interruption recovery",
+    "production pg_dump CLI produces private custom-format backup",
+    "journal history pagination without duplicates",
+    "journal text/level/time filters",
+    "missing journal anchor rejected"
+  ],
+  "node": {
+    "version": "26.10.0",
+    "installationId": "f4c210ce426232ab7c461e0f291683a0"
+  },
+  "go": {
+    "version": "1.27.1",
+    "installationId": "04645cba49d23723c41de24beee760b2"
+  },
+  "longSecretBytes": 18000,
+  "appId": "e81de08497e1ae230681e7c56fc5c666",
+  "referenceComplete": false,
+  "recoveryTasks": [
+    {
+      "operation": "cancel",
+      "taskId": "cf2ff2f24f3792c59cd106640e38cfd7",
+      "status": "canceled"
+    },
+    {
+      "operation": "crash",
+      "taskId": "131f2f39dfa05d3efacfc113e59aeb17",
+      "status": "interrupted"
+    }
+  ],
+  "simulation": {
+    "host": "Ubuntu 24.04 WSL2 x86_64",
+    "emulator": "QEMU 8.2.2 TCG full system",
+    "vcpus": 2,
+    "memoryMiB": 2048,
+    "image": "Ubuntu 24.04 ARM64 cloud image release-20260911 (official SHA256 verified)"
+  },
+  "release": {
+    "version": "1.1.0",
+    "commit": "5d5166f98451-dirty",
+    "builtAt": "2026-09-29T02:27:08.300Z",
+    "targets": [
+      "linux-amd64",
+      "linux-arm64"
+    ],
+    "dataMode": "api",
+    "linuxAcceptance": "pending"
+  },
+  "limitations": [
+    "Cross-user process references remain incomplete; successful uninstall is not accepted.",
+    "ARM64 emulation does not establish native performance; race, database restore and 30-minute load evidence comes from x86_64."
+  ],
+  "cleanup": "Managed app and dedicated guest services stopped, guest powered off, QEMU inactive and loopback ports released; private disk and backups retained. Original host Docker remains active."
+}

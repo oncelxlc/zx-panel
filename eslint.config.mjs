@@ -1,18 +1,37 @@
-import { defineConfig, globalIgnores } from "eslint/config";
-import nextVitals from "eslint-config-next/core-web-vitals";
-import nextTs from "eslint-config-next/typescript";
+import js from "@eslint/js";
+import reactHooks from "eslint-plugin-react-hooks";
+import reactRefresh from "eslint-plugin-react-refresh";
+import globals from "globals";
+import tseslint from "typescript-eslint";
 
-const eslintConfig = defineConfig([
-  ...nextVitals,
-  ...nextTs,
-  // Override default ignores of eslint-config-next.
-  globalIgnores([
-    // Default ignores of eslint-config-next:
-    ".next/**",
-    "out/**",
-    "build/**",
-    "next-env.d.ts",
-  ]),
-]);
-
-export default eslintConfig;
+export default tseslint.config(
+  {
+    ignores: [".agents", ".codex", "dist", "frontend/dist", "backend/internal/web/ui/dist", "**/node_modules", "frontend/public/mockServiceWorker.js", "**/playwright-report", "**/test-results", "**/test-results-api"],
+  },
+  js.configs.recommended,
+  ...tseslint.configs.recommended,
+  { files: ["frontend/public/theme-init.js"], languageOptions: { globals: globals.browser } },
+  { files: ["scripts/**/*.mjs", "tests/**/*.mjs", "frontend/tests/**/*.mjs"], languageOptions: { globals: globals.node } },
+  {
+    files: ["**/*.{ts,tsx}"],
+    languageOptions: {
+      ecmaVersion: 2020,
+      sourceType: "module",
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+      },
+    },
+    plugins: {
+      "react-hooks": reactHooks,
+      "react-refresh": reactRefresh,
+    },
+    rules: {
+      ...reactHooks.configs.recommended.rules,
+      "react-refresh/only-export-components": [
+        "warn",
+        {allowConstantExport: true},
+      ],
+    },
+  },
+);

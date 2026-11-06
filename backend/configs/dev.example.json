@@ -1,0 +1,7 @@
+{
+  "mode": "development",
+  "http": {"listen": "127.0.0.1:25000", "publicOrigin": "http://localhost:7200", "allowedHosts": ["localhost:7200", "127.0.0.1:25000", "localhost:25000"], "trustedProxies": [], "cookieSecure": false},
+  "paths": {"dataRoot": "../var", "runtimeRoot": "../var/runtimes", "stagingRoot": "../var/staging", "artifactCacheRoot": "../var/cache/artifacts", "exportRoot": "../var/exports", "appRoots": ["../var/apps"], "secretKeyFile": "../local-secrets/app-secrets.key"},
+  "privileged": {"enabled": false, "socketPath": "/run/zx-panel-helper/control.sock", "panelUid": -1, "serviceAccounts": []},
+  "logLevel": "info"
+}

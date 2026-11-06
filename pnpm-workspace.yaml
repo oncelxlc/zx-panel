@@ -1,6 +1,7 @@
-ignoredBuiltDependencies:
-  - sharp
-  - unrs-resolver
+packages:
+  - frontend
 
-onlyBuiltDependencies:
-  - '@parcel/watcher'
+allowBuilds:
+  '@parcel/watcher': true
+  esbuild: true
+  msw: true

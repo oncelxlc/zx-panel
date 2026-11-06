@@ -1,0 +1,108 @@
+name: zx-panel
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: '10m'
+    max-file: '3'
+
+services:
+  postgres:
+    image: postgres:18
+    container_name: zx-panel-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-zx_panel}
+      POSTGRES_USER: ${POSTGRES_USER:-zx_panel}
+      # 在 backend 目录运行 Compose，读取同目录 .env；空密码使用开发默认值。
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_me_postgres}
+    command:
+      - postgres
+      - -p
+      - '25432'
+      - -c
+      - max_connections=100
+      - -c
+      - shared_buffers=512MB
+      - -c
+      - effective_cache_size=1536MB # 通常设为可用内存的 50-75%
+      - -c
+      - work_mem=4MB
+      - -c
+      - maintenance_work_mem=64MB
+      - -c
+      - wal_compression=on
+      - -c
+      - log_min_duration_statement=500
+    ports:
+      - "${DOCKER_BIND_HOST:-127.0.0.1}:${POSTGRES_PORT:-25432}:25432"
+    volumes:
+      # PostgreSQL 18+ 使用版本化 PGDATA，命名卷应挂载到父目录。
+      - postgres_data:/var/lib/postgresql
+
+      # 初始化脚本
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -p 25432 -U $${POSTGRES_USER} -d $${POSTGRES_DB}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    logging: *default-logging
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2048M
+        reservations:
+          memory: 1024M
+    networks:
+      - data
+
+  redis:
+    image: redis:8
+    container_name: zx-panel-redis
+    restart: unless-stopped
+    environment:
+      # 密码必须在 .env 或进程环境中设置，与启动命令和健康检查保持一致。
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
+    command:
+      - redis-server
+      - /usr/local/etc/redis/redis.conf
+      - --port
+      - '26379'
+      - --requirepass
+      - ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
+      - --appendonly
+      - 'yes'
+      - --appendfsync
+      - everysec
+    ports:
+      - "${DOCKER_BIND_HOST:-127.0.0.1}:${REDIS_PORT:-26379}:26379"
+    volumes:
+      - ./docker/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+      - redis_data:/data
+    healthcheck:
+      test: [ "CMD-SHELL", "REDISCLI_AUTH=\"$$REDIS_PASSWORD\" redis-cli -p 26379 ping | grep PONG" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    logging: *default-logging
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1024M
+        reservations:
+          memory: 512M
+    networks:
+      - data
+
+networks:
+  data:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:

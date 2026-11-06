@@ -1,0 +1,71 @@
+import * as stylex from "@stylexjs/stylex";
+
+/** 对话框只负责外观，挂载、焦点和关闭状态由 Base UI 管理。 */
+export const styles = stylex.create({
+  overlay: {
+    position: "fixed",
+    inset: 0,
+    isolation: "isolate",
+    zIndex: 50,
+    backgroundColor: "#0000001a",
+    backdropFilter: "blur(4px)",
+  },
+  content: {
+    position: "fixed",
+    top: "50%",
+    left: "50%",
+    zIndex: 50,
+    display: "grid",
+    width: "100%",
+    maxWidth: {
+      default: "calc(100% - 2rem)",
+      "@media (min-width: 640px)": 384,
+    },
+    translate: "-50% -50%",
+    gap: 16,
+    borderRadius: "var(--radius-xl)",
+    backgroundColor: "var(--popover)",
+    padding: 16,
+    fontSize: 14,
+    color: "var(--popover-foreground)",
+    boxShadow:
+      "0 0 0 1px color-mix(in srgb, var(--foreground) 10%, transparent)",
+    outline: "none",
+  },
+  header: { display: "flex", flexDirection: "column", gap: 8 },
+  footer: {
+    marginInline: -16,
+    marginBottom: -16,
+    display: "flex",
+    flexDirection: {
+      default: "column-reverse",
+      "@media (min-width: 640px)": "row",
+    },
+    justifyContent: { default: null, "@media (min-width: 640px)": "flex-end" },
+    gap: 8,
+    borderBottomLeftRadius: "var(--radius-xl)",
+    borderBottomRightRadius: "var(--radius-xl)",
+    borderTop: "1px solid var(--border)",
+    backgroundColor: "color-mix(in srgb, var(--muted) 50%, transparent)",
+    padding: 16,
+  },
+  title: {
+    fontFamily: "var(--font-heading)",
+    fontSize: 16,
+    lineHeight: 1,
+    fontWeight: 500,
+  },
+  description: { fontSize: 14, color: "var(--muted-foreground)" },
+  close: { position: "absolute", top: 8, right: 8 },
+  hidden: {
+    position: "absolute",
+    width: 1,
+    height: 1,
+    padding: 0,
+    margin: -1,
+    overflow: "hidden",
+    clipPath: "inset(50%)",
+    whiteSpace: "nowrap",
+    borderWidth: 0,
+  },
+});

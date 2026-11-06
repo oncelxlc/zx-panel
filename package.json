@@ -1,15 +1,31 @@
 {
   "name": "zx-panel",
-  "version": "0.1.0",
+  "version": "1.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint",
-    "lint:fix": "eslint --fix",
+    "dev": "pnpm --dir frontend dev",
+    "dev:all": "node scripts/dev/dev.mjs all",
+    "dev:frontend:wsl": "node scripts/dev/dev.mjs frontend",
+    "dev:backend:wsl": "node scripts/dev/dev.mjs backend",
+    "build": "pnpm --dir frontend build",
+    "start": "pnpm --dir frontend start",
+    "preview": "pnpm --dir frontend preview",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "test:login": "pnpm --dir frontend test:login",
+    "test:theme": "pnpm --dir frontend test:theme",
+    "test:dev": "node --test tests/dev.test.mjs",
     "prepare": "husky",
-    "commitlint": "commitlint --edit"
+    "commitlint": "commitlint --edit",
+    "build:release": "node scripts/build/build-release.mjs",
+    "typecheck": "pnpm --dir frontend typecheck",
+    "dev:mock": "pnpm --dir frontend dev:mock",
+    "test": "pnpm --dir frontend test",
+    "test:e2e": "pnpm --dir frontend test:e2e",
+    "release": "node scripts/build/build-binaries.mjs",
+    "contract": "node scripts/contract/openapi.mjs",
+    "test:api": "pnpm build:release && node scripts/test/test-api-browser.mjs",
+    "scan:secrets": "node scripts/security/secret-scan.mjs"
   },
   "engines": {
     "node": "^22.22.0 || >=24.0.0",
@@ -17,21 +33,18 @@
     "yarn": ">=1.22.0",
     "pnpm": ">=10.0.0"
   },
-  "dependencies": {
-    "next": "16.1.6",
-    "react": "19.2.3",
-    "react-dom": "19.2.3"
-  },
   "devDependencies": {
-    "@commitlint/cli": "^20.5.0",
-    "@commitlint/config-conventional": "^20.5.0",
-    "@types/node": "^24.12.0",
-    "@types/react": "^19.2.14",
-    "@types/react-dom": "^19.2.3",
-    "eslint": "^9.39.4",
-    "eslint-config-next": "16.1.6",
+    "@commitlint/cli": "^20.5.3",
+    "@commitlint/config-conventional": "^20.5.3",
+    "@eslint/js": "^9.39.5",
+    "@playwright/test": "^1.64.1",
+    "eslint": "^9.39.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.4.26",
+    "globals": "^16.5.0",
     "husky": "^9.1.7",
-    "sass": "^1.98.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.72.1",
+    "zod": "^4.6.7"
   }
 }
