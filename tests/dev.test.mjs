@@ -155,7 +155,7 @@ test("Bash 启动探测迁移后的工具，保留平台和版本检查且检查
         'if [[ "$1" != env ]]; then echo "检查模式错误地启动了 Go" >&2; exit 91; fi',
         'case "$2" in',
         '  GOOS) printf "%s\\n%s\\n" "${ZX_DEV_TEST_GOOS:-linux}" "${ZX_DEV_TEST_GOHOSTOS:-linux}" ;;',
-        '  GOVERSION) printf "%s\\n" "${ZX_DEV_TEST_GOVERSION:-go1.25.0}" ;;',
+        '  GOVERSION) printf "%s\\n" "${ZX_DEV_TEST_GOVERSION:-go1.26.0}" ;;',
         '  *) exit 92 ;;',
         'esac',
         '',
@@ -169,8 +169,12 @@ test("Bash 启动探测迁移后的工具，保留平台和版本检查且检查
         encoding: "utf8", shell: false, env: { ...process.env, PATH: directory + delimiter + process.env.PATH, ZX_DEV_TEST_NODE_PATH: process.execPath, ZX_DEV_TEST_FRONTEND_ROOT: fileURLToPath(new URL("../frontend", import.meta.url)), ZX_DEV_TEST_BACKEND_ROOT: fileURLToPath(new URL("../backend", import.meta.url)), ...env },
       });
     }
-    for (const version of ["go1.25.0", "go1.27.1", "go2.0.0"]) {
+    for (const version of ["go1.26.0", "go1.27.1", "go2.0.0"]) {
       const result = check({ ZX_DEV_TEST_GOVERSION: version });
+      assert.equal(result.status, 0, result.stderr);
+    }
+    for (const version of ["22.22.2", "22.23.0", "24.15.0", "24.16.0", "26.0.0", "27.0.0"]) {
+      const result = check({ ZX_DEV_TEST_NODE_VERSION: version }, "frontend");
       assert.equal(result.status, 0, result.stderr);
     }
     for (const [env, message, service] of [
@@ -179,10 +183,15 @@ test("Bash 启动探测迁移后的工具，保留平台和版本检查且检查
       [{ ZX_DEV_TEST_GOOS: "windows" }, /需要 Linux Go/],
       [{ ZX_DEV_TEST_GOHOSTOS: "windows" }, /需要 Linux Go/],
       [{ ZX_DEV_TEST_GOVERSION: "go1.24.9" }, /Go 版本过低/],
+      [{ ZX_DEV_TEST_GOVERSION: "go1.25.9" }, /Go 版本过低/],
       [{ ZX_DEV_TEST_GOVERSION: "unknown" }, /无法识别 WSL Go 版本/],
       [{ ZX_DEV_TEST_NODE_PLATFORM: "win32" }, /必须使用 Linux Node.js/, "frontend"],
       [{ ZX_DEV_TEST_NODE_VERSION: "22.21.9" }, /Node.js 版本不满足/, "frontend"],
+      [{ ZX_DEV_TEST_NODE_VERSION: "22.22.0" }, /Node.js 版本不满足/, "frontend"],
+      [{ ZX_DEV_TEST_NODE_VERSION: "22.22.1" }, /Node.js 版本不满足/, "frontend"],
       [{ ZX_DEV_TEST_NODE_VERSION: "23.1.0" }, /Node.js 版本不满足/, "frontend"],
+      [{ ZX_DEV_TEST_NODE_VERSION: "24.14.9" }, /Node.js 版本不满足/, "frontend"],
+      [{ ZX_DEV_TEST_NODE_VERSION: "25.0.0" }, /Node.js 版本不满足/, "frontend"],
     ]) {
       const result = check(env, service);
       assert.equal(result.status, 1);

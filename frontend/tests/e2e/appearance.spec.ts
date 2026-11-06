@@ -48,40 +48,40 @@ test("sidebar appearance controls preserve selection, keyboard focus and saved p
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
 });
 
-test("Islands keeps layout geometry stable and footer popovers clear of collapsed navigation", async ({ page }, testInfo) => {
-  await page.emulateMedia({ reducedMotion: "no-preference" });
-  /** 记录外壳、导航、正文和图表尺寸，避免仅比较外层宽度漏掉内部重排。 */
-  async function measureLayout() {
-    return page.locator([
-      '[data-slot="sidebar-container"]',
-      '[data-slot="sidebar-inner"]',
-      '[data-slot="sidebar-header"]',
-      '[data-slot="sidebar-menu-button"]',
-      '[data-slot="sidebar-footer"]',
-      '[data-slot="sidebar-footer"] button',
-      '[data-slot="sidebar-inset"]',
-      '[data-slot="sidebar-inset"] > header',
-      '#main-content',
-      '#main-content h1',
-      '#main-content [data-slot="card"]',
-      '#main-content [data-slot="chart"]',
-    ].join(", ")).evaluateAll((elements) => elements.map((element) => {
-      const { x, y, width, height } = element.getBoundingClientRect();
-      return { x, y, width, height };
-    }));
-  }
+for (const theme of ["light", "dark"]) {
+  for (const { width, height } of [
+    { width: 1440, height: 1000 },
+    { width: 1100, height: 1000 },
+    { width: 375, height: 1000 },
+    { width: 812, height: 375 },
+  ]) {
+    test(`Islands keeps layout geometry stable and footer popovers clear of collapsed navigation (${theme}, ${width}x${height})`, async ({ page }, testInfo) => {
+      await page.emulateMedia({ reducedMotion: "no-preference" });
+      /** 记录外壳、导航、正文和图表尺寸，避免仅比较外层宽度漏掉内部重排。 */
+      async function measureLayout() {
+        return page.locator([
+          '[data-slot="sidebar-container"]',
+          '[data-slot="sidebar-inner"]',
+          '[data-slot="sidebar-header"]',
+          '[data-slot="sidebar-menu-button"]',
+          '[data-slot="sidebar-footer"]',
+          '[data-slot="sidebar-footer"] button',
+          '[data-slot="sidebar-inset"]',
+          '[data-slot="sidebar-inset"] > header',
+          '#main-content',
+          '#main-content h1',
+          '#main-content [data-slot="card"]',
+          '#main-content [data-slot="chart"]',
+        ].join(", ")).evaluateAll((elements) => elements.map((element) => {
+          const { x, y, width, height } = element.getBoundingClientRect();
+          return { x, y, width, height };
+        }));
+      }
 
-  for (const theme of ["light", "dark"]) {
-    await page.addInitScript((mode) => {
-      localStorage.setItem("zx-panel-theme", mode);
-      localStorage.setItem("zx-panel-theme-style", "default");
-    }, theme);
-    for (const { width, height } of [
-      { width: 1440, height: 1000 },
-      { width: 1100, height: 1000 },
-      { width: 375, height: 1000 },
-      { width: 812, height: 375 },
-    ]) {
+      await page.addInitScript((mode) => {
+        localStorage.setItem("zx-panel-theme", mode);
+        localStorage.setItem("zx-panel-theme-style", "default");
+      }, theme);
       await page.setViewportSize({ width, height });
       await page.goto("/overview");
       await expect(page.getByRole("heading", { name: "概览", exact: true })).toBeVisible();
@@ -150,9 +150,9 @@ test("Islands keeps layout geometry stable and footer popovers clear of collapse
         await page.keyboard.press("Escape");
         await expect(account).toBeFocused();
       }
-    }
+    });
   }
-});
+}
 
 test("open footer panels follow sidebar collapse without covering its controls", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });

@@ -28,7 +28,7 @@
     "scan:secrets": "node scripts/security/secret-scan.mjs"
   },
   "engines": {
-    "node": "^22.22.0 || >=24.0.0",
+    "node": "^22.22.2 || ^24.15.0 || >=26.0.0",
     "npm": ">=10.9.4",
     "yarn": ">=1.22.0",
     "pnpm": ">=10.0.0"

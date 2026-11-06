@@ -85,18 +85,39 @@ func TestExternalRuntimePlans(t *testing.T) {
 		t.Fatal(err)
 	}
 	op := control.Operation{Action: "runtime.set-system-default", InstallationID: item.ID, ExpectedRevision: "1"}
+	// 系统入口属于宿主；只核实冲突拒绝，不为测试覆盖已有 Node.js。
+	entryInfo, entryErr := os.Lstat("/usr/local/bin/node")
+	if entryErr != nil && !os.IsNotExist(entryErr) {
+		t.Fatal(entryErr)
+	}
 	plan, err := service.Preview(ctx, actor, op)
-	if err != nil || !plan.CanExecute || plan.ConfirmationText == nil {
+	if err != nil || plan.ConfirmationText == nil || *plan.ConfirmationText != item.Version {
 		t.Fatalf("system default preview: %#v %v", plan, err)
+	}
+	var fault *control.Fault
+	if entryErr == nil && entryInfo.Mode()&os.ModeSymlink == 0 {
+		if plan.CanExecute || len(plan.BlockedReasons) != 1 || plan.BlockedReasons[0].Code != "SYSTEM_ENTRY_CONFLICT" {
+			t.Fatalf("existing system entry was not protected: %#v", plan)
+		}
+		_, err = service.Accept(ctx, actor, "runtime-system-entry-conflict", control.Acceptance{PlanID: plan.ID, ConfirmationText: plan.ConfirmationText})
+		if !errors.As(err, &fault) || fault.Code != "PLAN_BLOCKED" {
+			t.Fatal("conflicting system entry plan accepted", err)
+		}
+	} else if !plan.CanExecute {
+		t.Fatalf("available system entry blocked: %#v", plan)
+	}
+	// 外部目标指纹检查共用面板默认路径，避免依赖宿主系统入口能否切换。
+	op.Action = "runtime.set-default"
+	plan, err = service.Preview(ctx, actor, op)
+	if err != nil || !plan.CanExecute {
+		t.Fatalf("external panel default blocked: %#v %v", plan, err)
 	}
 	changed.Store(true)
 	_, err = service.Accept(ctx, actor, "runtime-target-changed", control.Acceptance{PlanID: plan.ID, ConfirmationText: plan.ConfirmationText})
-	var fault *control.Fault
 	if !errors.As(err, &fault) || fault.Code != "REVISION_CONFLICT" {
 		t.Fatal("changed target accepted", err)
 	}
 	changed.Store(false)
-	op.Action = "runtime.set-default"
 	plan, err = service.Preview(ctx, actor, op)
 	if err != nil || !plan.CanExecute {
 		t.Fatalf("external panel default blocked: %#v %v", plan, err)

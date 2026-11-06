@@ -1,5 +1,21 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import { writeFile } from "node:fs/promises";
+import { capabilitiesSchema } from "@/lib/api/schemas";
+
+/** 隔离夹具禁用真实 helper；按实际平台验证权限提示后继续只读浏览。 */
+async function browseWithoutHelper(page: Page) {
+  const response = await page.request.get("/api/v1/system/capabilities");
+  expect(response.ok()).toBe(true);
+  const capability = capabilitiesSchema.parse((await response.json()).data).installRuntime;
+  expect(capability.enabled).toBe(false);
+  expect(["HELPER_DISABLED", "UNSUPPORTED_PLATFORM", "UNSUPPORTED_ENVIRONMENT"]).toContain(capability.reasonCode);
+  if (capability.reasonCode === "HELPER_DISABLED") {
+    const notice = page.getByRole("alertdialog", { name: "需要启用管理权限" });
+    await expect(notice).toBeVisible();
+    await notice.getByRole("button", { name: "暂时浏览", exact: true }).click();
+    await expect(notice).toHaveCount(0);
+  }
+}
 
 test("real setup, Cookie login, API dashboard, export and password revocation", async ({
   page,
@@ -28,6 +44,8 @@ test("real setup, Cookie login, API dashboard, export and password revocation", 
     .getByLabel("密码", { exact: true })
     .fill("BrowserFixtureOnly-123!");
   await page.getByRole("button", { name: "登录控制台" }).click();
+  await expect(page).toHaveURL(/\/overview$/);
+  await browseWithoutHelper(page);
   await expect(
     page.getByRole("heading", { name: "概览", exact: true }),
   ).toBeVisible();
@@ -56,7 +74,7 @@ test("real setup, Cookie login, API dashboard, export and password revocation", 
       p50Ms: samples[14],
       p95Ms: samples[28],
       scope:
-        "Windows loopback API fixture; no Linux/systemd or sustained-load claim",
+        "Loopback API fixture; no systemd lifecycle or sustained-load claim",
     };
   });
   await writeFile(
@@ -65,10 +83,12 @@ test("real setup, Cookie login, API dashboard, export and password revocation", 
   );
   const tab = await context.newPage();
   await tab.goto("/overview");
+  await browseWithoutHelper(tab);
   await expect(
     tab.getByRole("heading", { name: "概览", exact: true }),
   ).toBeVisible();
   await page.goto("/logs");
+  await browseWithoutHelper(page);
   await expect(page.getByRole("status", { name: "正在加载" })).toHaveCount(0);
   await page.getByRole("button", { name: "导出", exact: true }).click();
   await expect(page.getByText("已完成", { exact: true })).toBeVisible();
@@ -76,6 +96,7 @@ test("real setup, Cookie login, API dashboard, export and password revocation", 
   await page.getByRole("button", { name: "下载日志（10 分钟内有效）" }).click();
   expect((await downloadPromise).suggestedFilename()).toBe("zx-panel-logs.txt");
   await page.goto("/settings");
+  await browseWithoutHelper(page);
   await page
     .getByLabel("当前密码", { exact: true })
     .fill("BrowserFixtureOnly-123!");

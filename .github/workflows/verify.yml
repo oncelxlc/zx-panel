@@ -3,12 +3,44 @@ on: [push, pull_request, workflow_dispatch]
 permissions:
   contents: read
 jobs:
+  workflow:
+    name: Workflow syntax
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: '1.27.3'
+          cache-dependency-path: backend/go.sum
+      - run: go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.12
+  frontend-compatibility:
+    name: Frontend / Node ${{ matrix.node }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ['22.22.2', '26.0.0']
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 12.6.0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Frontend checks
+        run: pnpm typecheck && pnpm lint && pnpm test && pnpm test:login && pnpm test:theme && pnpm test:dev
+      - run: pnpm build:release
   verify:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     services:
       postgres:
-        image: postgres:16
+        image: postgres:18
         env:
           POSTGRES_USER: panel_test
           POSTGRES_PASSWORD: ci-isolated-only
@@ -23,23 +55,38 @@ jobs:
       ZX_PANEL_CONTRACT_FIXTURES: "1"
       CGO_ENABLED: "1"
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
         with:
           version: 12.6.0
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
-          node-version: 24
+          node-version: '24.15.0'
           cache: pnpm
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v7
         with:
-          go-version: 1.27.1
+          go-version: '1.27.3'
           cache: true
           cache-dependency-path: backend/go.sum
       - run: pnpm install --frozen-lockfile
-      - run: sudo apt-get update && sudo apt-get install -y postgresql-client
-      - run: pnpm typecheck && pnpm lint && pnpm test && pnpm test:login && pnpm test:theme && pnpm test:dev
-      - run: go -C backend test -race -tags devassets ./... && go -C backend vet -tags devassets ./...
+      - name: Install PostgreSQL 18 clients
+        run: |
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl --fail --silent --show-error -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          echo 'deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt noble-pgdg main' | sudo tee /etc/apt/sources.list.d/pgdg.list
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client-18
+          echo '/usr/lib/postgresql/18/bin' >> "$GITHUB_PATH"
+      - name: Check PostgreSQL clients
+        run: |
+          pg_dump --version | grep -E '^pg_dump \(PostgreSQL\) 18\.'
+          pg_restore --version | grep -E '^pg_restore \(PostgreSQL\) 18\.'
+      - name: Frontend checks
+        run: pnpm typecheck && pnpm lint && pnpm test && pnpm test:login && pnpm test:theme && pnpm test:dev
+      - name: Go race and isolated database tests
+        run: go -C backend test -count=1 -race -tags devassets ./...
+      - name: Go vet
+        run: go -C backend vet -tags devassets ./...
       - run: pnpm contract --check-go
       - run: git diff --exit-code -- docs/openapi.json docs/error-codes.json
       - run: pnpm exec playwright install --with-deps chromium
@@ -48,7 +95,7 @@ jobs:
       - run: pnpm audit && go -C backend run golang.org/x/vuln/cmd/govulncheck@v1.8.0 -tags devassets ./...
       - run: pnpm scan:secrets
       - run: pnpm release
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: verification-and-linux-builds

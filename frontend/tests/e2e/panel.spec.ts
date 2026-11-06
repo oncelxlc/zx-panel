@@ -157,15 +157,13 @@ test("all primary routes, navigation, confirmation and task deep links", async (
   expect(errors).toEqual([]);
 });
 
-test("overview trends in both themes across layout breakpoints", async ({
-  page,
-}, testInfo) => {
-  for (const theme of ["light", "dark"]) {
-    await page.addInitScript(
-      (value) => localStorage.setItem("zx-panel-theme", value),
-      theme,
-    );
-    for (const width of [1440, 1280, 1024, 768, 390, 375]) {
+for (const theme of ["light", "dark"]) {
+  for (const width of [1440, 1280, 1024, 768, 390, 375]) {
+    test(`overview trends across layout breakpoints (${theme}, ${width}px)`, async ({ page }, testInfo) => {
+      await page.addInitScript(
+        (value) => localStorage.setItem("zx-panel-theme", value),
+        theme,
+      );
       await page.setViewportSize({ width, height: 1000 });
       await page.goto("/overview");
       await expect(
@@ -242,9 +240,9 @@ test("overview trends in both themes across layout breakpoints", async ({
         path: testInfo.outputPath(`overview-${theme}-${width}.png`),
         fullPage: true,
       });
-    }
+    });
   }
-});
+}
 
 test("overview trends share the range and keep independent data tables", async ({
   page,

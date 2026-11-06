@@ -46,7 +46,7 @@
 - Domain packages are expected to live under `backend/internal/*`. Add new backend code there rather than coupling it to frontend files.
 
 ## Developer Workflows
-- Use Node `^22.22.0 || >=24.0.0` and pnpm `>=10.0.0` as declared in the package engines; the Go module requires Go `1.25.0` or newer. Install workspace dependencies from the root with `pnpm install --frozen-lockfile`.
+- Use Node `^22.22.2 || ^24.15.0 || >=26.0.0` and pnpm `>=10.0.0` as declared in the package engines; the Go module requires Go `1.26.0` or newer. Install workspace dependencies from the root with `pnpm install --frozen-lockfile`.
 - Use pnpm for frontend package scripts:
   - `pnpm dev` starts Vite on `http://localhost:7200`.
   - `pnpm dev:all` runs Windows Vite and the Go API in the default WSL distribution/user. Combined and independent WSL launchers load interactive login Bash, then discover installed tools from common system/current-account directories on every invocation, preserving existing PATH priority without rewriting shell configuration. They check WSL, Go/setsid, a non-root user and the shared repository before starting the backend. When present, ignored `backend/configs/dev.json` is passed to the Go API; use the same explicit `--config` for CLI preparation, and keep Linux keys/data in the WSL filesystem. PostgreSQL preparation and explicit migration remain manual. Ctrl+C or either service exiting stops both.
@@ -118,6 +118,7 @@
 - `pnpm dev:mock` uses fixed MSW data; `pnpm dev` uses the real same-origin API. Do not silently fall back between modes.
 - `pnpm test:api` builds embedded production assets and runs `frontend/tests/api-e2e/` against the isolated Go browser fixture on `127.0.0.1:7202`, without MSW or Vite. It requires PostgreSQL access with permission to create isolated databases. Preserve the separate Node login/theme tests alongside Vitest and Mock E2E coverage; CI wiring is in `.github/workflows/verify.yml`.
 - Generate API fixtures with `ZX_PANEL_CONTRACT_FIXTURES=1` during the isolated integration test, then run `pnpm contract --check-go` to validate Go responses against frontend schemas. Fixtures contain public responses only; `pnpm scan:secrets` provides the repository secret-pattern check.
+- CI validates workflow syntax with actionlint and frontend compatibility at Node 22.22.2 / 26.0.0; the main job uses Node 24.15.0, Go 1.27.3 and PostgreSQL 18 with matching backup clients. Integration tests use `-count=1` so Go result caching cannot skip fresh database checks or fixture generation. External-runtime tests must preserve existing system entries and assert conflict rejection instead of requiring `/usr/local/bin/node` to be absent.
 - `pnpm build:release` validates API-only assets into `backend/internal/web/ui/dist`; `pnpm release` builds Linux amd64/arm64 binaries. Formal Go builds require these ignored generated assets; `devassets` is explicitly development only. Rebuilding resets build-time acceptance to pending; completed acceptance applies only to the artifact hashes in `docs/acceptance-deployment.json`.
 - Responses retain `success/data/error` and add `meta.requestId/serverTime`; synchronize OpenAPI via `pnpm contract`.
 - Never edit an applied SQL migration. Append a new version and preserve LF bytes for stable checksums.

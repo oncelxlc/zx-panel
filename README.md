@@ -22,7 +22,7 @@
 
 ## 开发
 
-需要 Node `^22.22.0 || >=24.0.0`、pnpm、Go（模块最低 1.25，当前验证使用 1.27.1）及 PostgreSQL。Windows 支持开发与受限 API 预览；完整监控和管理需要原生 Linux + systemd。
+需要 Node `^22.22.2 || ^24.15.0 || >=26.0.0`、pnpm、Go（模块最低 1.26，CI 使用 1.27.3）及 PostgreSQL。Windows 支持开发与受限 API 预览；完整监控和管理需要原生 Linux + systemd。
 
 ```sh
 pnpm install --frozen-lockfile
@@ -67,13 +67,13 @@ pnpm dev:backend:wsl
 pnpm dev:frontend:wsl --port 7203
 ```
 
-独立命令只检查和启动指定服务，前端不要求 Go；Windows 调用后端时不要求 WSL Node.js，直接在 WSL 中调用 pnpm 仍需 Linux Node.js/pnpm。检查 WSL、非 root 用户、`setsid`、仓库及对应工具：前端需要 Linux Node.js（符合 `package.json`）和可加载的 Vite/Rollup/esbuild 依赖；后端需要 Linux Go 1.25+ 且 `GOOS=linux`。普通 Linux/macOS、缺失工具、版本过低或原生依赖平台不匹配均明确报错并返回非零状态。前端固定使用真实 API 模式，仍需单独启动后端；Ctrl+C 清理该命令启动的服务进程组。
+独立命令只检查和启动指定服务，前端不要求 Go；Windows 调用后端时不要求 WSL Node.js，直接在 WSL 中调用 pnpm 仍需 Linux Node.js/pnpm。检查 WSL、非 root 用户、`setsid`、仓库及对应工具：前端需要 Linux Node.js（符合 `package.json`）和可加载的 Vite/Rollup/esbuild 依赖；后端需要 Linux Go 1.26+ 且 `GOOS=linux`。普通 Linux/macOS、缺失工具、版本过低或原生依赖平台不匹配均明确报错并返回非零状态。前端固定使用真实 API 模式，仍需单独启动后端；Ctrl+C 清理该命令启动的服务进程组。
 
 服务参数中的相对路径以对应的 `frontend/` 或 `backend/` 为基准，例如后端使用 `--config configs/dev.json`。目录迁移后，已有开发进程需按新路径重启。
 
 Windows 与 WSL 应使用各自的 `node_modules`。运行 WSL 前端前，在 WSL 的独立仓库副本中用 **Linux Node.js 和 pnpm** 执行 `pnpm install --frozen-lockfile`；两端共用挂载目录时切换依赖平台会影响另一端开发。脚本只检查并报告问题，不自动安装或替换依赖。
 
-联合命令启动前检查 WSL 及默认发行版、Go 和 `setsid`（util-linux）、默认非 root 用户及仓库路径；检查失败返回非零状态，前后端均不启动。联合与独立命令每次启动都会加载当前交互式登录 Bash 环境，并补充探测常见系统和当前账号的工具目录（包括 `/usr/local/go/bin`、`/opt/go/bin`、`~/sdk/go*/bin`、Homebrew、nvm 和工具管理器 shims）。已有 PATH 优先，探测只补充本次进程环境，不写 shell 配置或保存工具绝对路径；常见位置的安装迁移后无需重新配置项目。先在 WSL 中安装 Go（最低 1.25），配置 WSL 可访问的独立开发 PostgreSQL，再从仓库目录执行以下准备命令（已有账号升级仍须按下文备份）：
+联合命令启动前检查 WSL 及默认发行版、Go 和 `setsid`（util-linux）、默认非 root 用户及仓库路径；检查失败返回非零状态，前后端均不启动。联合与独立命令每次启动都会加载当前交互式登录 Bash 环境，并补充探测常见系统和当前账号的工具目录（包括 `/usr/local/go/bin`、`/opt/go/bin`、`~/sdk/go*/bin`、Homebrew、nvm 和工具管理器 shims）。已有 PATH 优先，探测只补充本次进程环境，不写 shell 配置或保存工具绝对路径；常见位置的安装迁移后无需重新配置项目。先在 WSL 中安装 Go（最低 1.26），配置 WSL 可访问的独立开发 PostgreSQL，再从仓库目录执行以下准备命令（已有账号升级仍须按下文备份）：
 
 ```powershell
 # WSL 开发先复制 backend/configs/dev.example.json 为 backend/configs/dev.json，
@@ -202,4 +202,6 @@ go -C backend run golang.org/x/vuln/cmd/govulncheck@v1.8.0 -tags devassets ./...
 
 `pnpm test:api` 构建正式内嵌前端并在随机隔离库验证初始化、登录、持久导出和跨标签改密撤销；测试后关闭服务并清理测试库。`ZX_PANEL_INTEGRATION=1` 启用随机独立数据库 Go 测试（账号需有 CREATEDB 权限）；任何 DDL 前强制核对实际数据库名。`ZX_PANEL_CONTRACT_FIXTURES=1` 同时输出非秘密响应到 `test-results/go-api.json`，再运行 `pnpm contract --check-go` 验证 Go DTO 与前端 Schema。安装了 pg_dump/pg_restore 时还执行隔离恢复测试。
 
-Linux 执行 `go -C backend test -race -tags devassets ./...`。CI 已配置，但本轮没有在远端触发；CI 结果和真正的 systemd 主机验收是两件事。完整接口见 [OpenAPI](docs/openapi.json)，适配差异见 [决定记录](docs/decisions.md)。
+Linux 集成验证执行 `go -C backend test -count=1 -race -tags devassets ./...`；禁用测试结果缓存，确保新数据库和契约夹具实际生成，编译缓存仍可复用。
+
+GitHub Actions 分别检查 workflow 语法和 Node 22.22.2 / 26.0.0 的前端兼容性；主验证使用 Node 24.15.0、Go 1.27.3、PostgreSQL 18 及同版 `pg_dump` / `pg_restore`，覆盖前端检查、Go race/vet、隔离恢复、契约、Mock/真实 API 浏览器测试、安全扫描和 Linux 双架构构建。外部运行时测试只读取宿主系统入口，已有普通文件必须阻止切换，不为测试修改系统 Node。CI 结果与真正的 systemd 主机验收分别记录，最新结果见 [验证记录](docs/verification.md)。完整接口见 [OpenAPI](docs/openapi.json)，适配差异见 [决定记录](docs/decisions.md)。

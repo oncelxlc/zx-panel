@@ -20,11 +20,9 @@ test("sidebar keeps header and content edges continuous while collapsing and exp
     const accountBefore = await account.boundingBox();
     if (!before || !themeBefore || !accountBefore)
       throw new Error("缺少侧栏或底部按钮布局");
-    await trigger.evaluate((button: HTMLButtonElement) => button.click());
-    const frames = await page.evaluate(async () => {
-      await new Promise(requestAnimationFrame);
-      await new Promise(requestAnimationFrame);
+    const frames = await trigger.evaluate(async (button: HTMLButtonElement, expanded) => {
       const sidebar = document.querySelector('[data-slot="sidebar-container"]');
+      const sidebarRoot = sidebar?.closest('[data-slot="sidebar"]');
       const inset = document.querySelector('[data-slot="sidebar-inset"]');
       const header = inset?.querySelector("header");
       const body = document.getElementById("main-content");
@@ -35,7 +33,7 @@ test("sidebar keeps header and content edges continuous while collapsing and exp
         'a[href="/runtimes"] .sidebar-label',
       );
       if (
-        !sidebar || !inset || !header || !body || !footer || !theme ||
+        !sidebar || !sidebarRoot || !inset || !header || !body || !footer || !theme ||
         !account || !label
       )
         throw new Error("缺少侧栏布局元素");
@@ -44,14 +42,30 @@ test("sidebar keeps header and content edges continuous while collapsing and exp
         const { x, y, right, width } = element.getBoundingClientRect();
         return { x, y, right, width };
       }
-      const animations = document.getAnimations().filter((animation) => {
-        const target =
-          animation.effect instanceof KeyframeEffect
-            ? animation.effect.target
-            : null;
-        return target?.closest('[data-slot="sidebar"]') || target === inset;
+      const animations = await new Promise<Animation[]>((resolve, reject) => {
+        const observer = new MutationObserver(() => {
+          if (sidebarRoot.getAttribute("data-collapsible") !== (expanded ? "" : "icon")) return;
+          observer.disconnect();
+          cancelAnimationFrame(unchanged);
+          // 状态提交后立即捕获过渡，避免短动画在跨进程往返或等帧期间结束。
+          void getComputedStyle(label).opacity;
+          const active = document.getAnimations().filter((animation) => {
+            const target =
+              animation.effect instanceof KeyframeEffect
+                ? animation.effect.target
+                : null;
+            return target?.closest('[data-slot="sidebar"]') || target === inset;
+          });
+          active.forEach((animation) => animation.pause());
+          resolve(active);
+        });
+        const unchanged = requestAnimationFrame(() => {
+          observer.disconnect();
+          reject(new Error("点击后侧栏状态未变化"));
+        });
+        observer.observe(sidebarRoot, { attributes: true, attributeFilter: ["data-collapsible"] });
+        button.click();
       });
-      animations.forEach((animation) => animation.pause());
       const samples = [0, 50, 100, 150, 200, 250, 300].map((time) => {
         animations.forEach((animation) => {
           animation.currentTime = time;
@@ -71,7 +85,7 @@ test("sidebar keeps header and content edges continuous while collapsing and exp
       });
       animations.forEach((animation) => animation.finish());
       return samples;
-    });
+    }, expanded);
     expect(frames[0].content.x).toBeCloseTo(before.x, 0);
     expect(frames[0].content.width).toBeCloseTo(before.width, 0);
     expect(frames[0].theme.y).toBeCloseTo(themeBefore.y, 0);

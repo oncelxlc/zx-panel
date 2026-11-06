@@ -1,6 +1,6 @@
 # WSL Go 构建与 GoLand 调试
 
-本文针对 `backend/cmd/server` 后端开发。使用 WSL 内的 Linux Go 1.25+ 构建，在非 root 用户下运行；`devassets` 不内嵌前端，浏览器界面由另一个终端的 Vite 提供。完整发布流程见 [README 的 Linux 部署](../README.md#linux-部署)。
+本文针对 `backend/cmd/server` 后端开发。使用 WSL 内的 Linux Go 1.26+ 构建，在非 root 用户下运行；`devassets` 不内嵌前端，浏览器界面由另一个终端的 Vite 提供。完整发布流程见 [README 的 Linux 部署](../README.md#linux-部署)。
 
 ## 1. 进入 WSL 仓库目录
 

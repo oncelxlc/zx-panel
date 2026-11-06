@@ -43,9 +43,9 @@ if [[ "$service" == frontend ]]; then
 import { createRequire } from "node:module";
 /** fail 报告 Node 平台、版本或原生依赖不满足开发条件。 */
 function fail(message) { console.error(message); process.exit(1); }
-const [major, minor] = process.versions.node.split(".").map(Number);
+const [major, minor, patch] = process.versions.node.split(".").map(Number);
 if (process.platform !== "linux") fail("WSL 前端必须使用 Linux Node.js，不能使用 Windows node.exe。");
-if (!(major >= 24 || (major === 22 && minor >= 22))) fail("WSL Node.js 版本不满足 package.json：需要 ^22.22.0 或 >=24.0.0。");
+if (!(major >= 26 || (major === 24 && minor >= 15) || (major === 22 && (minor > 22 || (minor === 22 && patch >= 2))))) fail("WSL Node.js 版本不满足 package.json：需要 ^22.22.2、^24.15.0 或 >=26.0.0。");
 try {
   await import("vite");
   const require = createRequire(import.meta.url);
@@ -57,11 +57,11 @@ NODE
   export VITE_DATA_MODE=api
   command=(node node_modules/vite/bin/vite.js "$@")
 else
-  command -v go >/dev/null || fail 'WSL 当前 PATH 和常见安装目录中找不到 Go，请安装 Linux Go 1.25 或更高版本。'
+  command -v go >/dev/null || fail 'WSL 当前 PATH 和常见安装目录中找不到 Go，请安装 Linux Go 1.26 或更高版本。'
   [[ "$(GOTOOLCHAIN=local go env GOOS GOHOSTOS)" == $'linux\nlinux' ]] || fail 'WSL 后端需要 Linux Go，且 GOOS 必须为 linux。'
   go_version=$(GOTOOLCHAIN=local go env GOVERSION)
-  [[ "$go_version" =~ ^go([0-9]+)\.([0-9]+) ]] || fail '无法识别 WSL Go 版本，请使用 Go 1.25 或更高版本。'
-  (( BASH_REMATCH[1] > 1 || (BASH_REMATCH[1] == 1 && BASH_REMATCH[2] >= 25) )) || fail 'WSL Go 版本过低，请安装 Go 1.25 或更高版本。'
+  [[ "$go_version" =~ ^go([0-9]+)\.([0-9]+) ]] || fail '无法识别 WSL Go 版本，请使用 Go 1.26 或更高版本。'
+  (( BASH_REMATCH[1] > 1 || (BASH_REMATCH[1] == 1 && BASH_REMATCH[2] >= 26) )) || fail 'WSL Go 版本过低，请安装 Go 1.26 或更高版本。'
   # 默认服务使用本机开发配置；显式 CLI 子命令由调用者传 --config，避免选项挡住命令名。
   backend_args=()
   if [[ -f configs/dev.json && ( $# -eq 0 || "$1" == -* ) ]]; then

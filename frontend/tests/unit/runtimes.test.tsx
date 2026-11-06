@@ -69,12 +69,12 @@ it("prompts on entry and clears the restart notice after helper recovery", async
   const bootstrap = { system: demoSystem, capabilities: demoCapabilities, latestMetrics: demoMetrics, activeTasks: [], streamCursor: "demo:1", streamEpoch: "demo" };
   client.setQueryData(["bootstrap"], { ...bootstrap, capabilities: { ...demoCapabilities, installRuntime: { enabled: false, reasonCode: "HELPER_DISABLED", message: "请启动 helper 后重启 Go 后端" } } });
   const view = render(<QueryClientProvider client={client}><Toaster><RuntimeAccessNotice /></Toaster></QueryClientProvider>);
-  expect(await screen.findByRole("alertdialog", { name: "需要启用管理权限" })).toBeVisible();
+  await waitFor(() => expect(screen.getByRole("alertdialog", { name: "需要启用管理权限" })).toBeVisible());
   expect(screen.getByText(/sudo systemctl restart zx-panel-helper/)).toBeVisible();
   await userEvent.click(screen.getByRole("button", { name: "暂时浏览" }));
   await waitFor(() => expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument());
   await userEvent.click(screen.getByRole("button", { name: "查看启动与重启步骤" }));
-  expect(await screen.findByRole("alertdialog")).toBeVisible();
+  await waitFor(() => expect(screen.getByRole("alertdialog")).toBeVisible());
   await userEvent.click(screen.getByRole("button", { name: "重新检查权限" }));
   await waitFor(() => expect(screen.queryByText("运行时管理权限未就绪")).not.toBeInTheDocument());
   view.unmount();

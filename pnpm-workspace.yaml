@@ -1,6 +1,10 @@
 packages:
   - frontend
 
+# shortcut: estree 的 minimatch 10 受 GHSA-g3hv-75wg-m249 影响，上游采用修复版后移除此定向覆盖。
+overrides:
+  '@typescript-eslint/typescript-estree>minimatch': 11.0.1
+
 allowBuilds:
   '@parcel/watcher': true
   esbuild: true
