@@ -1,6 +1,6 @@
 工具：内置 image_gen（style-transfer + precise-object-edit 两轮编辑）
 编辑原图：frontend/public/login/login-bg-lines.webp（上一版漫画背景；SHA256: 3d46828f4cba5fb99ea033b42d33400bdd1e183b863b23e805832338a1316c52）
-初始构图参考：frontend/public/login/login-bg-dart.png
+初始构图参考：frontend/public/login/login-bg-dart.png（已退役，原图保留在 Git 历史中）
 交付：frontend/public/login/login-bg-lines.webp（1672 × 941；浏览器 WebP 编码质量 0.94）
 此提示词仅用于维护素材，不加入生产静态资源白名单。
 
